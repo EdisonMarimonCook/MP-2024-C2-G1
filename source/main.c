@@ -1,9 +1,8 @@
 #include <stdio.h>
 
 int main(){
-  printf("Hello world!");
+	printf("\t\tESIZON");
 
-  printf ("Me gustan las pilas.\n");
 
-  return 0;
+	return 0;
 }
