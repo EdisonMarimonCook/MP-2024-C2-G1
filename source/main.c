@@ -1,9 +1,9 @@
 #include <stdio.h>
 
 int main(){
-	printf("\t\tESIZON");
+    printf("\t\tESIZON");
 
-	printf("prueba");
+    printf("prueba");
 
-	return 0;
+    return 0;
 }
