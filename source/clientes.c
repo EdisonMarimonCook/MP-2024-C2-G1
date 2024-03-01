@@ -6,7 +6,42 @@
 
 /* FUNCIONES PUBLICAS */
 
-// TODO : arreglar BUCLE INFINITO
+void menuCliente(tCliente cliente){
+    system("cls");
+
+    int op;
+
+    do {
+        printf("Menu: Tipo Cliente.\n\n");
+        printf("\t\tUsuario: %s\n\n", cliente.Nomb_cliente);
+        printf("1. Perfil.\n");
+        printf("2. Productos.\n");
+        printf("3. Descuentos.\n");
+        printf("4. Pedidos.\n");
+        printf("5. Devoluciones.\n");
+        printf("6. Salir del sistema.\n\n");
+
+        printf("Inserte la opcion: ");
+
+        if(scanf("%i", &op) != 1 || op < 1 && op > 6){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida.\n\n");
+        } else{
+            switch(op){
+                case 1: break;
+                case 2: break;
+                case 3: break;
+                case 4: break;
+                case 5: break;
+                case 6: break;
+                default: fprintf(stderr, "Se ha producido un error\n"); exit(1);
+            }
+        }
+
+    } while(op < 1 && op > 6);
+}
+
 void iniciarSesionCliente(){
     system("cls");
     printf("\t\t\tESIZON\n\n");
@@ -19,6 +54,8 @@ void iniciarSesionCliente(){
     cargarClientes(infocli);
 
     do {
+        op = 0;
+
         printf("Usuario (direccion email): ");
         fflush(stdin);
         fgets(email, EMAIL, stdin);
@@ -27,9 +64,15 @@ void iniciarSesionCliente(){
         fflush(stdin);
         fgets(psw, PASS, stdin);
 
-        if(!inicioValido(infocli, email, psw)){
+        // es importante eliminar el \n
+        email[strcspn(email, "\n")] = 0;
+        psw[strcspn(psw, "\n")] = 0;
+
+        // comprobamos si el inicio es valido o no
+        if(inicioValido(infocli, email, psw) == 0){
             fprintf(stderr, "\nEl usuario o la contrasena no coinciden.\n\n");
 
+            // manejo de opciones
             do {
                 printf("\nDesea registrarse? (1) o intentarlo de nuevo (2): ");
 
@@ -41,16 +84,17 @@ void iniciarSesionCliente(){
             } while(op != 1 && op != 2);
         }
 
-    } while(!inicioValido(infocli, email, psw) || op == 1);
+    } while(inicioValido(infocli, email, psw) == 0 && op != 1);
 
     free(infocli);
 
     if(op == 1)
-        registrarCliente();
-    //else
-        // TODO: llamada a menu
+        registrarCliente();    // linea 75 el usuario es preguntado por registrarse (opcion 1)
+    else if(inicioValido(infocli, email, psw)){
+        int pos = inicioValido(infocli, email, psw)-1;    // inicioValido devuelve la posicion que le corresponde al cliente en el vector infocli
+        menuCliente(infocli[pos]);      // menu principal del cliente
+    }
 }
-
 
 void registrarCliente(){
     system("cls");
@@ -84,15 +128,14 @@ void registrarCliente(){
     obtenerContrasenia(datos[nClientes].Contrasenia);
     datos[nClientes].Cartera = obtenerCartera();
 
-    tCliente temp = datos[nClientes];
+    tCliente nuevoCliente = datos[nClientes];
 
     // Guardamos los datos del cliente
-    guardarDatosClienteFich("../datos/Clientes.txt", temp);
+    guardarDatosClienteFich("../datos/Clientes.txt", nuevoCliente);
 
     free(datos);
 
-    // Una vez se ha registrado correctamente, el cliente vera el MenuPrincipal
-    // TODO: llamada a menu principal
+    menuCliente(nuevoCliente);
 }
 
 void cargarClientes(tCliente *infocli){
@@ -152,8 +195,9 @@ void imprimirClientes(){
         exit(1);
     }
 
-    char buffer[MAX_LIN_FICH_CLI];
+    char buffer[MAX_LIN_FICH_CLI];  
 
+    // leemos linea a linea el fichero Clientes.txt
     while(fgets(buffer, MAX_LIN_FICH_CLI, pf) != NULL)
         printf("%s", buffer);
 
@@ -196,6 +240,9 @@ static int inicioValido(tCliente *infocli, char *email, char *psw){
 
         ++i;
     }
+
+    if(fin == 1)
+        fin = i;    // devolvemos en que posicion se ha encontrado del vector infocli
 
     return fin;
 }

@@ -22,6 +22,11 @@ typedef struct {
 
 /* FUNCIONES PUBLICAS */
 
+
+// Precondición: devuelve una estructura tCliente que no puede ser NULL
+// Postcondición: proporciona al cliente el menu
+void menuCliente(tCliente cliente);
+
 // Precondición: nada.
 // Postcondición: inicia sesión en el sistema ESIZON
 void iniciarSesionCliente();
@@ -49,7 +54,7 @@ void imprimirClientes();
 static unsigned numClientes();
 
 // Precondición: no pueden haber argumentos vacíos
-// Postcondición: devuelve 1 si existe email y contraseña que coinciden con los parametros email y psw
+// Postcondición: devuelve la posición que le corresponde al cliente si existe email y contraseña que coinciden con los parametros email y psw
 static int inicioValido(tCliente *infocli, char *email, char *psw);
 
 // Precondición: clientes y emails inicializados
