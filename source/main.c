@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h>		// exit
 
 #include "clientes.h"
 
@@ -19,12 +19,18 @@ int main(){
 		if(scanf("%i", &op) != 1 || (op < 0 || op > 2)){      // Con esta condición podemos evitar que el usuario haga una entrada errónea.    
             system("cls");
 			fflush(stdin);
-            fprintf(stderr, "\nEntrada no valida. Opcion Incorrecta.\n");
-        }
+            fprintf(stderr, "Entrada no valida. Opcion Incorrecta.\n\n");
+        } else {
+			switch(op){
+				case 0: break;
+				case 1: iniciarSesionCliente(); break;
+				case 2: registrarCliente(); break;
+				default: fprintf(stderr, "Se ha producido un error.\n"); exit(1);
+			}
+		}
 
 	} while(op < 0 || op > 2);
 
 	system("pause");
-
 	return 0;
 }
