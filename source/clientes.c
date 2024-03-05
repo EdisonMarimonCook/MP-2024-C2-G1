@@ -6,14 +6,14 @@
 
 /* FUNCIONES PUBLICAS */
 
-void menuCliente(tCliente cliente){
+void menuCliente(tCliente *cliente){
     system("cls");
 
-    int op;
+    int op, fin = 0;
 
     do {
         printf("Menu: Tipo Cliente.\n\n");
-        printf("\t\tUsuario: %s\n\n", cliente.Nomb_cliente);
+        printf("\t\tUsuario: %s\n\n", cliente->Nomb_cliente);
         printf("1. Perfil.\n");
         printf("2. Productos.\n");
         printf("3. Descuentos.\n");
@@ -23,23 +23,72 @@ void menuCliente(tCliente cliente){
 
         printf("Inserte la opcion: ");
 
-        if(scanf("%i", &op) != 1 || op < 1 && op > 6){
+        if(scanf("%i", &op) != 1 || op < 1 || op > 6){
             system("cls");
             fflush(stdin);
             fprintf(stderr, "Entrada no valida.\n\n");
         } else{
+            // Menu Clientes
             switch(op){
-                case 1: break;
+                case 1: perfilCliente(cliente); break;
                 case 2: break;
                 case 3: break;
                 case 4: break;
                 case 5: break;
-                case 6: break;
+                case 6: fin = 1; break;
                 default: fprintf(stderr, "Se ha producido un error\n"); exit(1);
             }
         }
 
-    } while(op < 1 && op > 6);
+    } while(op < 1 || op > 6 || !fin);
+}
+
+void perfilCliente(tCliente *cliente){
+    system("cls");
+
+    int op;
+    tCliente *datos;    // nos se puede declarar dentro del bloque Switch
+
+    do {
+        printf("Perfil.\n\n");
+        printf("\t1. Usuario: %s\n", cliente->Nomb_cliente);
+        printf("\t2. Direccion: %s\n", cliente->Dir_cliente);
+        printf("\t3. Poblacion: %s\n", cliente->Poblacion);
+        printf("\t4. Provincia: %s\n", cliente->Provincia);
+        printf("\t5. Email: %s\n", cliente->email);
+        printf("\t6. Contrasena: %s\n", cliente->Contrasenia);
+        printf("\t7. Saldo en la cartera: %.2lf euros\n", cliente->Cartera);
+        printf("\t8. Volver.\n\n");
+
+        printf("Pulse opcion si desea modificar algun dato: ");
+
+        if(scanf("%i", &op) != 1 || op < 1 || op > 8){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida.\n\n");
+        } else{
+            // TODO : que realmente cambien los datos del perfil
+            switch(op){
+                case 1: getNombre(cliente); break;
+                case 2: getDireccion(cliente); break;
+                case 3: getPoblacion(cliente); break;
+                case 4: getProvincia(cliente); break;
+                case 5: 
+                    datos = crearListaClientes(); 
+                    cargarClientes(datos); 
+                    getEmail(cliente, datos); 
+                    free(datos); 
+                    break;
+                case 6: getContrasenia(cliente); break;
+                case 7: cliente->Cartera = obtenerCartera(); break;
+                case 8: break;
+                default: fprintf(stderr, "Se ha producido un inesperado.\n"); exit(1);
+            }
+
+            system("cls"); 
+        }
+
+    } while(op < 1 || op > 8);
 }
 
 void iniciarSesionCliente(){
@@ -64,7 +113,8 @@ void iniciarSesionCliente(){
         fflush(stdin);
         fgets(psw, PASS, stdin);
 
-        // es importante eliminar el \n
+        // es importante eliminar el \n para que no haya problemas
+        // comprobando si es un inicio valido
         email[strcspn(email, "\n")] = 0;
         psw[strcspn(psw, "\n")] = 0;
 
@@ -86,14 +136,14 @@ void iniciarSesionCliente(){
 
     } while(inicioValido(infocli, email, psw) == 0 && op != 1);
 
+    int pos = inicioValido(infocli, email, psw)-1;    // inicioValido devuelve la posicion que le corresponde al cliente en el vector infocli
+    tCliente aux = infocli[pos];
     free(infocli);
 
     if(op == 1)
         registrarCliente();    // linea 75 el usuario es preguntado por registrarse (opcion 1)
-    else if(inicioValido(infocli, email, psw)){
-        int pos = inicioValido(infocli, email, psw)-1;    // inicioValido devuelve la posicion que le corresponde al cliente en el vector infocli
-        menuCliente(infocli[pos]);      // menu principal del cliente
-    }
+    else if(inicioValido(infocli, email, psw))
+        menuCliente(&aux);      // menu principal del cliente
 }
 
 void registrarCliente(){
@@ -102,7 +152,7 @@ void registrarCliente(){
 
     tCliente *datos;
     unsigned nClientes = numClientes();
-
+ 
     datos = crearListaClientes();
     cargarClientes(datos);
 
@@ -110,39 +160,31 @@ void registrarCliente(){
         reservarNuevoCliente(datos);    // crearListaCliente si nClientes es cero reserva 1 posicion
 
     // Obtenemos los datos del cliente
-
     generarID(datos[nClientes].Id_cliente, nClientes+1, ID-1);
-    obtenerNombreCliente(datos[nClientes].Nomb_cliente);
-    obtenerDireccion(datos[nClientes].Dir_cliente);
-    obtenerPoblacion(datos[nClientes].Poblacion);
-    obtenerProvincia(datos[nClientes].Provincia);
-    obtenerEmail(datos[nClientes].email);
-
-    // comprobamos que ningún email se repita
-    if(existeEmail(datos, datos[nClientes].email)){
-        fprintf(stderr, "El email ya esta registrado en ESIZON.\n");
-        limpiarCadena(datos[nClientes].email, EMAIL);
-        obtenerEmail(datos[nClientes].email);
-    }
-
-    obtenerContrasenia(datos[nClientes].Contrasenia);
+    getNombre(&datos[nClientes]);
+    getDireccion(&datos[nClientes]);
+    getPoblacion(&datos[nClientes]);
+    getProvincia(&datos[nClientes]);
+    getEmail(&datos[nClientes], datos);
+    getContrasenia(&datos[nClientes]);
     datos[nClientes].Cartera = obtenerCartera();
 
     tCliente nuevoCliente = datos[nClientes];
+    
+    // liberamos memoria que ya no nos hace falta
+    free(datos);    
 
     // Guardamos los datos del cliente
     guardarDatosClienteFich("../datos/Clientes.txt", nuevoCliente);
 
-    free(datos);
-
-    menuCliente(nuevoCliente);
+    menuCliente(&nuevoCliente);
 }
 
 void cargarClientes(tCliente *infocli){
     int i;
     char buffer[MAX_LIN_FICH_CLI];
 
-    if(numClientes() != 0){    // Comprobamos si existe algún usuario en Usuarios.txt
+    if(numClientes() != 0){    // Comprobamos si existe algún usuario en Clientes.txt
         FILE *pf;
 
         pf = fopen("../datos/Clientes.txt", "r");    // Abrimos el fichero en tipo lectura.
@@ -207,6 +249,53 @@ void imprimirClientes(){
 
 /* FUNCIONES PRIVADAS */
 
+static void getNombre(tCliente *cliente){
+    char *nomCliente = obtenerNombreCliente();
+    strncpy(cliente->Nomb_cliente, nomCliente, NOM);
+    free(nomCliente);
+}
+
+static void getDireccion(tCliente *cliente){
+    char *direccion = obtenerDireccion();
+    strncpy(cliente->Dir_cliente, direccion, DIR);
+    free(direccion);
+}
+
+static void getPoblacion(tCliente *cliente){
+    char *poblacion = obtenerPoblacion();
+    strncpy(cliente->Poblacion, poblacion, POB);
+    free(poblacion);
+}
+
+static void getProvincia(tCliente *cliente){
+    char *provincia = obtenerProvincia();
+    strncpy(cliente->Provincia, provincia, POB);
+    free(provincia);
+
+}
+
+static void getEmail(tCliente *cliente, tCliente *datos){
+    char *email = obtenerEmail();
+    char aux[EMAIL];
+
+    strncpy(cliente->email, email, EMAIL);
+    strncpy(aux, email, EMAIL);     // para poder liberar la memoria y llamar de nuevo a la funcion sin problemas
+    free(email);
+
+    // Comprobamos si el Email introducido ya existe
+    if(existeEmail(datos, aux)){
+        fprintf(stderr, "El email ya esta registrado en ESIZON.\n");
+        getEmail(cliente, datos);
+    }    
+}
+
+
+static void getContrasenia(tCliente *cliente){
+    char *psw = obtenerContrasenia();
+    strncpy(cliente->Contrasenia, psw, PASS);
+    free(psw); 
+}
+
 static unsigned numClientes(){
     // Sabemos que el fichero Clientes.txt tendrá tantas lineas como clientes en el sistema ESIZON
     char buffer[MAX_LIN_FICH_CLI];
@@ -248,8 +337,8 @@ static int inicioValido(tCliente *infocli, char *email, char *psw){
 }
 
 static int existeEmail(tCliente *clientes, char *email){
-    int i = 0, fin = 0;
-
+    int i = 0, fin = 0;    
+    
     // buscamos si coinciden dos emails
     while(i < numClientes() && !fin){
         if(strcmp(clientes[i].email, email) == 0)
@@ -278,9 +367,9 @@ static void guardarDatosClienteFich(char *destino, tCliente datos){
     fclose(pf);
 }
 
-static void generarID(char *id, int num, int numDigitos){
-    if(num >= 0 && numDigitos > 0)
-        sprintf(id, "%0*d", numDigitos, num);   // Transformamos num en ID con el numero de dígitos almacenados en numDigitos
+static void generarID(char *id, int idNum, int numDigitos){
+    if(idNum >= 0 && numDigitos > 0)
+        sprintf(id, "%0*d", numDigitos, idNum);   // Transformamos idNum en ID con el numero de dígitos almacenados en numDigitos
     else
         fprintf(stderr, "La ID no puede ser negativa.");
 }
@@ -297,9 +386,16 @@ static void reservarNuevoCliente(tCliente *infocli){
     }
 }
 
-static void obtenerNombreCliente(char *nomCliente){
+static char *obtenerNombreCliente(){
     int i = 0;
-    char c;
+    char c, *nomCliente;
+
+    nomCliente = (char *) calloc(NOM, sizeof(char));
+
+    if(nomCliente == NULL){
+        fprintf(stderr, "Error en asignacion de memoria.\n");
+        exit(1);
+    }
 
     printf("\nEscriba su nombre completo (maximo 20 caracteres): ");
     fflush(stdin);
@@ -314,20 +410,29 @@ static void obtenerNombreCliente(char *nomCliente){
     // Comprobamos si el tamaño es correcto, en caso de no serlo, limpiamos la cadena y volvemos a llamar a la función
     if(strlen(nomCliente) > NOM-1){
         fprintf(stderr, "El nombre completo excede los 20 caracteres.");
-        limpiarCadena(nomCliente, NOM);
-        obtenerNombreCliente(nomCliente);
+        free(nomCliente);
+        obtenerNombreCliente();
     } 
     
     if(strlen(nomCliente) == 0){
         fprintf(stderr, "El nombre completo no puede estar vacio.");
-        limpiarCadena(nomCliente, NOM);
-        obtenerNombreCliente(nomCliente);
-    } 
+        free(nomCliente);
+        obtenerNombreCliente();
+    }
+
+    return nomCliente;
 }
 
-static void obtenerDireccion(char *nomDireccion){
+static char *obtenerDireccion(){
     int i = 0;
-    char c;
+    char c, *nomDireccion;
+
+    nomDireccion = (char *) calloc(DIR, sizeof(char));
+
+    if(nomDireccion == NULL){
+        fprintf(stderr, "Error en asignacion de memoria.\n");
+        exit(1);
+    }
 
     printf("\nEscribe el nombre de su direccion (maximo 50 caracteres): ");
     fflush(stdin);
@@ -342,20 +447,29 @@ static void obtenerDireccion(char *nomDireccion){
     // Comprobamos si el tamaño es correcto, en caso de no serlo, limpiamos la cadena y volvemos a llamar a la función
     if(strlen(nomDireccion) > DIR-1){
         fprintf(stderr, "El nombre de la direccion excede los 50 caracteres.");
-        limpiarCadena(nomDireccion, DIR);
-        obtenerDireccion(nomDireccion);
+        free(nomDireccion);
+        obtenerDireccion();
     }
 
     if(strlen(nomDireccion) == 0){
         fprintf(stderr, "El nombre de la direccion no puede estar vacio.");
-        limpiarCadena(nomDireccion, DIR);
-        obtenerDireccion(nomDireccion);
+        free(nomDireccion);
+        obtenerDireccion();
     }
+
+    return nomDireccion;
 }
 
-static void obtenerPoblacion(char *nomPoblacion){
+static char *obtenerPoblacion(){
     int i = 0;
-    char c;
+    char c, *nomPoblacion;
+
+    nomPoblacion = (char *) calloc(POB, sizeof(char));
+
+    if(nomPoblacion == NULL){
+        fprintf(stderr, "Error en asignacion de memoria.\n");
+        exit(1);
+    }
 
     printf("\nEscribe el nombre de su poblacion (maximo 20 caracteres): ");
     fflush(stdin);
@@ -370,20 +484,29 @@ static void obtenerPoblacion(char *nomPoblacion){
     // Comprobamos si el tamaño es correcto, en caso de no serlo, limpiamos la cadena y volvemos a llamar a la función
     if(strlen(nomPoblacion) > POB-1){
         fprintf(stderr, "El nombre de la poblacion excede los 20 caracteres.");
-        limpiarCadena(nomPoblacion, POB);
-        obtenerPoblacion(nomPoblacion);
+        free(nomPoblacion);
+        obtenerPoblacion();
     }
 
     if(strlen(nomPoblacion) == 0){
         fprintf(stderr, "El nombre de la poblacion no puede estar vacio.");
-        limpiarCadena(nomPoblacion, POB);
-        obtenerPoblacion(nomPoblacion);
+        free(nomPoblacion);
+        obtenerPoblacion();
     }
+
+    return nomPoblacion;
 }
 
-static void obtenerProvincia(char *nomProvincia){
+static char *obtenerProvincia(){
     int i = 0;
-    char c;
+    char c, *nomProvincia;
+
+    nomProvincia = (char *) calloc(POB, sizeof(char));
+
+    if(nomProvincia == NULL){
+        fprintf(stderr, "Error en asignacion de memoria.\n");
+        exit(1);
+    }
 
     printf("\nEscribe el nombre de su provincia (maximo 20 caracteres): ");
     fflush(stdin);
@@ -398,20 +521,29 @@ static void obtenerProvincia(char *nomProvincia){
     // Comprobamos si el tamaño es correcto, en caso de no serlo, limpiamos la cadena y volvemos a llamar a la función
     if(strlen(nomProvincia) > POB-1){
         fprintf(stderr, "El nombre de la provincia excede los 20 caracteres.");
-        limpiarCadena(nomProvincia, POB);
-        obtenerProvincia(nomProvincia);
+        free(nomProvincia);
+        obtenerProvincia();
     }
 
     if(strlen(nomProvincia) == 0){
         fprintf(stderr, "El nombre de la provincia no puede estar vacio.");
-        limpiarCadena(nomProvincia, POB);
-        obtenerProvincia(nomProvincia);
+        free(nomProvincia);
+        obtenerProvincia();
     }
+
+    return nomProvincia;
 }
 
-static void obtenerEmail(char *nomEmail){
+static char *obtenerEmail(){
     int i = 0;
-    char c;
+    char c, *nomEmail;
+
+    nomEmail = (char *) calloc(EMAIL, sizeof(char));
+
+    if(nomEmail == NULL){
+        fprintf(stderr, "Error en asignacion de memoria.\n");
+        exit(1);
+    }
 
     printf("\nEscriba su email (maximo 30 caracteres): ");
     fflush(stdin);
@@ -426,20 +558,29 @@ static void obtenerEmail(char *nomEmail){
     // Comprobamos si el tamaño es correcto, en caso de no serlo, limpiamos la cadena y volvemos a llamar a la función
     if(strlen(nomEmail) > EMAIL-1){
         fprintf(stderr, "El email excede los 30 caracteres.");
-        limpiarCadena(nomEmail, EMAIL);
-        obtenerEmail(nomEmail);
+        free(nomEmail);
+        obtenerEmail();
     }
 
     if(strlen(nomEmail) == 0){
         fprintf(stderr, "El email no puede estar vacio.");
-        limpiarCadena(nomEmail, EMAIL);
-        obtenerEmail(nomEmail);
+        free(nomEmail);
+        obtenerEmail();
     }
+
+    return nomEmail;
 }
 
-static void obtenerContrasenia(char *contrasenia){
+static char *obtenerContrasenia(){
     int i = 0;
-    char c;
+    char c, *contrasenia;
+
+    contrasenia = (char *) calloc(PASS, sizeof(char));
+
+    if(contrasenia == NULL){
+        fprintf(stderr, "Error en asignacion de memoria.\n");
+        exit(1);
+    }
 
     printf("\nEscribe la contrasena (maximo 15 caracteres): ");
     fflush(stdin);
@@ -454,15 +595,17 @@ static void obtenerContrasenia(char *contrasenia){
     // Comprobamos si el tamaño es correcto, en caso de no serlo, limpiamos la cadena y volvemos a llamar a la función
     if(strlen(contrasenia) > PASS-1){
         fprintf(stderr, "La contrasena excede los 15 caracteres.");
-        limpiarCadena(contrasenia, PASS);
-        obtenerContrasenia(contrasenia);
+        free(contrasenia);
+        obtenerContrasenia();
     }
 
     if(strlen(contrasenia) == 0){
         fprintf(stderr, "La contrasena no puede estar vacio.");
-        limpiarCadena(contrasenia, PASS);
-        obtenerContrasenia(contrasenia);
+        free(contrasenia);
+        obtenerContrasenia();
     } 
+
+    return contrasenia;
 }
 
 static double obtenerCartera() {
@@ -478,12 +621,3 @@ static double obtenerCartera() {
     
     return saldoIni;
 }
-
-static void limpiarCadena(char *cad, int tam){
-    int i;
-
-    for(i = 0; i < tam; i++)    // Recorremos la cadena e introducimos el \0 en cada posición.
-        cad[i] = '\0';
-
-}
-

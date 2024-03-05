@@ -22,10 +22,13 @@ typedef struct {
 
 /* FUNCIONES PUBLICAS */
 
-
 // Precondición: devuelve una estructura tCliente que no puede ser NULL
 // Postcondición: proporciona al cliente el menu
-void menuCliente(tCliente cliente);
+void menuCliente(tCliente *cliente);
+
+// Precondición: recibe una estructura tCliente
+// Postcondición: proporciona al cliente las opciones de perfil, asi como consultar datos y poder modificarlos
+void perfilCliente(tCliente *cliente);
 
 // Precondición: nada.
 // Postcondición: inicia sesión en el sistema ESIZON
@@ -47,7 +50,32 @@ tCliente *crearListaClientes();
 // Postcondicion: imprime todos los clientes dados de alta en la plataforma
 void imprimirClientes();
 
+
 /* FUNCIONES PRIVADAS */
+
+// Precondición: variable cliente pasada por referencia
+// Postcondición: almacena en el campo Nomb_cliente el valor que proporcione el usuario
+static void getNombre(tCliente *cliente);
+
+// Precondición: variable cliente pasada por referencia
+// Postcondición: almacena en el campo Dir_cliente el valor que proporcione el usuario
+static void getDireccion(tCliente *cliente);
+
+// Precondición: variable cliente pasada por referencia
+// Postcondición: almacena en el campo poblacion el valor que proporcione el usuario
+static void getPoblacion(tCliente *cliente);
+
+// Precondición: variable cliente pasada por referencia
+// Postcondición: almacena en el campo provincia el valor que proporcione el usuario
+static void getProvincia(tCliente *cliente);
+
+// Precondición: variable cliente pasada por referencia y un vector de datos de clientes
+// Postcondición: almacena en el campo email el valor que proporcione el usuario
+static void getEmail(tCliente *cliente, tCliente *datos);
+
+// Precondición: variable cliente pasada por referencia
+// Postcondición: almacena en el campo contrasenia el valor que proporcione el usuario
+static void getContrasenia(tCliente *cliente);
 
 // Precondicion: nada
 // Postcondicion: devuelve el nº de clientes del sistema
@@ -57,7 +85,7 @@ static unsigned numClientes();
 // Postcondición: devuelve la posición que le corresponde al cliente si existe email y contraseña que coinciden con los parametros email y psw
 static int inicioValido(tCliente *infocli, char *email, char *psw);
 
-// Precondición: clientes y emails inicializados
+// Precondición: emails inicializado y clientes
 // Postcondición: devuelve 1 si encuentra un email repetido y 0 en caso contrario
 static int existeEmail(tCliente *clientes, char *email);
 
@@ -67,35 +95,35 @@ static void guardarDatosClienteFich(char *destino, tCliente datos);
 
 // Precondición: recibe una cadena de caracteres y dos enteros, uno para el numero que queremos realizar la ID y el numero de dígitos de esa ID.
 // Poscondición: guarda en id una cadena de caracteres, por ejemplo, si num = 12 y numDigitos = 4, en id se encontrará 0012
-static void generarID(char *id, int num, int numDigitos);
+static void generarID(char *id, int idNum, int numDigitos);
 
 // Precondicion: recibe un puntero a un vector dinamico de tipo tCliente
 // Postcondicion: reserva espacio de memoria
 static void reservarNuevoCliente(tCliente *infocli);
 
-// Precondición: recibe una cadena de caracteres, la cual no debe estar inicializada
-// Poscondición: guarda en la cadena el nombre de usuario que se introduzca, con varios mensajes de error en caso de que no sea válida.
-static void obtenerNombreCliente(char *nomCliente);
+// Precondición: nada.
+// Poscondición: devuelve el nombre de usuario que se introduzca, con varios mensajes de error en caso de que no sea válida.
+static char *obtenerNombreCliente();
 
-// Precondición: recibe una cadena de caracteres, la cual no debe estar inicializada
-// Poscondición: guarda en la cadena la direccion que se introduzca, con varios mensajes de error en caso de que no sea válida.
-static void obtenerDireccion(char *nomDireccion);
+// Precondición: nada
+// Poscondición: devuelve la direccion que se introduzca, con varios mensajes de error en caso de que no sea válida.
+static char *obtenerDireccion();
 
-// Precondición: recibe una cadena de caracteres, la cual no debe estar inicializada
-// Poscondición: guarda en la cadena la poblacion que se introduzca, con varios mensajes de error en caso de que no sea válida.
-static void obtenerPoblacion(char *nomPoblacion);
+// Precondición: nada.
+// Poscondición: devuelve la poblacion que se introduzca, con varios mensajes de error en caso de que no sea válida.
+static char *obtenerPoblacion();
 
-// Precondición: recibe una cadena de caracteres y el tamaño de dicha cadena.
-// Poscondición: limpia la cadena poniendo \0 en todas las posiciones de la cadena
-static void obtenerProvincia(char *nomProvincia);
+// Precondición: nada.
+// Poscondición: devuelve la provincia que se introduzca
+static char *obtenerProvincia();
 
-// Precondición: recibe una cadena de caracteres y el tamaño de dicha cadena.
-// Poscondición: limpia la cadena poniendo \0 en todas las posiciones de la cadena
-static void obtenerEmail(char *nomEmail);
+// Precondición: nada.
+// Poscondición: devuelve el email que se introduzca
+static char *obtenerEmail();
 
-// Precondición: recibe una cadena de caracteres y el tamaño de dicha cadena.
-// Poscondición: limpia la cadena poniendo \0 en todas las posiciones de la cadena
-static void obtenerContrasenia(char *contrasenia);
+// Precondición: nada.
+// Poscondición: devuelve la contraseña que se introduzca.
+static char *obtenerContrasenia();
 
 // Precondición: nada.
 // Postcondicion: devuelve el saldo de la cartera introducido por el cliente.
