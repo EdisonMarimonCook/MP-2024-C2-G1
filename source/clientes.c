@@ -3,6 +3,7 @@
 #include <string.h>    // sscanf
 
 #include "clientes.h"
+#include "productos.h"
 
 /* FUNCIONES PUBLICAS */
 

@@ -2,6 +2,7 @@
 #include <stdlib.h>		// exit
 
 #include "clientes.h"
+#include "productos.h"
 
 int main(){
 	system("cls");
