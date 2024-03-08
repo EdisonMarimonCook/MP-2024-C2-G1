@@ -7,6 +7,8 @@
 int main(){
 	system("cls");
 
+	consultaProductos ();
+
 	int op;
 
 	do {

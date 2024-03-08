@@ -18,10 +18,18 @@ typedef struct{
 } t_productos;
 
 
-/*  FUNCIONES PRIVADAS  */
+/*  FUNCIONES PUBLICAS  */
 
 //Precondición: nada
 //Postcondición: devuelve el listado de productos
-static void consultaProductos ();
+void consultaProductos ();
+
+
+
+/*  FUNCIONES PRIVADAS  */
+
+//Precondicion: nada
+//Postcondicion: devuelve la informacion sobre un producto referenciado
+static void buscar_nombre_prod();
 
 #endif
