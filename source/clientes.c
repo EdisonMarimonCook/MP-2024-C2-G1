@@ -71,7 +71,6 @@ void perfilCliente(tCliente *cliente){
             fflush(stdin);
             fprintf(stderr, "Entrada no valida.\n\n");
         } else{
-            // TODO : datos cambiados que se modifiquen en el txt
             switch(op){
                 case 1: getNombre(cliente); break;
                 case 2: getDireccion(cliente); break;
