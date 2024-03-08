@@ -1,3 +1,3 @@
 0000001-Juan Perez-Plaza San Francisco 1 11100-San Fernando-Cadiz-juanperez@gmail.com-psw1234-1000
-0000002-Guillermo Lopez-Calle Sacramento 2 11003-Cadiz-Cadiz-guillelopez@gmail.com-psw4321-500
-0000003-Andres Iniesta-Calle Real 3 11100-San Fernando-Cadiz-andresiniesta@gmail.com-psw12121-3.000000
+0000002-Guillermo Lopez-Calle Sacramento 2 11003-Chiclana-Cadiz-guillelopez@gmail.com-psw4321-3.000000
+0000003-Andres Iniesta-Calle Real 3 11100-San Fernando-Cadiz-andresiniesta@gmail.com-psw12121-2010.000000

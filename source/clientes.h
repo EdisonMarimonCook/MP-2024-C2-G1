@@ -53,6 +53,14 @@ void imprimirClientes();
 
 /* FUNCIONES PRIVADAS */
 
+// Precondición: recibe una variable de tipo tCliente
+// Postcondición: inserta en Clientes.txt los nuevos datos de clienteMod
+static void modificarFichero(tCliente clienteMod);
+
+// Precondición: recibe dos parámetros tipo tCliente
+// Postcondición: devuelve 1 si nuevo = original y 0 en caso contrario
+static int existeCambios(tCliente nuevo, tCliente original);
+
 // Precondición: variable cliente pasada por referencia
 // Postcondición: almacena en el campo Nomb_cliente el valor que proporcione el usuario
 static void getNombre(tCliente *cliente);
@@ -128,9 +136,5 @@ static char *obtenerContrasenia();
 // Precondición: nada.
 // Postcondicion: devuelve el saldo de la cartera introducido por el cliente.
 static double obtenerCartera();
-
-// Precondición: recibe una cadena de caracteres y el tamaño de dicha cadena.
-// Poscondición: limpia la cadena poniendo \0 en todas las posiciones de la cadena
-static void limpiarCadena(char *cad, int tam);
 
 #endif // CLIENTES_H_

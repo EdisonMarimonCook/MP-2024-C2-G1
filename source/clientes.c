@@ -48,6 +48,10 @@ void perfilCliente(tCliente *cliente){
 
     int op;
     tCliente *datos;    // nos se puede declarar dentro del bloque Switch
+    tCliente original = *cliente;
+
+    datos = crearListaClientes(); 
+    cargarClientes(datos); 
 
     do {
         printf("Perfil.\n\n");
@@ -67,17 +71,16 @@ void perfilCliente(tCliente *cliente){
             fflush(stdin);
             fprintf(stderr, "Entrada no valida.\n\n");
         } else{
-            // TODO : que realmente cambien los datos del perfil
+            // TODO : datos cambiados que se modifiquen en el txt
             switch(op){
                 case 1: getNombre(cliente); break;
                 case 2: getDireccion(cliente); break;
                 case 3: getPoblacion(cliente); break;
                 case 4: getProvincia(cliente); break;
                 case 5: 
-                    datos = crearListaClientes(); 
-                    cargarClientes(datos); 
+                    
                     getEmail(cliente, datos); 
-                    free(datos); 
+                     
                     break;
                 case 6: getContrasenia(cliente); break;
                 case 7: cliente->Cartera = obtenerCartera(); break;
@@ -89,6 +92,12 @@ void perfilCliente(tCliente *cliente){
         }
 
     } while(op < 1 || op > 8);
+
+    // si se ha producido algun cambio, es necesario modificar Clientes.txt
+    if(existeCambios(*cliente, original))
+        modificarFichero(*cliente);
+
+    free(datos);
 }
 
 void iniciarSesionCliente(){
@@ -249,33 +258,109 @@ void imprimirClientes(){
 
 /* FUNCIONES PRIVADAS */
 
+// TODO: que funcione esta función
+static void modificarFichero(tCliente clienteMod){
+    FILE *pf, *temp;
+    char buffer[MAX_LIN_FICH_CLI];
+    char *fich = "../datos/Clientes.txt";
+    char *fichTemp = "../datos/Temp-Clientes.txt";
+
+    pf = fopen(fich, "r");
+    temp = fopen(fichTemp, "w");
+
+    if(pf == NULL || temp == NULL){
+        fprintf(stderr, "Error en la apertura de ficheros.\n");
+        exit(1);
+    }
+
+    // Buscar la ID en el fichero y cambiar la linea por los datos de clienteMod
+    while(fgets(buffer, MAX_LIN_FICH_CLI, pf) != NULL){
+        char idFich[ID];
+        
+        strncpy(idFich, buffer, 7);    // En id se almacena los 7 primeros caracteres de cada linea
+
+        // En temp se guardara el fichero modificado
+        if(strcmp(idFich, clienteMod.Id_cliente) == 0){
+            // si se añade una linea de mas al final del fichero, tendremos problemas con el numClientes
+            if(numClientes() == atoi(idFich))
+                fprintf(temp, "%s-%s-%s-%s-%s-%s-%s-%lf", clienteMod.Id_cliente, clienteMod.Nomb_cliente, clienteMod.Dir_cliente,
+                                                            clienteMod.Poblacion, clienteMod.Provincia, clienteMod.email,
+                                                            clienteMod.Contrasenia, clienteMod.Cartera);
+        
+            else
+                fprintf(temp, "%s-%s-%s-%s-%s-%s-%s-%lf\n", clienteMod.Id_cliente, clienteMod.Nomb_cliente, clienteMod.Dir_cliente,
+                                                            clienteMod.Poblacion, clienteMod.Provincia, clienteMod.email,
+                                                            clienteMod.Contrasenia, clienteMod.Cartera);
+        } else
+            fprintf(temp, "%s", buffer);
+    }
+
+    // cerramos ficheros
+    fclose(pf);
+    fclose(temp);
+
+    // Tenemos que renombrar temp y eliminar pf
+    remove(fich);
+    rename(fichTemp, fich); // fichTemp pasa a ser fich
+}
+
+static int existeCambios(tCliente nuevo, tCliente original){
+    int boole = 1;
+
+    if(nuevo.Nomb_cliente == original.Nomb_cliente && nuevo.Dir_cliente == original.Dir_cliente
+        && nuevo.Poblacion == original.Poblacion && nuevo.Provincia == original.Provincia && nuevo.email == original.email
+        && nuevo.Contrasenia == original.Contrasenia && nuevo.Cartera == original.Cartera)
+        boole = 0;
+    
+    return boole;
+}
+
 static void getNombre(tCliente *cliente){
-    char *nomCliente = obtenerNombreCliente();
+    char *nomCliente = NULL;
+
+    while(!nomCliente)
+        nomCliente = obtenerNombreCliente();
+
     strncpy(cliente->Nomb_cliente, nomCliente, NOM);
     free(nomCliente);
 }
 
 static void getDireccion(tCliente *cliente){
-    char *direccion = obtenerDireccion();
+    char *direccion = NULL;
+
+    while(!direccion)
+        direccion = obtenerDireccion();
+
     strncpy(cliente->Dir_cliente, direccion, DIR);
     free(direccion);
 }
 
 static void getPoblacion(tCliente *cliente){
-    char *poblacion = obtenerPoblacion();
+    char *poblacion = NULL;
+
+    while(!poblacion)
+        poblacion = obtenerPoblacion();
+
     strncpy(cliente->Poblacion, poblacion, POB);
     free(poblacion);
 }
 
 static void getProvincia(tCliente *cliente){
-    char *provincia = obtenerProvincia();
+    char *provincia = NULL;
+
+    while(!provincia)
+        provincia = obtenerProvincia();
+
     strncpy(cliente->Provincia, provincia, POB);
     free(provincia);
-
 }
 
 static void getEmail(tCliente *cliente, tCliente *datos){
-    char *email = obtenerEmail();
+    char *email = NULL;
+
+    while(!email)
+        email = obtenerEmail();
+
     char aux[EMAIL];
 
     strncpy(cliente->email, email, EMAIL);
@@ -291,7 +376,11 @@ static void getEmail(tCliente *cliente, tCliente *datos){
 
 
 static void getContrasenia(tCliente *cliente){
-    char *psw = obtenerContrasenia();
+    char *psw = NULL;
+
+    while(!psw)
+        psw = obtenerContrasenia();
+
     strncpy(cliente->Contrasenia, psw, PASS);
     free(psw); 
 }
@@ -405,19 +494,17 @@ static char *obtenerNombreCliente(){
         i++;
     }
 
-    nomCliente[i] = '\0';           // Añadimos el \0 final
-
     // Comprobamos si el tamaño es correcto, en caso de no serlo, limpiamos la cadena y volvemos a llamar a la función
     if(strlen(nomCliente) > NOM-1){
         fprintf(stderr, "El nombre completo excede los 20 caracteres.");
         free(nomCliente);
-        obtenerNombreCliente();
+        return NULL;
     } 
     
     if(strlen(nomCliente) == 0){
         fprintf(stderr, "El nombre completo no puede estar vacio.");
         free(nomCliente);
-        obtenerNombreCliente();
+        return NULL;
     }
 
     return nomCliente;
@@ -442,19 +529,17 @@ static char *obtenerDireccion(){
         i++;
     }
 
-    nomDireccion[i] = '\0';         // Añadimos el \0 final
-
     // Comprobamos si el tamaño es correcto, en caso de no serlo, limpiamos la cadena y volvemos a llamar a la función
     if(strlen(nomDireccion) > DIR-1){
         fprintf(stderr, "El nombre de la direccion excede los 50 caracteres.");
         free(nomDireccion);
-        obtenerDireccion();
+        return NULL;
     }
 
     if(strlen(nomDireccion) == 0){
         fprintf(stderr, "El nombre de la direccion no puede estar vacio.");
         free(nomDireccion);
-        obtenerDireccion();
+        return NULL;
     }
 
     return nomDireccion;
@@ -479,19 +564,17 @@ static char *obtenerPoblacion(){
         i++;
     }
 
-    nomPoblacion[i] = '\0';         // Añadimos el \0 final
-
     // Comprobamos si el tamaño es correcto, en caso de no serlo, limpiamos la cadena y volvemos a llamar a la función
     if(strlen(nomPoblacion) > POB-1){
         fprintf(stderr, "El nombre de la poblacion excede los 20 caracteres.");
         free(nomPoblacion);
-        obtenerPoblacion();
+        return NULL;
     }
 
     if(strlen(nomPoblacion) == 0){
         fprintf(stderr, "El nombre de la poblacion no puede estar vacio.");
         free(nomPoblacion);
-        obtenerPoblacion();
+        return NULL;
     }
 
     return nomPoblacion;
@@ -516,19 +599,17 @@ static char *obtenerProvincia(){
         i++;
     }
 
-    nomProvincia[i] = '\0';         // Añadimos el \0 final
-
     // Comprobamos si el tamaño es correcto, en caso de no serlo, limpiamos la cadena y volvemos a llamar a la función
     if(strlen(nomProvincia) > POB-1){
         fprintf(stderr, "El nombre de la provincia excede los 20 caracteres.");
         free(nomProvincia);
-        obtenerProvincia();
+        return NULL;
     }
 
     if(strlen(nomProvincia) == 0){
         fprintf(stderr, "El nombre de la provincia no puede estar vacio.");
         free(nomProvincia);
-        obtenerProvincia();
+        return NULL;
     }
 
     return nomProvincia;
@@ -553,19 +634,17 @@ static char *obtenerEmail(){
         i++;
     }
 
-    nomEmail[i] = '\0';         // Añadimos el \0 final
-
     // Comprobamos si el tamaño es correcto, en caso de no serlo, limpiamos la cadena y volvemos a llamar a la función
     if(strlen(nomEmail) > EMAIL-1){
         fprintf(stderr, "El email excede los 30 caracteres.");
         free(nomEmail);
-        obtenerEmail();
+        return NULL;
     }
 
     if(strlen(nomEmail) == 0){
         fprintf(stderr, "El email no puede estar vacio.");
         free(nomEmail);
-        obtenerEmail();
+        return NULL;
     }
 
     return nomEmail;
@@ -590,19 +669,17 @@ static char *obtenerContrasenia(){
         i++;
     }
 
-    contrasenia[i] = '\0';       // Añadimos el \0 final
-
     // Comprobamos si el tamaño es correcto, en caso de no serlo, limpiamos la cadena y volvemos a llamar a la función
     if(strlen(contrasenia) > PASS-1){
         fprintf(stderr, "La contrasena excede los 15 caracteres.");
         free(contrasenia);
-        obtenerContrasenia();
+        return NULL;
     }
 
     if(strlen(contrasenia) == 0){
         fprintf(stderr, "La contrasena no puede estar vacio.");
         free(contrasenia);
-        obtenerContrasenia();
+        return NULL;
     } 
 
     return contrasenia;
@@ -611,12 +688,12 @@ static char *obtenerContrasenia(){
 static double obtenerCartera() {
     double saldoIni = 0;
     
-    printf("\nIndique su saldo inicial (formato 0.00euros): ");
+    printf("\nIndique su saldo (formato 0.00euros): ");
     
     while(scanf("%lf", &saldoIni) != 1 || saldoIni < 0) {
         fflush(stdin);
         fprintf(stderr, "Entrada no esperada. Intente de nuevo.\n");
-        printf("Indique su saldo inicial: ");
+        printf("Indique su saldo: ");
     }
     
     return saldoIni;
