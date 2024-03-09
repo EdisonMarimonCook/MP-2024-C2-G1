@@ -1,5 +1,5 @@
-#ifndef CLIENTES_H_
-#define CLIENTES_H_
+#ifndef _CLIENTES_H_
+#define _CLIENTES_H_
 
 #define ID 8
 #define NOM 21
@@ -31,10 +31,6 @@ void menuCliente(tCliente *cliente);
 void perfilCliente(tCliente *cliente);
 
 // Precondición: nada.
-// Postcondición: inicia sesión en el sistema ESIZON
-void iniciarSesionCliente();
-
-// Precondición: nada.
 // Postcondición: añade en el vector de estructuras tPerfil un nuevo usuario e imprime en Cliente.txt los datos de ese nuevo usuario.
 void registrarCliente();
 
@@ -49,6 +45,11 @@ tCliente *crearListaClientes();
 // Precondición: nada.
 // Postcondicion: imprime todos los clientes dados de alta en la plataforma
 void imprimirClientes();
+
+// Precondición: no pueden haber argumentos vacíos
+// Postcondición: devuelve la posición que le corresponde al cliente si existe email y contraseña que coinciden con los parametros email y psw
+//                devuelve 0 si no se encuentra
+int inicioValidoClientes(tCliente *infocli, char *email, char *psw);
 
 
 /* FUNCIONES PRIVADAS */
@@ -88,10 +89,6 @@ static void getContrasenia(tCliente *cliente);
 // Precondicion: nada
 // Postcondicion: devuelve el nº de clientes del sistema
 static unsigned numClientes();
-
-// Precondición: no pueden haber argumentos vacíos
-// Postcondición: devuelve la posición que le corresponde al cliente si existe email y contraseña que coinciden con los parametros email y psw
-static int inicioValido(tCliente *infocli, char *email, char *psw);
 
 // Precondición: emails inicializado y clientes
 // Postcondición: devuelve 1 si encuentra un email repetido y 0 en caso contrario
@@ -137,4 +134,4 @@ static char *obtenerContrasenia();
 // Postcondicion: devuelve el saldo de la cartera introducido por el cliente.
 static double obtenerCartera();
 
-#endif // CLIENTES_H_
+#endif // _CLIENTES_H_

@@ -99,61 +99,6 @@ void perfilCliente(tCliente *cliente){
     free(datos);
 }
 
-void iniciarSesionCliente(){
-    system("cls");
-    printf("\t\t\tESIZON\n\n");
-
-    int op = 0; 
-    tCliente *infocli;
-    char email[EMAIL], psw[PASS];
-
-    infocli = crearListaClientes();
-    cargarClientes(infocli);
-
-    do {
-        op = 0;
-
-        printf("Usuario (direccion email): ");
-        fflush(stdin);
-        fgets(email, EMAIL, stdin);
-
-        printf("Contrasena: ");
-        fflush(stdin);
-        fgets(psw, PASS, stdin);
-
-        // es importante eliminar el \n para que no haya problemas
-        // comprobando si es un inicio valido
-        email[strcspn(email, "\n")] = 0;
-        psw[strcspn(psw, "\n")] = 0;
-
-        // comprobamos si el inicio es valido o no
-        if(inicioValido(infocli, email, psw) == 0){
-            fprintf(stderr, "\nEl usuario o la contrasena no coinciden.\n\n");
-
-            // manejo de opciones
-            do {
-                printf("\nDesea registrarse? (1) o intentarlo de nuevo (2): ");
-
-                if(scanf("%i", &op) != 1 || op != 1 && op != 2){
-                    fflush(stdin);
-                    fprintf(stderr, "Entrada no valida.");
-                }
-
-            } while(op != 1 && op != 2);
-        }
-
-    } while(inicioValido(infocli, email, psw) == 0 && op != 1);
-
-    int pos = inicioValido(infocli, email, psw)-1;    // inicioValido devuelve la posicion que le corresponde al cliente en el vector infocli
-    tCliente aux = infocli[pos];
-    free(infocli);
-
-    if(op == 1)
-        registrarCliente();    // linea 75 el usuario es preguntado por registrarse (opcion 1)
-    else if(inicioValido(infocli, email, psw))
-        menuCliente(&aux);      // menu principal del cliente
-}
-
 void registrarCliente(){
     system("cls");
     printf("\t\t\tESIZON\n\n");
@@ -223,9 +168,9 @@ tCliente *crearListaClientes(){
 
     // Reservamos la memoria necesaria gracias a la función numClientes()
     if(numClientes() == 0)
-        clientes = (tCliente *)calloc(numClientes()+1, sizeof(tCliente)); 
+        clientes = (tCliente *) calloc(numClientes()+1, sizeof(tCliente)); 
     else
-        clientes = (tCliente *)calloc(numClientes(), sizeof(tCliente));
+        clientes = (tCliente *) calloc(numClientes(), sizeof(tCliente));
 
     if(clientes == NULL){   // Comprobamos si surge algún error en la asignación
         fprintf(stderr, "Error en la asignacion de memoria.");
@@ -251,13 +196,27 @@ void imprimirClientes(){
     while(fgets(buffer, MAX_LIN_FICH_CLI, pf) != NULL)
         printf("%s", buffer);
 
-    fclose(pf);
+    fclose(pf);  
 }
 
+int inicioValidoClientes(tCliente *infocli, char *email, char *psw){
+    int i = 0, fin = 0;
+
+    while(i < numClientes() && !fin){
+        if(strcmp(infocli[i].email, email) == 0 && strcmp(infocli[i].Contrasenia, psw) == 0)
+            fin = 1;
+
+        ++i;
+    }
+
+    if(fin == 1)
+        fin = i;    // devolvemos en que posicion se ha encontrado del vector infocli
+
+    return fin;
+}
 
 /* FUNCIONES PRIVADAS */
 
-// TODO: que funcione esta función
 static void modificarFichero(tCliente clienteMod){
     FILE *pf, *temp;
     char buffer[MAX_LIN_FICH_CLI];
@@ -406,22 +365,6 @@ static unsigned numClientes(){
     fclose(pf);
 
     return i;
-}
-
-static int inicioValido(tCliente *infocli, char *email, char *psw){
-    int i = 0, fin = 0;
-
-    while(i < numClientes() && !fin){
-        if(strcmp(infocli[i].email, email) == 0 && strcmp(infocli[i].Contrasenia, psw) == 0)
-            fin = 1;
-
-        ++i;
-    }
-
-    if(fin == 1)
-        fin = i;    // devolvemos en que posicion se ha encontrado del vector infocli
-
-    return fin;
 }
 
 static int existeEmail(tCliente *clientes, char *email){
