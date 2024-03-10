@@ -22,7 +22,7 @@ typedef struct{
 
 //Precondición: nada
 //Postcondición: devuelve el listado de productos
-void consultaProductos ();
+void consultaProductos();
 
 
 
@@ -31,5 +31,9 @@ void consultaProductos ();
 //Precondicion: nada
 //Postcondicion: devuelve la informacion sobre un producto referenciado
 static void buscar_nombre_prod();
+
+//Precondicion: nada
+//Postcondicion: devuelve el numero de productos que hay en el fichero Productos.txt
+static unsigned num_prod();
 
 #endif

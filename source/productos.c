@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "productos.h"
 #include "clientes.h"
 
-void consultaProductos (){
+void consultaProductos(){
     int op;
 
     do{
@@ -27,6 +28,8 @@ void consultaProductos (){
 }
 
 static void buscar_nombre_prod(){
+
+    int i;
     char buffer[MAX_LIN_FICH_PROD], aux[DES], *nombre;
 
     fgets(aux, 50, stdin);
@@ -39,7 +42,7 @@ static void buscar_nombre_prod(){
     if (nombre != NULL){
         strcpy(nombre, aux);
     }else{
-        printf ("No se ha podido reservar memoria.\n");
+        fprintf (stderr, "No se ha podido reservar memoria.\n");
         exit(1);
     }
 
@@ -52,13 +55,39 @@ static void buscar_nombre_prod(){
         exit (1);
     }
 
-
     // leemos linea a linea el fichero Productos.txt
     while(fgets(buffer, MAX_LIN_FICH_PROD, f) != NULL)
         printf("%s", buffer);
 
+    for (i = 0; i < numProductos(); i++){
+        
+    }
+
     free(nombre);
     fclose(f);
+}
+
+static unsigned num_prod(){
+
+    char buffer[MAX_LIN_FICH_PROD];
+    unsigned i = 0;
+
+    FILE *f;
+    f = fopen("../datos/Clientes.txt", "r");
+    if(f == NULL){
+        fprintf(stderr, "No se ha podido abrir el fichero.\n");
+        exit(1);
+    }
+
+    // Hasta que no se llegue al fin de fichero, contamos linea a linea
+    while(!feof(f)){
+        fgets(buffer, MAX_LIN_FICH_CLI, f);
+        i++;
+    }
+
+    fclose(f);
+
+    return i;
 }
 
 /*void cargarProductos (t_productos *info_prod){
