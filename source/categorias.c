@@ -3,6 +3,8 @@
 #include <string.h>     //stcpy, sscanf
 #include "categorias.h"
 
+void mainCategorias();
+
 void modificarCategoria() {
 
     char idCategoria[5]; 
@@ -131,7 +133,7 @@ void realizarBaja() {
     printf("La categoría con ID %s ha sido dada de baja.\n", id_baja);
 }
 
-int mainCategorias(){
+void mainCategorias(){
 
     FILE *fichero = fopen("../datos/Categorias.txt", "r+");
     if (fichero == NULL){
@@ -197,6 +199,9 @@ int mainCategorias(){
     }
     
     fclose(fichero);
+}
 
+int main(){
+    mainCategorias();
     return 0;
 }
