@@ -19,7 +19,7 @@ void modificarCategoria() {
     if(nuevaDescrip[51] != '\0'){
         printf("Descripcion demasiado larga, ingrese una con 50 caracteres de maximo.\n");
         system("cls");
-        return main();      //cambiar esto por nombre de funcion principal de categorias
+        mainCategorias();
     }
 
     FILE *archivoOriginal, *archivoTemporal;
@@ -131,7 +131,7 @@ void realizarBaja() {
     printf("La categoría con ID %s ha sido dada de baja.\n", id_baja);
 }
 
-int main(){
+int mainCategorias(){
 
     FILE *fichero = fopen("../datos/Categorias.txt", "r+");
     if (fichero == NULL){
@@ -185,7 +185,7 @@ int main(){
     if(op < 1 || op > 3){
         printf("Escriba un numero entre 1 y 3.\n");
         system("cls");
-        main();     //cambiar esto por funcion principal de categorias
+        mainCategorias();
     }
 
     switch(op){
