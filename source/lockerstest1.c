@@ -20,7 +20,7 @@ typedef struct{
 
 void informacion_lockers();
 
-int main(){
+{
     FILE *f;
     char aux,aux2;
     f = fopen("Lockers.txt","r");
