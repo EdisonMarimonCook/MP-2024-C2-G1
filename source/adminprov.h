@@ -1,25 +1,31 @@
 #ifndef _ADMINPROV_H_
 #define _ADMINPROV_H_
 
-#define ID_EMPRESA 5
+#define ID_EMPRESA 4
 #define NOM 21
 #define EMAIL 31
-#define PASSW 16
+#define PASS 16
 #define PERFIL 14   // administrador o proveedor, administrador tiene 13 caracteres
 #define MAX_LIN_FICH_ADMINPROV 91   // numero maximo de caracteres por linea en AdminProv.txt
 
+// Estructura adminprov
 typedef struct {
     char Id_empresa[ID_EMPRESA];
     char Nombre[NOM];
     char email[EMAIL];
-    char Contrasenia[PASSW];
+    char Contrasenia[PASS];
     char Perfil_usuario[PERFIL];    // administrador o proovedor
 } tAdminProv;
 
-
 /* FUNCIONES PUBLICAS */
 
-void menuAdminProv(tAdminProv *adminprov);
+// Precondición: recibe una estructura tAdminProv que no puede ser NULL
+// Postcondición: proporciona al administrador el menu
+void menuAdmin(tAdminProv *admin);
+
+// Precondición: recibe una estructura tAdminProv que no puede ser NULL
+// Postcondición: proporciona al proveedor el menu
+void menuProveedor(tAdminProv *proveedor);
 
 // Precondición:nada
 // Postcondicion: devuelve un vector de tipo tCliente de tamaño igual al nº de clientes del sistema
@@ -33,11 +39,38 @@ void cargarAdminProvs();
 // Postcondición: devuelve la posición que le corresponde al cliente si existe email y contraseña que coinciden con los parametros email y psw
 int inicioValidoAdminProv(tAdminProv *infoAdminProv, char *email, char *psw);
 
-
-/* FUNCIONES PRIVADAS */
+// Precondición: recibe una estructura tAdminProv
+// Postcondición: proporciona al administrador las opciones de perfil, asi como consultar datos y poder modificarlos
+void perfilAdmin(tAdminProv *admin);
 
 // Precondición: nada.
 // Postcondición: devuelve el numero de administradores + proovedores del sistema.
-static unsigned numAdminProvs();
+unsigned numAdminProvs();
+
+/* FUNCIONES PRIVADAS */
+
+// Precondición: variable adminprovs pasada por referencia
+// Postcondición: almacena en el campo Nombre el valor que proporcione el administrador o el provedor
+static void getNombreProvedor(tAdminProv *adminprovs);
+
+// Precondición: nada.
+// Poscondición: devuelve el nombre de provedor que se introduzca, con varios mensajes de error en caso de que no sea válida.
+static char *obtenerNombreProvedor();
+
+// Precondición: variable adminprovs pasada por referencia
+// Postcondición: almacena en el campo email el valor que proporcione el administrador o el provedor
+static void getEmailAdminProv(tAdminProv *adminprovs);
+
+// Precondición: nada.
+// Poscondición: devuelve el email que se introduzca, con varios mensajes de error en caso de que no sea válida.
+static char *obtenerEmail();
+
+// Precondición: variable adminprovs pasada por referencia
+// Postcondición: almacena en el campo Contrasenia el valor que proporcione el administrador o el provedor
+static void getContraseniaAdminProv(tAdminProv *adminprovs);
+
+// Precondición: nada.
+// Poscondición: devuelve la contrasenia que se introduzca, con varios mensajes de error en caso de que no sea válida.
+static char *obtenerContrasenia();
 
 #endif // _ADMINPROV_H_

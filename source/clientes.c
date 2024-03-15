@@ -3,6 +3,7 @@
 #include <string.h>    // sscanf
 
 #include "clientes.h"
+#include "usuarios.h" // existeEmail(), generar
 
 /* FUNCIONES PUBLICAS */
 
@@ -47,11 +48,7 @@ void perfilCliente(tCliente *cliente){
     system("cls");
 
     int op;
-    tCliente *datos;    // nos se puede declarar dentro del bloque Switch
     tCliente original = *cliente;
-
-    datos = crearListaClientes(); 
-    cargarClientes(datos); 
 
     do {
         printf("Perfil.\n\n");
@@ -76,11 +73,7 @@ void perfilCliente(tCliente *cliente){
                 case 2: getDireccion(cliente); break;
                 case 3: getPoblacion(cliente); break;
                 case 4: getProvincia(cliente); break;
-                case 5: 
-                    
-                    getEmail(cliente, datos); 
-                     
-                    break;
+                case 5: getEmail(cliente); break;
                 case 6: getContrasenia(cliente); break;
                 case 7: cliente->Cartera = obtenerCartera(); break;
                 case 8: break;
@@ -95,46 +88,10 @@ void perfilCliente(tCliente *cliente){
     // si se ha producido algun cambio, es necesario modificar Clientes.txt
     if(existeCambios(*cliente, original))
         modificarFichero(*cliente);
-
-    free(datos);
-}
-
-void registrarCliente(){
-    system("cls");
-    printf("\t\t\tESIZON\n\n");
-
-    tCliente *datos;
-    unsigned nClientes = numClientes();
- 
-    datos = crearListaClientes();
-    cargarClientes(datos);
-
-    if(nClientes != 0)
-        reservarNuevoCliente(datos);    // crearListaCliente si nClientes es cero reserva 1 posicion
-
-    // Obtenemos los datos del cliente
-    generarID(datos[nClientes].Id_cliente, nClientes+1, ID-1);
-    getNombre(&datos[nClientes]);
-    getDireccion(&datos[nClientes]);
-    getPoblacion(&datos[nClientes]);
-    getProvincia(&datos[nClientes]);
-    getEmail(&datos[nClientes], datos);
-    getContrasenia(&datos[nClientes]);
-    datos[nClientes].Cartera = obtenerCartera();
-
-    tCliente nuevoCliente = datos[nClientes];
-    
-    // liberamos memoria que ya no nos hace falta
-    free(datos);    
-
-    // Guardamos los datos del cliente
-    guardarDatosClienteFich("../datos/Clientes.txt", nuevoCliente);
-
-    menuCliente(&nuevoCliente);
 }
 
 void cargarClientes(tCliente *infocli){
-    int i;
+    unsigned i;
     char buffer[MAX_LIN_FICH_CLI];
 
     if(numClientes() != 0){    // Comprobamos si existe algún usuario en Clientes.txt
@@ -200,8 +157,9 @@ void imprimirClientes(){
 }
 
 int inicioValidoClientes(tCliente *infocli, char *email, char *psw){
-    int i = 0, fin = 0;
-
+    int fin = 0;
+    unsigned i = 0;
+    
     while(i < numClientes() && !fin){
         if(strcmp(infocli[i].email, email) == 0 && strcmp(infocli[i].Contrasenia, psw) == 0)
             fin = 1;
@@ -214,6 +172,143 @@ int inicioValidoClientes(tCliente *infocli, char *email, char *psw){
 
     return fin;
 }
+
+void guardarDatosClienteFich(char *destino, tCliente datos){
+    FILE *pf;
+
+    pf = fopen(destino, "a");   // append
+
+    if(pf == NULL){
+        fprintf(stderr, "Error en la apertura de archivos.\n");
+        exit(1);
+    }
+    
+    fprintf(pf, "\n%s-%s-%s-%s-%s-%s-%s-%lf", datos.Id_cliente, datos.Nomb_cliente, datos.Dir_cliente,
+                                           datos.Poblacion, datos.Provincia, datos.email, 
+                                           datos.Contrasenia, datos.Cartera);
+
+    fclose(pf);
+}
+
+void reservarNuevoCliente(tCliente *infocli){
+    if(numClientes() == 0)
+        infocli = (tCliente *) calloc(numClientes()+1, sizeof(tCliente));
+    else
+        infocli = (tCliente *) realloc(infocli, (numClientes()+1)*sizeof(tCliente));
+    
+    if(infocli == NULL){
+        fprintf(stderr, "Error en la asignacion de memoria.\n");
+        exit(1);
+    }
+}
+
+unsigned numClientes(){
+    // Sabemos que el fichero Clientes.txt tendrá tantas lineas como clientes en el sistema ESIZON
+    char buffer[MAX_LIN_FICH_CLI];
+    FILE *pf;
+    unsigned i = 0;
+
+    pf = fopen("../datos/Clientes.txt", "r");
+
+    if(pf == NULL){
+        fprintf(stderr, "Error en la apertura del fichero.\n");
+        exit(1);
+    }
+
+    // Hasta que no se llegue al fin de fichero, contamos linea a linea
+    while(!feof(pf)){
+        fgets(buffer, MAX_LIN_FICH_CLI, pf);
+        ++i;
+    }
+
+    fclose(pf);
+
+    return i;
+}
+
+void getNombre(tCliente *cliente){
+    char *nomCliente = NULL;
+
+    while(!nomCliente)
+        nomCliente = obtenerNombreCliente();
+
+    strncpy(cliente->Nomb_cliente, nomCliente, NOM);
+    free(nomCliente);
+}
+
+void getDireccion(tCliente *cliente){
+    char *direccion = NULL;
+
+    while(!direccion)
+        direccion = obtenerDireccion();
+
+    strncpy(cliente->Dir_cliente, direccion, DIR);
+    free(direccion);
+}
+
+void getPoblacion(tCliente *cliente){
+    char *poblacion = NULL;
+
+    while(!poblacion)
+        poblacion = obtenerPoblacion();
+
+    strncpy(cliente->Poblacion, poblacion, POB);
+    free(poblacion);
+}
+
+void getProvincia(tCliente *cliente){
+    char *provincia = NULL;
+
+    while(!provincia)
+        provincia = obtenerProvincia();
+
+    strncpy(cliente->Provincia, provincia, POB);
+    free(provincia);
+}
+
+void getEmail(tCliente *cliente){
+    char *email = NULL;
+
+    while(!email)
+        email = obtenerEmail();
+
+    char copia[EMAIL];
+
+    strncpy(cliente->email, email, EMAIL);
+    strncpy(copia, email, EMAIL);     // para poder liberar la memoria y llamar de nuevo a la funcion sin problemas
+    free(email);
+
+    // Comprobamos si el Email introducido ya existe
+    if(existeEmail(copia)){
+        fprintf(stderr, "El email ya esta registrado en ESIZON.\n");
+        getEmail(cliente);
+    }    
+}
+
+void getContrasenia(tCliente *cliente){
+    char *psw = NULL;
+
+    while(!psw)
+        psw = obtenerContrasenia();
+
+    strncpy(cliente->Contrasenia, psw, PASS);
+    free(psw); 
+}
+
+double obtenerCartera(){
+    double saldoIni = 0;
+    
+    printf("\nIndique su saldo (formato 0.00euros): ");
+    
+    while(scanf("%lf", &saldoIni) != 1 || saldoIni < 0) {
+        fflush(stdin);
+        fprintf(stderr, "Entrada no esperada. Intente de nuevo.\n");
+        printf("Indique su saldo: ");
+    }
+    
+    return saldoIni;
+}
+
 
 /* FUNCIONES PRIVADAS */
 
@@ -271,150 +366,6 @@ static int existeCambios(tCliente nuevo, tCliente original){
         boole = 0;
     
     return boole;
-}
-
-static void getNombre(tCliente *cliente){
-    char *nomCliente = NULL;
-
-    while(!nomCliente)
-        nomCliente = obtenerNombreCliente();
-
-    strncpy(cliente->Nomb_cliente, nomCliente, NOM);
-    free(nomCliente);
-}
-
-static void getDireccion(tCliente *cliente){
-    char *direccion = NULL;
-
-    while(!direccion)
-        direccion = obtenerDireccion();
-
-    strncpy(cliente->Dir_cliente, direccion, DIR);
-    free(direccion);
-}
-
-static void getPoblacion(tCliente *cliente){
-    char *poblacion = NULL;
-
-    while(!poblacion)
-        poblacion = obtenerPoblacion();
-
-    strncpy(cliente->Poblacion, poblacion, POB);
-    free(poblacion);
-}
-
-static void getProvincia(tCliente *cliente){
-    char *provincia = NULL;
-
-    while(!provincia)
-        provincia = obtenerProvincia();
-
-    strncpy(cliente->Provincia, provincia, POB);
-    free(provincia);
-}
-
-static void getEmail(tCliente *cliente, tCliente *datos){
-    char *email = NULL;
-
-    while(!email)
-        email = obtenerEmail();
-
-    char aux[EMAIL];
-
-    strncpy(cliente->email, email, EMAIL);
-    strncpy(aux, email, EMAIL);     // para poder liberar la memoria y llamar de nuevo a la funcion sin problemas
-    free(email);
-
-    // Comprobamos si el Email introducido ya existe
-    if(existeEmail(datos, aux)){
-        fprintf(stderr, "El email ya esta registrado en ESIZON.\n");
-        getEmail(cliente, datos);
-    }    
-}
-
-
-static void getContrasenia(tCliente *cliente){
-    char *psw = NULL;
-
-    while(!psw)
-        psw = obtenerContrasenia();
-
-    strncpy(cliente->Contrasenia, psw, PASS);
-    free(psw); 
-}
-
-static unsigned numClientes(){
-    // Sabemos que el fichero Clientes.txt tendrá tantas lineas como clientes en el sistema ESIZON
-    char buffer[MAX_LIN_FICH_CLI];
-    FILE *pf;
-    unsigned i = 0;
-
-    pf = fopen("../datos/Clientes.txt", "r");
-
-    if(pf == NULL){
-        fprintf(stderr, "Error en la apertura del fichero.\n");
-        exit(1);
-    }
-
-    // Hasta que no se llegue al fin de fichero, contamos linea a linea
-    while(!feof(pf)){
-        fgets(buffer, MAX_LIN_FICH_CLI, pf);
-        ++i;
-    }
-
-    fclose(pf);
-
-    return i;
-}
-
-static int existeEmail(tCliente *clientes, char *email){
-    int i = 0, fin = 0;    
-    
-    // buscamos si coinciden dos emails
-    while(i < numClientes() && !fin){
-        if(strcmp(clientes[i].email, email) == 0)
-            fin = 1;    // se han encontrado dos emails iguales
-        
-        ++i;
-    }
-
-    return fin;
-}
-
-static void guardarDatosClienteFich(char *destino, tCliente datos){
-    FILE *pf;
-
-    pf = fopen(destino, "a");   // append
-
-    if(pf == NULL){
-        fprintf(stderr, "Error en la apertura de archivos.\n");
-        exit(1);
-    }
-    
-    fprintf(pf, "\n%s-%s-%s-%s-%s-%s-%s-%lf", datos.Id_cliente, datos.Nomb_cliente, datos.Dir_cliente,
-                                           datos.Poblacion, datos.Provincia, datos.email, 
-                                           datos.Contrasenia, datos.Cartera);
-
-    fclose(pf);
-}
-
-static void generarID(char *id, int idNum, int numDigitos){
-    if(idNum >= 0 && numDigitos > 0)
-        sprintf(id, "%0*d", numDigitos, idNum);   // Transformamos idNum en ID con el numero de dígitos almacenados en numDigitos
-    else
-        fprintf(stderr, "La ID no puede ser negativa.");
-}
-
-static void reservarNuevoCliente(tCliente *infocli){
-    if(numClientes() == 0)
-        infocli = (tCliente *) calloc(numClientes()+1, sizeof(tCliente));
-    else
-        infocli = (tCliente *) realloc(infocli, (numClientes()+1)*sizeof(tCliente));
-    
-    if(infocli == NULL){
-        fprintf(stderr, "Error en la asignacion de memoria.\n");
-        exit(1);
-    }
 }
 
 static char *obtenerNombreCliente(){
@@ -625,18 +576,4 @@ static char *obtenerContrasenia(){
     } 
 
     return contrasenia;
-}
-
-static double obtenerCartera() {
-    double saldoIni = 0;
-    
-    printf("\nIndique su saldo (formato 0.00euros): ");
-    
-    while(scanf("%lf", &saldoIni) != 1 || saldoIni < 0) {
-        fflush(stdin);
-        fprintf(stderr, "Entrada no esperada. Intente de nuevo.\n");
-        printf("Indique su saldo: ");
-    }
-    
-    return saldoIni;
 }

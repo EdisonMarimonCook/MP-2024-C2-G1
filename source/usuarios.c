@@ -3,10 +3,8 @@
 #include <string.h>
 
 #include "usuarios.h"
-#include "clientes.h"
-#include "adminprov.h"
-
-// TODO: acabar iniciarSesion
+#include "clientes.h"   // tCliente
+#include "adminprov.h"  // tAdminProv
 
 void iniciarSesion(){
     system("cls");
@@ -72,11 +70,89 @@ void iniciarSesion(){
     free(infoAdminProvs);
 
     if(op == 1)
-        registrarCliente();    // linea 75 el usuario es preguntado por registrarse (opcion 1)
+        registrarse();    // linea 75 el usuario es preguntado por registrarse (opcion 1)
     else if(valdCli == 0 || valdAdPr == 0){
         if(valdCli)
             menuCliente(&cliente);      // menu principal de usuario cliente
-        else if(valdAdPr)
-            menuAdminProv(&adminprov);  // menu principal de usuario adminprov
+        else if(valdAdPr){
+            if(strcmp("administrador", adminprov.Perfil_usuario) == 0)
+                menuAdmin(&adminprov);      // menu principal de usuario admin
+            else
+                menuProveedor(&adminprov);   // menu principal de usuario proveedor
+        }    
     }
 }
+
+void registrarse(){
+    system("cls");
+    printf("\t\t\tESIZON\n\n");
+
+    tCliente *datos;    // un usuario solo puede registrarse como cliente
+    unsigned nClientes = numClientes();
+ 
+    datos = crearListaClientes();
+    cargarClientes(datos);
+
+    if(nClientes != 0)
+        reservarNuevoCliente(datos);    // crearListaCliente si nClientes es cero reserva 1 posicion
+
+    // Obtenemos los datos del cliente
+    generarID(datos[nClientes].Id_cliente, nClientes+1, ID-1);
+    getNombre(&datos[nClientes]);
+    getDireccion(&datos[nClientes]);
+    getPoblacion(&datos[nClientes]);
+    getProvincia(&datos[nClientes]);
+    getEmail(&datos[nClientes]);
+    getContrasenia(&datos[nClientes]);
+    datos[nClientes].Cartera = obtenerCartera();
+
+    tCliente nuevoCliente = datos[nClientes];
+    
+    // liberamos memoria que ya no nos hace falta
+    free(datos);    
+
+    // Guardamos los datos del cliente
+    guardarDatosClienteFich("../datos/Clientes.txt", nuevoCliente);
+
+    menuCliente(&nuevoCliente);
+}
+
+int existeEmail(char *email){
+    unsigned i = 0, fin = 0;    
+    tCliente *clientes = crearListaClientes();
+    tAdminProv *adminprovs = crearListaAdminProv();
+
+    cargarClientes(clientes);
+    cargarAdminProvs(adminprovs);
+
+    // buscamos si coinciden dos emails para los usuarios
+    while(i < numClientes() && !fin){
+        if(strcmp(clientes[i].email, email) == 0)
+            fin = 1;    // se han encontrado dos emails iguales
+        
+        ++i;
+    }
+
+    i = 0; // ahora para los clientes
+    
+    while(i < numAdminProvs() && !fin){
+        if(strcmp(adminprovs[i].email, email) == 0)
+            fin = 1;
+        
+        ++i;
+    }
+
+    free(clientes);
+    free(adminprovs);
+    return fin;
+}
+
+void generarID(char *id, int idNum, int numDigitos){
+    if(idNum >= 0 && numDigitos > 0)
+        sprintf(id, "%0*d", numDigitos, idNum);   // Transformamos idNum en ID con el numero de dígitos almacenados en numDigitos
+    else
+        fprintf(stderr, "La ID no puede ser negativa.");
+}
+
+
+/* FUNCIONES PRIVADAS */

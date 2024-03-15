@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>		// exit
 
-#include "usuarios.h"
-#include "clientes.h"
-#include "adminprov.h"
+#include "usuarios.h"	// iniciarSesion()
 
 int main(){
 	system("cls");
@@ -26,7 +24,7 @@ int main(){
 			switch(op){
 				case 0: break;
 				case 1: iniciarSesion(); break;
-				case 2: registrarCliente(); break;	// solo puede registrarse como cliente
+				case 2: registrarse(); break;	// solo puede registrarse como cliente
 				default: fprintf(stderr, "Se ha producido un error.\n"); exit(1);
 			}
 		}
