@@ -7,9 +7,9 @@
 int main(){
 	system("cls");
 
-	consultaProductos ();
+	consulta_Productos ();
 
-	int op;
+	/*int op;
 
 	do {
 		printf("\t\tESIZON");
@@ -32,7 +32,7 @@ int main(){
 			}
 		}
 
-	} while(op < 0 || op > 2);
+	} while(op < 0 || op > 2);*/
 
 	system("pause");
 	return 0;
