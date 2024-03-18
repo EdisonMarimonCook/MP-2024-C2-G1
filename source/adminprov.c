@@ -3,11 +3,10 @@
 #include <string.h>
 
 #include "adminprov.h"
+#include "clientes.h"   // infoClientes()
 #include "usuarios.h"   // existeEmail()
 
 /* FUNCIONES PUBLICAS */
-
-// TODO: TERMINAR perfilAdmin y perfilProveedor 
 
 void menuAdmin(tAdminProv *admin){
     system("cls");
@@ -38,7 +37,7 @@ void menuAdmin(tAdminProv *admin){
             // Menu Admins
             switch(op){
                 case 1: perfilAdmin(admin); break;
-                case 2: break;
+                case 2: infoClientes(); break;  // clientes.h
                 case 3: break;
                 case 4: break;
                 case 5: break;
@@ -76,7 +75,7 @@ void menuProveedor(tAdminProv *proveedor){
         } else{
             // Menu Proveedor
             switch(op){
-                case 1: //perfilProveedor(proveedor); break;
+                case 1: perfilProveedor(proveedor); break;
                 case 2: break;
                 case 3: break;
                 case 4: fin = 1; break;
@@ -128,7 +127,7 @@ void cargarAdminProvs(tAdminProv *infoAdminProv){
             }
         }
 
-        fclose(pf); // Cerramos fichero.
+        fclose(pf); 
     }
 }
 
@@ -153,13 +152,8 @@ void perfilAdmin(tAdminProv *admin){
     system("cls");
 
     int op;
-    tAdminProv *datos;
     tAdminProv original = *admin;
 
-    datos = crearListaAdminProv();
-    cargarAdminProvs(datos);
-
-    // TODO: admin puede cambiarse su perfil a otro que no sea admin?
     do {
         printf("Perfil.\n\n");
         printf("\t1. Email: %s\n", admin->email);
@@ -184,6 +178,50 @@ void perfilAdmin(tAdminProv *admin){
         }
 
     } while(op < 1 || op > 4);
+
+    if(existeCambiosAdminProv(*admin, original))
+        modificarFicheroAdminProv(*admin);
+}
+
+void perfilProveedor(tAdminProv *proveedor){
+    system("cls");
+
+    int op;
+    tAdminProv *datos;
+    tAdminProv original = *proveedor;
+
+    datos = crearListaAdminProv();
+    cargarAdminProvs(datos);
+
+    do {
+        printf("Perfil.\n\n");
+        printf("\t1. Nombre Empresa: %s\n", proveedor->Nombre);
+        printf("\t2. Email: %s\n", proveedor->email);
+        printf("\t3. Contrasena: %s\n", proveedor->Contrasenia);
+        printf("\t4. Volver.\n\n");
+
+        printf("Pulse opcion si desea modificar algun dato: ");
+
+        if(scanf("%i", &op) != 1 || op < 1 || op > 5){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida\n\n");
+        } else{
+            switch(op){
+                case 1: getNombreProvedor(proveedor); break;
+                case 2: getEmailAdminProv(proveedor); break;
+                case 3: getContraseniaAdminProv(proveedor); break;
+                case 4: break;
+                default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
+            }
+
+            system("cls");
+        }
+
+    } while(op < 1 || op > 5);
+
+    if(existeCambiosAdminProv(*proveedor, original))
+        modificarFicheroAdminProv(*proveedor);
 }
 
 unsigned numAdminProvs(){
@@ -211,6 +249,58 @@ unsigned numAdminProvs(){
 }
 
 /* FUNCIONES PRIVADAS */
+
+static int existeCambiosAdminProv(tAdminProv nuevo, tAdminProv original){
+    int boole = 1;
+
+    if(nuevo.Nombre == original.Nombre && nuevo.email == original.email 
+        && nuevo.Contrasenia == original.Contrasenia)
+        boole = 0;
+    
+    return boole;
+}
+
+static void modificarFicheroAdminProv(tAdminProv adminprovMod){
+    FILE *pf, *temp;
+    char idFich[ID_EMPRESA];
+    char buffer[MAX_LIN_FICH_ADMINPROV];
+    char *fich = "../datos/AdminProv.txt";
+    char *fichTemp = "../datos/Temp-AdminProv.txt";
+
+    pf = fopen(fich, "r");
+    temp = fopen(fichTemp, "w");
+
+    if(pf == NULL || temp == NULL){
+        fprintf(stderr, "Error en la apertura de ficheros.\n");
+        exit(1);
+    }
+
+    // Buscar la ID en el fichero y cambiar la linea por los datos de clienteMod
+    while(fgets(buffer, MAX_LIN_FICH_ADMINPROV, pf) != NULL){
+        strncpy(idFich, buffer, ID_EMPRESA);    // En id se almacena los 4 primeros caracteres de cada linea
+
+        // En temp se guardara el fichero modificado
+        if(strncmp(idFich, adminprovMod.Id_empresa, ID_EMPRESA-1) == 0){
+            if(numAdminProvs() == atoi(idFich))
+                fprintf(temp, "%s-%s-%s-%s-%s", adminprovMod.Id_empresa, adminprovMod.Nombre, adminprovMod.email,
+                                                adminprovMod.Contrasenia, adminprovMod.Perfil_usuario);
+            // si se añade una linea de mas al final del fichero, tendremos problemas con el numAdminProv
+            else
+                fprintf(temp, "%s-%s-%s-%s-%s\n", adminprovMod.Id_empresa, adminprovMod.Nombre, adminprovMod.email,
+                                                  adminprovMod.Contrasenia, adminprovMod.Perfil_usuario);
+        } else
+            fprintf(temp, "%s", buffer);
+    }
+
+    // cerramos ficheros
+    fclose(pf);
+    fclose(temp);
+
+    // Tenemos que renombrar temp y eliminar pf
+    remove(fich);
+    rename(fichTemp, fich); // fichTemp pasa a ser fich
+}
+
 
 static void getNombreProvedor(tAdminProv *adminprovs){
     char *nombre = NULL;

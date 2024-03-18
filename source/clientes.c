@@ -5,6 +5,8 @@
 #include "clientes.h"
 #include "usuarios.h" // existeEmail(), generar
 
+// TODO: extraño bug el programa se cierra si clientes.txt tiene más de 8
+
 /* FUNCIONES PUBLICAS */
 
 void menuCliente(tCliente *cliente){
@@ -86,8 +88,8 @@ void perfilCliente(tCliente *cliente){
     } while(op < 1 || op > 8);
 
     // si se ha producido algun cambio, es necesario modificar Clientes.txt
-    if(existeCambios(*cliente, original))
-        modificarFichero(*cliente);
+    if(existeCambiosClientes(*cliente, original))
+        modificarFicheroClientes(*cliente);
 }
 
 void cargarClientes(tCliente *infocli){
@@ -135,25 +137,6 @@ tCliente *crearListaClientes(){
     }
 
     return clientes;    // Devolvemos dicho vector.
-}
-
-void imprimirClientes(){
-    FILE *pf;
-
-    pf = fopen("../datos/Clientes.txt", "r");
-
-    if(pf == NULL){
-        fprintf(stderr, "Error en la apertura de ficheros.\n");
-        exit(1);
-    }
-
-    char buffer[MAX_LIN_FICH_CLI];  
-
-    // leemos linea a linea el fichero Clientes.txt
-    while(fgets(buffer, MAX_LIN_FICH_CLI, pf) != NULL)
-        printf("%s", buffer);
-
-    fclose(pf);  
 }
 
 int inicioValidoClientes(tCliente *infocli, char *email, char *psw){
@@ -309,10 +292,430 @@ double obtenerCartera(){
     return saldoIni;
 }
 
+void infoClientes(){
+    system("cls");
+
+    int op;
+
+    imprimirClientes(); // listado de clientes
+
+    do {
+        printf("\n\nMenu:\n\n");
+        printf("1. Dar de alta.\n");
+        printf("2. Dar de baja.\n");
+        printf("3. Buscar.\n");
+        printf("4. Modificar.\n");
+        printf("5. Volver.\n\n");
+
+        printf("Inserte la opcion: ");
+
+        if(scanf("%i", &op) != 1 || op < 1 || op > 5){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida\n\n");
+        } else{
+            switch(op){
+                case 1: registrarse(SIN_MENU); break;
+                case 2: bajaCliente(); break;
+                case 3: buscador(); break;
+                case 4: modificar(); break;
+                case 5: break;
+                default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
+            }
+
+            system("cls");
+        }
+
+    } while(op < 1 || op > 5);
+}
+
+void imprimirClientes(){
+    FILE *pf;
+
+    pf = fopen("../datos/Clientes.txt", "r");
+
+    if(pf == NULL){
+        fprintf(stderr, "Error en la apertura de ficheros.\n");
+        exit(1);
+    }
+
+    char buffer[MAX_LIN_FICH_CLI];  
+
+    printf("\tListado de Clientes:\n\n");
+
+    // leemos linea a linea el fichero Clientes.txt
+    while(fgets(buffer, MAX_LIN_FICH_CLI, pf) != NULL)
+        printf("%s", buffer);
+
+    fclose(pf);  
+}
 
 /* FUNCIONES PRIVADAS */
 
-static void modificarFichero(tCliente clienteMod){
+static void bajaCliente(){
+    system("cls");
+    
+    int idNum;
+    tCliente *clientes = crearListaClientes();
+    cargarClientes(clientes);
+
+    do {
+        imprimirClientes();
+
+        printf("\n\nIndique la ID del cliente a eliminar (formato 1, 2, ...): ");
+        
+        if(scanf("%i", &idNum) != 1 || idNum <= 0){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida.\n\n");
+        } else {
+            // Si la ID introducida es mayor al numero de usuarios en el sistema entonces no existe
+            if(idNum > numClientes())
+                printf("No existe usuario con ID: %i.", idNum);
+            else{
+                --idNum;
+
+                // eliminar cliente de idNum y reemplazar posiciones
+                for(; idNum < numClientes()-1; ++idNum){
+                    clientes[idNum] = clientes[idNum+1];    // reemplazamos
+                    generarID(clientes[idNum].Id_cliente, idNum+1, ID-1); // regeneramos la ID
+                }
+
+                recrearFichero(clientes, numClientes()-1);  // modificamos fichero
+            }
+        }
+
+        printf("\nDesea buscar otro usuario? (1 = si, 0 = no): ");
+
+        if(scanf("%i", &idNum) != 1){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida.\n\n");
+        }
+
+    } while(idNum != 0);
+
+    free(clientes);
+}
+
+static void recrearFichero(tCliente *clientes, int numClientes){
+    FILE *pf, *temp;
+    char buffer[MAX_LIN_FICH_CLI];
+    char *fich = "../datos/Clientes.txt";
+    char *fichTemp = "../datos/Temp-Clientes.txt";
+
+    pf = fopen(fich, "r");
+    temp = fopen(fichTemp, "w");
+
+    if(pf == NULL || temp == NULL){
+        fprintf(stderr, "Error en la apertura de ficheros.\n");
+        exit(1);
+    }
+
+    int i;
+
+    for(i = 0; i < numClientes; ++i){
+        if(i+1 == numClientes)
+            fprintf(temp, "%s-%s-%s-%s-%s-%s-%s-%lf", clientes[i].Id_cliente, clientes[i].Nomb_cliente, clientes[i].Dir_cliente,
+                                                      clientes[i].Poblacion, clientes[i].Provincia, clientes[i].email,
+                                                      clientes[i].Contrasenia, clientes[i].Cartera);
+        else
+            fprintf(temp, "%s-%s-%s-%s-%s-%s-%s-%lf\n", clientes[i].Id_cliente, clientes[i].Nomb_cliente, clientes[i].Dir_cliente,
+                                                        clientes[i].Poblacion, clientes[i].Provincia, clientes[i].email,
+                                                        clientes[i].Contrasenia, clientes[i].Cartera);
+    }
+                
+    // cerramos ficheros
+    fclose(pf);
+    fclose(temp);
+
+    // Tenemos que renombrar temp y eliminar pf
+    remove(fich);
+    rename(fichTemp, fich); // fichTemp pasa a ser fich
+}
+
+
+static void modificar(){
+    system("cls");
+    
+    int idNum;
+    tCliente original;
+    tCliente *clientes = crearListaClientes();
+    cargarClientes(clientes);
+
+    do {
+        imprimirClientes();
+
+        printf("\n\nIndique la ID (formato 1, 2, ...): ");
+        
+        if(scanf("%i", &idNum) != 1 || idNum <= 0){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida.\n\n");
+        } else {
+            // Si la ID introducida es mayor al numero de usuarios en el sistema entonces no existe
+            if(idNum > numClientes())
+                printf("No existe usuario con ID: %i.", idNum);
+            else{
+                --idNum;
+
+                original = clientes[idNum];
+
+                printf("\nDatos del usuario buscado: ");
+                printf("%s-%s-%s-%s-%s-%s-%s-%lf\n", clientes[idNum].Id_cliente, clientes[idNum].Nomb_cliente,
+                                                   clientes[idNum].Dir_cliente, clientes[idNum].Poblacion,
+                                                   clientes[idNum].Provincia, clientes[idNum].email,
+                                                   clientes[idNum].Contrasenia, clientes[idNum].Cartera);
+
+                int op;
+
+                do {
+                    printf("\nOpciones de modificacion (CLIENTES):\n\n");
+                    printf("1. Modificar nombre.\n");
+                    printf("2. Modificar direccion.\n");
+                    printf("3. Modificar poblacion.\n");
+                    printf("4. Modificar provincia.\n");
+                    printf("5. Modificar email.\n");
+                    printf("6. Modificar contrasena.\n");
+                    printf("7. Modificar cartera.\n");
+                    printf("8. Volver.\n\n");
+
+                    printf("Inserte la opcion: ");
+
+                    if(scanf("%i", &op) != 1 || op < 1 || op > 8){
+                        system("cls");
+                        fflush(stdin);
+                        fprintf(stderr, "Entrada no valida\n\n");
+                    } else{
+                        switch(op){
+                            case 1: getNombre(&clientes[idNum]); break;
+                            case 2: getDireccion(&clientes[idNum]); break;
+                            case 3: getPoblacion(&clientes[idNum]); break;
+                            case 4: getProvincia(&clientes[idNum]); break;
+                            case 5: getEmail(&clientes[idNum]); break;
+                            case 6: getContrasenia(&clientes[idNum]); break;
+                            case 7: clientes[idNum].Cartera = obtenerCartera(); break;
+                            case 8: break;
+                            default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
+                        }
+
+                        system("cls");
+                    }
+
+                } while(op < 1 || op > 8);       
+            }
+
+            // si se ha producido algun cambio, es necesario modificar Clientes.txt
+            if(existeCambiosClientes(clientes[idNum], original)){
+                modificarFicheroClientes(clientes[idNum]);
+                printf("Cliente modificado.\n");
+            }
+        }
+
+        printf("\nDesea buscar otro usuario? (1 = si, 0 = no): ");
+
+        if(scanf("%i", &idNum) != 1){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida.\n\n");
+        }
+
+    } while(idNum != 0);
+
+    free(clientes);
+}
+
+static void buscador(){
+    system("cls");
+
+    int op;
+
+    do {
+        printf("\nOpciones de busqueda (CLIENTES):\n\n");
+        printf("1. Buscar por ID.\n");
+        printf("2. Buscar por nombre.\n");
+        printf("3. Buscar por correo.\n");
+        printf("4. Buscar por provincia.\n");
+        printf("5. Buscar por poblacion.\n");
+        printf("6. Volver.\n\n");
+
+        printf("Inserte la opcion: ");
+
+        if(scanf("%i", &op) != 1 || op < 1 || op > 6){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida\n\n");
+        } else{
+            switch(op){
+                case 1: buscarID(); break;
+                case 2: buscarConTexto(NOMBRE); break;
+                case 3: buscarConTexto(CORREO); break;
+                case 4: buscarConTexto(PROVINCIA); break;
+                case 5: buscarConTexto(POBLACION); break;
+                case 6: break;
+                default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
+            }
+
+            system("cls");
+        }
+
+    } while(op < 1 || op > 6);
+}
+
+static void buscarID(){
+    system("cls");
+    printf("Tipo de Buscador: por ID.\n");
+
+    int idNum;
+
+    do {
+        printf("Indique la ID (formato 1, 2, ...): ");
+        
+        if(scanf("%i", &idNum) != 1 || idNum <= 0){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida.\n\n");
+        } else {
+            // Si la ID introducida es mayor al numero de usuarios en el sistema entonces no existe
+            if(idNum > numClientes())
+                printf("No existe usuario con ID: %i.", idNum);
+            else{
+                tCliente *clientes = crearListaClientes();
+                cargarClientes(clientes);
+
+                --idNum;
+
+                printf("\nDatos del usuario buscado: ");
+                printf("%s-%s-%s-%s-%s-%s-%s-%lf\n", clientes[idNum].Id_cliente, clientes[idNum].Nomb_cliente,
+                                                   clientes[idNum].Dir_cliente, clientes[idNum].Poblacion,
+                                                   clientes[idNum].Provincia, clientes[idNum].email,
+                                                   clientes[idNum].Contrasenia, clientes[idNum].Cartera);
+
+                free(clientes);
+            }
+        }
+
+        printf("\nDesea buscar otro usuario? (1 = si, 0 = no): ");
+
+        if(scanf("%i", &idNum) != 1){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida.\n\n");
+        }
+
+    } while(idNum != 0);
+}
+
+static void desgloseCompleto(tCliente cliente){
+    printf("Coincidencia: %s-%s-%s-%s-%s-%s-%s-%lf\n", cliente.Id_cliente, cliente.Nomb_cliente, cliente.Dir_cliente,
+                                                            cliente.Poblacion, cliente.Provincia, cliente.email,
+                                                            cliente.Contrasenia, cliente.Cartera);
+}
+
+static void buscarEnClientes(Busqueda tipo, const char *str, unsigned tamStr){
+    unsigned i = 0, cont = 0;
+    tCliente *clientes = crearListaClientes();
+    cargarClientes(clientes);
+
+    while(i < numClientes()){
+        switch(tipo){
+            case NOMBRE: 
+                if(strncmp(str, clientes[i].Nomb_cliente, tamStr) == 0){
+                    desgloseCompleto(clientes[i]);
+                    ++cont;
+                }
+                break;
+            case CORREO: 
+                if(strncmp(str, clientes[i].email, tamStr) == 0) 
+                    desgloseCompleto(clientes[i]);
+                    // no hacemos ++cont ya que no se van a repetir dos emails
+                break;
+            case PROVINCIA: 
+                if(strncmp(str, clientes[i].Provincia, tamStr) == 0){
+                    desgloseCompleto(clientes[i]);
+                    ++cont;
+                }
+                break;
+            case POBLACION: 
+                if(strncmp(str, clientes[i].Poblacion, tamStr) == 0){
+                    desgloseCompleto(clientes[i]);
+                    ++cont;
+                }
+                break;
+            default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
+        }
+            
+        ++i;
+    }
+
+    if(tipo != CORREO)  // dos emails no se repiten
+        printf("Resultados encontrados: %u.\n", cont);
+    
+    free(clientes);
+    system("pause");
+}
+
+static void buscarConTexto(Busqueda tipo){
+    system("cls");
+
+    // Por temas de legibilidad en el programa, se indica que tipo de busqueda se hará
+    // se hace esto también para no tener que repetir el codigo en todos los casos que hay
+    // de búsqueda.
+    switch(tipo){
+        case NOMBRE: 
+            printf("Tipo de Buscador: por nombre.\n\n"); 
+            printf("Inserte el nombre a buscar.\n"); 
+            char *nombre = NULL;
+
+            while(!nombre)
+                nombre = obtenerNombreCliente();
+
+            buscarEnClientes(tipo, nombre, NOM);
+
+            free(nombre);
+            break;
+
+        case CORREO: 
+            printf("Tipo de Buscador: por email.\n\n"); 
+            printf("Inserte el email a buscar.\n"); 
+            char *email = NULL;
+
+            while(!email)
+                email = obtenerEmail();
+
+            buscarEnClientes(tipo, email, EMAIL);
+
+            free(email);            
+            break;
+        case PROVINCIA: 
+            printf("Tipo de Buscador: por provincia.\n\n"); 
+            printf("Inserte la provincia a buscar.\n"); 
+            char *provincia = NULL;
+
+            while(!provincia)
+                provincia = obtenerProvincia();
+
+            buscarEnClientes(tipo, provincia, POB);
+
+            free(provincia);
+            break;
+        case POBLACION: 
+            printf("Tipo de Buscador: por poblacion.\n\n"); 
+            printf("Inserte el poblacion a buscar.\n"); 
+            char *poblacion = NULL;
+
+            while(!poblacion)
+                poblacion = obtenerNombreCliente();
+
+            buscarEnClientes(tipo, poblacion, POB);
+
+            free(poblacion);
+            break;
+        default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
+    }
+}
+
+static void modificarFicheroClientes(tCliente clienteMod){
     FILE *pf, *temp;
     char buffer[MAX_LIN_FICH_CLI];
     char *fich = "../datos/Clientes.txt";
@@ -330,10 +733,10 @@ static void modificarFichero(tCliente clienteMod){
     while(fgets(buffer, MAX_LIN_FICH_CLI, pf) != NULL){
         char idFich[ID];
         
-        strncpy(idFich, buffer, 7);    // En id se almacena los 7 primeros caracteres de cada linea
+        strncpy(idFich, buffer, ID-1);    // En id se almacena los 7 primeros caracteres de cada linea
 
         // En temp se guardara el fichero modificado
-        if(strcmp(idFich, clienteMod.Id_cliente) == 0){
+        if(strncmp(idFich, clienteMod.Id_cliente, ID-1) == 0){
             // si se añade una linea de mas al final del fichero, tendremos problemas con el numClientes
             if(numClientes() == atoi(idFich))
                 fprintf(temp, "%s-%s-%s-%s-%s-%s-%s-%lf", clienteMod.Id_cliente, clienteMod.Nomb_cliente, clienteMod.Dir_cliente,
@@ -357,7 +760,7 @@ static void modificarFichero(tCliente clienteMod){
     rename(fichTemp, fich); // fichTemp pasa a ser fich
 }
 
-static int existeCambios(tCliente nuevo, tCliente original){
+static int existeCambiosClientes(tCliente nuevo, tCliente original){
     int boole = 1;
 
     if(nuevo.Nomb_cliente == original.Nomb_cliente && nuevo.Dir_cliente == original.Dir_cliente
@@ -379,7 +782,7 @@ static char *obtenerNombreCliente(){
         exit(1);
     }
 
-    printf("\nEscriba su nombre completo (maximo 20 caracteres): ");
+    printf("\nEscriba el nombre completo (maximo 20 caracteres): ");
     fflush(stdin);
 
     while((c = getchar()) != '\n' && i < NOM){    // Recogemos caracter a caracter para controlar el tamaño de entrada
@@ -449,7 +852,7 @@ static char *obtenerPoblacion(){
         exit(1);
     }
 
-    printf("\nEscribe el nombre de su poblacion (maximo 20 caracteres): ");
+    printf("\nEscribe el nombre de poblacion (maximo 20 caracteres): ");
     fflush(stdin);
 
     while((c = getchar()) != '\n' && i < POB){        // Recogemos caracter a caracter para controlar el tamaño de entrada
@@ -484,7 +887,7 @@ static char *obtenerProvincia(){
         exit(1);
     }
 
-    printf("\nEscribe el nombre de su provincia (maximo 20 caracteres): ");
+    printf("\nEscribe el nombre de provincia (maximo 20 caracteres): ");
     fflush(stdin);
 
     while((c = getchar()) != '\n' && i < POB){        // Recogemos caracter a caracter para controlar el tamaño de entrada
@@ -519,7 +922,7 @@ static char *obtenerEmail(){
         exit(1);
     }
 
-    printf("\nEscriba su email (maximo 30 caracteres): ");
+    printf("\nEscriba el email (maximo 30 caracteres): ");
     fflush(stdin);
 
     while((c = getchar()) != '\n' && i < EMAIL){        // Recogemos caracter a caracter para controlar el tamaño de entrada

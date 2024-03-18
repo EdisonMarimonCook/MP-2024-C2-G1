@@ -24,7 +24,7 @@ int main(){
 			switch(op){
 				case 0: break;
 				case 1: iniciarSesion(); break;
-				case 2: registrarse(); break;	// solo puede registrarse como cliente
+				case 2: registrarse(CON_MENU); break;	// solo puede registrarse como cliente
 				default: fprintf(stderr, "Se ha producido un error.\n"); exit(1);
 			}
 		}

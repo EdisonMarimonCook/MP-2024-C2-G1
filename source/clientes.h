@@ -9,6 +9,10 @@
 #define PASS 16
 #define MAX_LIN_FICH_CLI 176 // MAX_LIN_FICH es el tamaño máximo que habrá en cada linea, incluyendo los guiones
 
+typedef enum {
+    NOMBRE, CORREO, PROVINCIA, POBLACION
+} Busqueda;
+
 typedef struct {
     char Id_cliente[ID];            // Identificador del cliente
     char Nomb_cliente[NOM];       // Nombre completo del cliente
@@ -37,10 +41,6 @@ void cargarClientes(tCliente *infocli);
 // Precondicion: nada
 // Postcondicion: devuelve un vector de tipo tCliente de tamaño igual al nº de clientes del sistema
 tCliente *crearListaClientes();
-
-// Precondición: nada.
-// Postcondicion: imprime todos los clientes dados de alta en la plataforma
-void imprimirClientes();
 
 // Precondición: no pueden haber argumentos vacíos
 // Postcondición: devuelve la posición que le corresponde al cliente si existe email y contraseña que coinciden con los parametros email y psw
@@ -87,15 +87,53 @@ void getContrasenia(tCliente *cliente);
 // Postcondicion: devuelve el saldo de la cartera introducido por el cliente.
 double obtenerCartera();
 
+// Precondición: nada.
+// Postcondición: el administrador del sistema podrá operar en función de las opciones
+//                que proporciona el menu
+void infoClientes();
+
+// Precondición: nada.
+// Postcondicion: imprime todos los clientes dados de alta en la plataforma
+void imprimirClientes();
+
+
 /* FUNCIONES PRIVADAS */
+
+// Precondición: nada.
+// Postcondición: elimina los clientes indicado por el administrador del sistema.
+static void bajaCliente();
+
+// Precondición: recibe un array dinamico de tipo tCliente y el numero de clientes
+// Postcondición: modifica Clientes.txt con el los clientes que haya en clientes
+static void recrearFichero(tCliente *clientes, int numClientes);
+
+// Precondición: nada.
+// Postcondición: modifica en Clientes.txt aquello que haya modificado el administrador
+static void modificar();
+
+// Precondición: nada.
+// Postcondición: menu para buscar clientes 
+static void buscador();
+
+// Precondición: nada.
+// Postcondición: proporciona la busqueda por IDs de clientes.
+static void buscarID();
+
+// Precondición: se debe proporcionar el tipo de Busqueda, recibe un string y el tamaño de dicho string
+// Postcondición: se proporciona los usuarios bajo el criterio de busqueda
+static void buscarEnClientes(Busqueda tipo, const char *str, unsigned tamStr);
+
+// Precondición: se debe proporcionar el tipo de Busqueda
+// Postcondición: realiza la busqueda que proporcione el administrador
+static void buscarConTexto(Busqueda tipo);
 
 // Precondición: recibe una variable de tipo tCliente
 // Postcondición: inserta en Clientes.txt los nuevos datos de clienteMod
-static void modificarFichero(tCliente clienteMod);
+static void modificarFicheroClientes(tCliente clienteMod);
 
 // Precondición: recibe dos parámetros tipo tCliente
 // Postcondición: devuelve 1 si nuevo = original y 0 en caso contrario
-static int existeCambios(tCliente nuevo, tCliente original);
+static int existeCambiosClientes(tCliente nuevo, tCliente original);
 
 // Precondición: nada.
 // Poscondición: devuelve el nombre de usuario que se introduzca, con varios mensajes de error en caso de que no sea válida.

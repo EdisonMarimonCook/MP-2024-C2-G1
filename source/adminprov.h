@@ -1,7 +1,7 @@
 #ifndef _ADMINPROV_H_
 #define _ADMINPROV_H_
 
-#define ID_EMPRESA 4
+#define ID_EMPRESA 5
 #define NOM 21
 #define EMAIL 31
 #define PASS 16
@@ -43,11 +43,23 @@ int inicioValidoAdminProv(tAdminProv *infoAdminProv, char *email, char *psw);
 // Postcondición: proporciona al administrador las opciones de perfil, asi como consultar datos y poder modificarlos
 void perfilAdmin(tAdminProv *admin);
 
+// Precondición: recibe una estructura tAdminProv
+// Postcondición: proporciona al proveedor las opciones de perfil, asi como consultar datos y poder modificarlos
+void perfilProveedor(tAdminProv *proveedor);
+
 // Precondición: nada.
 // Postcondición: devuelve el numero de administradores + proovedores del sistema.
 unsigned numAdminProvs();
 
 /* FUNCIONES PRIVADAS */
+
+// Precondición: recibe dos parámetros tipo tAdminProv
+// Postcondición: devuelve 1 si nuevo = original y 0 en caso contrario
+static int existeCambiosAdminProv(tAdminProv nuevo, tAdminProv original);
+
+// Precondición: recibe una variable de tipo tAdminProv
+// Postcondición: inserta en AdminProv.txt los nuevos datos de adminprovMod
+static void modificarFicheroAdminProv(tAdminProv adminprovMod);
 
 // Precondición: variable adminprovs pasada por referencia
 // Postcondición: almacena en el campo Nombre el valor que proporcione el administrador o el provedor

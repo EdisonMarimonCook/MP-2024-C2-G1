@@ -6,6 +6,8 @@
 #include "clientes.h"   // tCliente
 #include "adminprov.h"  // tAdminProv
 
+// Todo: al poner un email no puede haber mayúsculas?, en el provedor si intento entrar al perfil no va
+
 void iniciarSesion(){
     system("cls");
     printf("\t\t\tESIZON\n\n");
@@ -70,7 +72,7 @@ void iniciarSesion(){
     free(infoAdminProvs);
 
     if(op == 1)
-        registrarse();    // linea 75 el usuario es preguntado por registrarse (opcion 1)
+        registrarse(CON_MENU);    // usuario es preguntado por registrarse (opcion 1)
     else if(valdCli == 0 || valdAdPr == 0){
         if(valdCli)
             menuCliente(&cliente);      // menu principal de usuario cliente
@@ -83,7 +85,7 @@ void iniciarSesion(){
     }
 }
 
-void registrarse(){
+void registrarse(int op){
     system("cls");
     printf("\t\t\tESIZON\n\n");
 
@@ -114,7 +116,10 @@ void registrarse(){
     // Guardamos los datos del cliente
     guardarDatosClienteFich("../datos/Clientes.txt", nuevoCliente);
 
-    menuCliente(&nuevoCliente);
+    if(op == 1)
+        menuCliente(&nuevoCliente);
+    else
+        printf("Se ha registrado un nuevo usuario con nombre %s correctamente.\n\n", nuevoCliente.Nomb_cliente);
 }
 
 int existeEmail(char *email){
@@ -147,12 +152,12 @@ int existeEmail(char *email){
     return fin;
 }
 
+
 void generarID(char *id, int idNum, int numDigitos){
     if(idNum >= 0 && numDigitos > 0)
         sprintf(id, "%0*d", numDigitos, idNum);   // Transformamos idNum en ID con el numero de dígitos almacenados en numDigitos
     else
         fprintf(stderr, "La ID no puede ser negativa.");
 }
-
 
 /* FUNCIONES PRIVADAS */
