@@ -31,7 +31,7 @@ static void buscar_nombre_prod(){
 
     int i, j;
     unsigned num;
-    char temp[MAX_LIN_FICH_PROD], aux[DES], *nombre;
+    char temp[MAX_LIN_FICH_PROD], aux[DES], *nombre, del[] = "-";
 
     num = num_prod();   //Almaceno el numero de productos
 
@@ -77,11 +77,31 @@ static void buscar_nombre_prod(){
             if (temp[strlen(temp) - 1] == '\n'){
                 temp[strlen(temp) - 1] = '\0';
             }
-            sscanf(temp, "%[^-]-%[^-]-%[^-]-%[^-]-%d-%d-%lf", prod[i].id_prod, prod[i].descrip, prod[i].id_categ, prod[i].id_gestor,
-                                                            prod[i].stock, prod[i].entrega, prod[i].importe);
 
-            printf("%s-%s-%s-%s-%d-%d-%lf", prod[i].id_prod, prod[i].descrip, prod[i].id_categ, prod[i].id_gestor,
-                                            prod[i].stock, prod[i].entrega, prod[i].importe);
+            // Divido la cadena mediante su delimitador y la almaceno en la estructura
+            char *p1 = strtok (temp, del);
+            strcpy (prod[i].id_prod, p1);
+
+            char *p2 = strtok (temp, del);
+            strcpy ( prod[i].descrip, p2);
+
+            char *p3 = strtok (temp, del);
+            strcpy (prod[i].id_categ, p3);
+
+            char *p4 = strtok (temp, del);
+            strcpy (prod[i].id_gestor, p4);
+
+            char *p5 = strtok (temp, del);
+            prod[i].stock = atof(p5);   // Uso del atof debido a que strtok devuelve un puntero a char no un puntero a unsigned
+
+            char *p6 = strtok (temp, del);
+            prod[i].entrega = atof(p6); //          "           "                   "                   "               "
+
+            char *p7 = strtok (temp, del);
+            prod[i].importe = atof(p7); //          "           "                   "                   "           a double
+
+            printf ("%s-%s-%s-%s-%d-%d-%lf.\n", prod[i].id_prod, prod[i].descrip, prod[i].id_categ, prod[i].id_gestor, prod[i].stock,
+                                                prod[i].entrega, prod[i].importe);
         }
     }
 
