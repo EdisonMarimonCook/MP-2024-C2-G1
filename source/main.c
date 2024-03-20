@@ -4,7 +4,7 @@
 #include "clientes.h"
 
 int main(){
-	system("cls");
+	/system("cls");
 
 	int op;
 
