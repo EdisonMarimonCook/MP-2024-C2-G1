@@ -21,7 +21,7 @@ void consulta_Productos(){
             switch (op){
                 case 1: break;
                 case 2: buscar_nombre_prod(); break;
-                //case 3: menuCliente(tCliente cliente); break;
+                case 3: break;
                 default: fprintf(stderr, "Ha ocurrido un error.\n"); exit(1);
             }
         }
@@ -165,7 +165,7 @@ static void producto_encontrado(t_productos prod){
     if(prod.stock == 0){
         fprintf (stderr, "No hay stock temporalmente de este producto.\n");
     }else{
-        printf ("Del producto referenciado se encuentran %d unidades en stock con un importe cada una de %.2lf.\n", prod.stock, prod.importe);
+        printf ("Del producto referenciado se encuentran %d unidades en stock con un importe cada una de %.2lf euros.\n", prod.stock, prod.importe);
     }
 }
 
