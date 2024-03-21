@@ -21,10 +21,10 @@ int main(){
             fprintf(stderr, "Entrada no valida. Opcion Incorrecta.\n\n");
         } else {
 			switch(op){
-				//case 0: break;
-				//case 1: iniciarSesionCliente(); break;
-				//case 2: registrarCliente(); break;
-				//default: fprintf(stderr, "Se ha producido un error.\n"); exit(1);
+				case 0: break;
+				case 1: iniciarSesionCliente(); break;
+				case 2: registrarCliente(); break;
+				default: fprintf(stderr, "Se ha producido un error.\n"); exit(1);
 			}
 		}
 
