@@ -8,7 +8,7 @@ void mainCategorias();
 void modificarCategoria() {
 
     char idCategoria[5]; 
-    char nuevaDescrip[51];
+    char nuevaDescrip[50];
 
     printf("Escriba el ID de la categoria a modificar: ");
     scanf("%s", idCategoria);
@@ -16,18 +16,13 @@ void modificarCategoria() {
 
     printf("Escriba la nueva descripcion para la categoria: ");
     scanf("%s", nuevaDescrip);
-    while (getchar() != '\n');
-
-    if(nuevaDescrip[51] != '\0'){
-        printf("Descripcion demasiado larga, ingrese una con 50 caracteres de maximo.\n");
-        system("cls");
-        mainCategorias();
-    }
 
     FILE *archivoOriginal, *archivoTemporal;
     char id[5];
     char descrip[51];
     int encontrado = 0;
+
+    descrip[51] = '\0';
 
     archivoOriginal = fopen("../datos/Categorias.txt", "r");
     if (archivoOriginal == NULL) {
@@ -137,8 +132,10 @@ void mainCategorias(){
 
     FILE *fichero = fopen("../datos/Categorias.txt", "r+");
     if (fichero == NULL){
-        printf("No se pudo abrir Categorias.txt");
-        exit(1);
+        if(FILE *fichero = fopen("../datos/Categorias.txt", "w+") == NULL){
+            perror("No se pudo abrir Categorias.txt");
+            exit(1);
+        }
     }
 
     char id_actual[5];
