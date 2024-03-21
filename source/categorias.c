@@ -5,7 +5,11 @@
 
 void mainCategorias();
 
-void modificarCategoria() {
+static void realizarBaja();
+static void realizarAlta(char id_actual[]);
+static void modificarCategoria();
+
+static void modificarCategoria() {
 
     char idCategoria[5]; 
     char nuevaDescrip[50];
@@ -58,7 +62,7 @@ void modificarCategoria() {
     }
 }
 
-void realizarAlta(char id_actual[]) {
+static void realizarAlta(char id_actual[]) {
     FILE *fichero = fopen("../datos/Categorias.txt", "a+");
     if (fichero == NULL) {
         printf("No se pudo abrir el archivo Categorias.txt\n");
@@ -81,7 +85,7 @@ void realizarAlta(char id_actual[]) {
     printf("Se ha agregado una nueva categoría al archivo: %s-%s\n", nueva_categoria.Id_categ, nueva_categoria.Descrip);
 }
 
-void realizarBaja() {
+static void realizarBaja() {
     char id_baja[5];
     int encontrado = 0;
 

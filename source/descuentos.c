@@ -3,10 +3,10 @@
 #include <string.h>
 #include "descuentos.h"
 
-void agregarDescuento(Descuentos *descuentos, int *numDescuentos);
-void mostrarDescuentos(Descuentos *descuentos, int numDescuentos);
-void buscarDescuento(Descuentos *descuentos, int numDescuentos, char *id);
-void guardarDescuentos(Descuentos *descuentos, int numDescuentos, char *filename);
+static void agregarDescuento(Descuentos *descuentos, int *numDescuentos);
+static void mostrarDescuentos(Descuentos *descuentos, int numDescuentos);
+static void buscarDescuento(Descuentos *descuentos, int numDescuentos, char *id);
+static void guardarDescuentos(Descuentos *descuentos, int numDescuentos, char *filename);
 
 void menuDescuentos() {
     Descuentos descuentos[100]; // Cambiar con malloc
@@ -69,7 +69,7 @@ void menuDescuentos() {
     guardarDescuentos(descuentos, numDescuentos, "../datos/Descuentos.txt");
 }
 
-void agregarDescuento(Descuentos *descuentos, int *numDescuentos) {
+static void agregarDescuento(Descuentos *descuentos, int *numDescuentos) {
     if(*numDescuentos >= 100) {
         printf("Ya se ha alcanzado el máximo de descuentos.\n");
         return;
@@ -107,7 +107,7 @@ void agregarDescuento(Descuentos *descuentos, int *numDescuentos) {
     printf("Descuento agregado correctamente.\n");
 }
 
-void mostrarDescuentos(Descuentos *descuentos, int numDescuentos) {
+static void mostrarDescuentos(Descuentos *descuentos, int numDescuentos) {
     printf("Descuentos disponibles:\n");
     for(int i = 0; i < numDescuentos; i++) {
         printf("ID: %s, Descripción: %s, Tipo: %s, Estado: %s, Importe: %.2f, Aplicable: %s\n",
@@ -116,7 +116,7 @@ void mostrarDescuentos(Descuentos *descuentos, int numDescuentos) {
     }
 }
 
-void buscarDescuento(Descuentos *descuentos, int numDescuentos, char *id) {
+static void buscarDescuento(Descuentos *descuentos, int numDescuentos, char *id) {
     int encontrado = 0;
     for(int i = 0; i < numDescuentos; i++) {
         if(strcmp(descuentos[i].id_cod, id) == 0) {
@@ -132,7 +132,7 @@ void buscarDescuento(Descuentos *descuentos, int numDescuentos, char *id) {
         printf("No se encontró ningún descuento con ese ID.\n");
 }
 
-void guardarDescuentos(Descuentos *descuentos, int numDescuentos, char *filename) { //aqui no guarda bien los archivos (borra los antiguos)
+static void guardarDescuentos(Descuentos *descuentos, int numDescuentos, char *filename) { //aqui no guarda bien los archivos (borra los antiguos)
     FILE *file = fopen(filename, "w");
     if (file == NULL) {
         perror("Error al abrir el archivo para escribir.\n");

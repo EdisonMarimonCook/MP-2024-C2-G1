@@ -9,4 +9,8 @@ typedef struct{
 
 void mainCategorias();
 
+static void realizarBaja();
+static void realizarAlta(char id_actual[]);
+static void modificarCategoria();
+
 #endif
