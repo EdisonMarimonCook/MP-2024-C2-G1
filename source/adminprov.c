@@ -5,6 +5,8 @@
 #include "adminprov.h"
 #include "clientes.h"   // infoClientes()
 #include "usuarios.h"   // existeEmail()
+#include "categorias.h" // mainCategorias()
+#include "descuentos.h" // menuDescuentos()
 
 /* FUNCIONES PUBLICAS */
 
@@ -40,10 +42,10 @@ void menuAdmin(tAdminProv *admin){
                 case 2: infoClientes(); break;  // clientes.h
                 case 3: break;
                 case 4: break;
-                case 5: break;
+                case 5: mainCategorias(); break;
                 case 6: break;
                 case 7: break;
-                case 8: break;
+                case 8: menuDescuentos(); break;
                 case 9: break;
                 case 10: fin = 1; break;
                 default: fprintf(stderr, "Se ha producido un error\n"); exit(1);

@@ -3,7 +3,8 @@
 #include <string.h>    // sscanf
 
 #include "clientes.h"
-#include "usuarios.h" // existeEmail(), generar
+#include "usuarios.h"    // existeEmail(), generar
+#include "productos.h"  // consulta_productos()
 
 // TODO: extraño bug el programa se cierra si clientes.txt tiene más de 8
 
@@ -34,7 +35,7 @@ void menuCliente(tCliente *cliente){
             // Menu Clientes
             switch(op){
                 case 1: perfilCliente(cliente); break;
-                case 2: break;
+                case 2: consulta_Productos(); break;
                 case 3: break;
                 case 4: break;
                 case 5: break;

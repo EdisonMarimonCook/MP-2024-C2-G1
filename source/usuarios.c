@@ -6,7 +6,7 @@
 #include "clientes.h"   // tCliente
 #include "adminprov.h"  // tAdminProv
 
-// Todo: al poner un email no puede haber mayúsculas?, en el provedor si intento entrar al perfil no va
+// Todo: al poner un email no puede haber mayúsculas?
 
 void iniciarSesion(){
     system("cls");
