@@ -136,10 +136,8 @@ void mainCategorias(){
 
     FILE *fichero = fopen("../datos/Categorias.txt", "r+");
     if (fichero == NULL){
-        if(FILE *fichero = fopen("../datos/Categorias.txt", "w+") == NULL){
-            perror("No se pudo abrir Categorias.txt");
-            exit(1);
-        }
+        perror("No se pudo abrir Categorias.txt");
+        exit(1);
     }
 
     char id_actual[5];
