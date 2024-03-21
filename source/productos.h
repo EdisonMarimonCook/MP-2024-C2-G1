@@ -42,4 +42,6 @@ static void vaciar(char temp[]);
 
 static void producto_encontrado(t_productos prod);
 
+void infoProdAdmin();
+
 #endif
