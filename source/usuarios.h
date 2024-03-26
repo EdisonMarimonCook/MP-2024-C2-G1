@@ -7,6 +7,10 @@
 /* FUNCIONES PUBLICAS */
 
 // Precondición: nada.
+// Postcondición: registra a un provedor en el sistema ESIZON.
+void registrarProveedor();
+
+// Precondición: nada.
 // Postcondición: inicia sesión en el sistema ESIZON.
 void iniciarSesion();
 

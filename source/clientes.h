@@ -9,10 +9,6 @@
 #define PASS 16
 #define MAX_LIN_FICH_CLI 176 // MAX_LIN_FICH es el tamaño máximo que habrá en cada linea, incluyendo los guiones
 
-typedef enum {
-    NOMBRE, CORREO, PROVINCIA, POBLACION
-} Busqueda;
-
 typedef struct {
     char Id_cliente[ID];            // Identificador del cliente
     char Nomb_cliente[NOM];       // Nombre completo del cliente
@@ -23,6 +19,10 @@ typedef struct {
     char Contrasenia[PASS]; // Contraseña de acceso al sistema
     double Cartera;         //  almacenará el dinero del que dispone el cliente
 } tCliente;
+
+typedef enum {
+    NOMBRE, CORREO, PROVINCIA, POBLACION
+} BusquedaClientes;
 
 /* FUNCIONES PUBLICAS */
 
@@ -109,23 +109,27 @@ static void recrearFichero(tCliente *clientes, int numClientes);
 
 // Precondición: nada.
 // Postcondición: modifica en Clientes.txt aquello que haya modificado el administrador
-static void modificar();
+static void modificarClientes();
 
 // Precondición: nada.
 // Postcondición: menu para buscar clientes 
-static void buscador();
+static void buscadorCliente();
 
 // Precondición: nada.
 // Postcondición: proporciona la busqueda por IDs de clientes.
-static void buscarID();
+static void buscarIDclientes();
+
+// Precondición: un cliente en concreto.
+// Postcondición: imprime los datos del cliente.
+static void desgloseCompletoClientes(tCliente cliente);
 
 // Precondición: se debe proporcionar el tipo de Busqueda, recibe un string y el tamaño de dicho string
 // Postcondición: se proporciona los usuarios bajo el criterio de busqueda
-static void buscarEnClientes(Busqueda tipo, const char *str, unsigned tamStr);
+static void buscarEnClientes(BusquedaClientes tipo, const char *str, unsigned tamStr);
 
 // Precondición: se debe proporcionar el tipo de Busqueda
 // Postcondición: realiza la busqueda que proporcione el administrador
-static void buscarConTexto(Busqueda tipo);
+static void buscarConTextoClientes(BusquedaClientes tipo);
 
 // Precondición: recibe una variable de tipo tCliente
 // Postcondición: inserta en Clientes.txt los nuevos datos de clienteMod

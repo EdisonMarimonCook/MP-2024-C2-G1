@@ -318,8 +318,8 @@ void infoClientes(){
             switch(op){
                 case 1: registrarse(SIN_MENU); break;
                 case 2: bajaCliente(); break;
-                case 3: buscador(); break;
-                case 4: modificar(); break;
+                case 3: buscadorCliente(); break;
+                case 4: modificarClientes(); break;
                 case 5: break;
                 default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
             }
@@ -386,13 +386,15 @@ static void bajaCliente(){
             }
         }
 
-        printf("\nDesea buscar otro usuario? (1 = si, 0 = no): ");
+        do {
+            printf("\nDesea buscar otro usuario? (1 = si, 0 = no): ");
 
-        if(scanf("%i", &idNum) != 1){
-            system("cls");
-            fflush(stdin);
-            fprintf(stderr, "Entrada no valida.\n\n");
-        }
+            if(scanf("%i", &idNum) != 1){
+                system("cls");
+                fflush(stdin);
+                fprintf(stderr, "Entrada no valida.\n\n");
+            }
+        } while(idNum != 1 && idNum != 0);
 
     } while(idNum != 0);
 
@@ -435,8 +437,7 @@ static void recrearFichero(tCliente *clientes, int numClientes){
     rename(fichTemp, fich); // fichTemp pasa a ser fich
 }
 
-
-static void modificar(){
+static void modificarClientes(){
     system("cls");
     
     int idNum;
@@ -526,7 +527,7 @@ static void modificar(){
     free(clientes);
 }
 
-static void buscador(){
+static void buscadorCliente(){
     system("cls");
 
     int op;
@@ -548,11 +549,11 @@ static void buscador(){
             fprintf(stderr, "Entrada no valida\n\n");
         } else{
             switch(op){
-                case 1: buscarID(); break;
-                case 2: buscarConTexto(NOMBRE); break;
-                case 3: buscarConTexto(CORREO); break;
-                case 4: buscarConTexto(PROVINCIA); break;
-                case 5: buscarConTexto(POBLACION); break;
+                case 1: buscarIDclientes(); break;
+                case 2: buscarConTextoClientes(NOMBRE); break;
+                case 3: buscarConTextoClientes(CORREO); break;
+                case 4: buscarConTextoClientes(PROVINCIA); break;
+                case 5: buscarConTextoClientes(POBLACION); break;
                 case 6: break;
                 default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
             }
@@ -563,7 +564,7 @@ static void buscador(){
     } while(op < 1 || op > 6);
 }
 
-static void buscarID(){
+static void buscarIDclientes(){
     system("cls");
     printf("Tipo de Buscador: por ID.\n");
 
@@ -607,13 +608,13 @@ static void buscarID(){
     } while(idNum != 0);
 }
 
-static void desgloseCompleto(tCliente cliente){
+static void desgloseCompletoClientes(tCliente cliente){
     printf("Coincidencia: %s-%s-%s-%s-%s-%s-%s-%lf\n", cliente.Id_cliente, cliente.Nomb_cliente, cliente.Dir_cliente,
                                                             cliente.Poblacion, cliente.Provincia, cliente.email,
                                                             cliente.Contrasenia, cliente.Cartera);
 }
 
-static void buscarEnClientes(Busqueda tipo, const char *str, unsigned tamStr){
+static void buscarEnClientes(BusquedaClientes tipo, const char *str, unsigned tamStr){
     unsigned i = 0, cont = 0;
     tCliente *clientes = crearListaClientes();
     cargarClientes(clientes);
@@ -622,24 +623,24 @@ static void buscarEnClientes(Busqueda tipo, const char *str, unsigned tamStr){
         switch(tipo){
             case NOMBRE: 
                 if(strncmp(str, clientes[i].Nomb_cliente, tamStr) == 0){
-                    desgloseCompleto(clientes[i]);
+                    desgloseCompletoClientes(clientes[i]);
                     ++cont;
                 }
                 break;
             case CORREO: 
                 if(strncmp(str, clientes[i].email, tamStr) == 0) 
-                    desgloseCompleto(clientes[i]);
+                    desgloseCompletoClientes(clientes[i]);
                     // no hacemos ++cont ya que no se van a repetir dos emails
                 break;
             case PROVINCIA: 
                 if(strncmp(str, clientes[i].Provincia, tamStr) == 0){
-                    desgloseCompleto(clientes[i]);
+                    desgloseCompletoClientes(clientes[i]);
                     ++cont;
                 }
                 break;
             case POBLACION: 
                 if(strncmp(str, clientes[i].Poblacion, tamStr) == 0){
-                    desgloseCompleto(clientes[i]);
+                    desgloseCompletoClientes(clientes[i]);
                     ++cont;
                 }
                 break;
@@ -656,7 +657,7 @@ static void buscarEnClientes(Busqueda tipo, const char *str, unsigned tamStr){
     system("pause");
 }
 
-static void buscarConTexto(Busqueda tipo){
+static void buscarConTextoClientes(BusquedaClientes tipo){
     system("cls");
 
     // Por temas de legibilidad en el programa, se indica que tipo de busqueda se hará

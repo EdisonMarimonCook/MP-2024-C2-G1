@@ -6,7 +6,31 @@
 #include "clientes.h"   // tCliente
 #include "adminprov.h"  // tAdminProv
 
-// Todo: al poner un email no puede haber mayúsculas?
+void registrarProveedor(){
+    system("cls");
+    printf("\t\t\tESIZON\n\n");
+
+    tAdminProv *datos = crearListaAdminProv(); 
+    cargarAdminProvs(datos);
+    unsigned nAdminProvs = numAdminProvs();
+
+    if(nAdminProvs != 0)
+        reservarAdminProv(datos);    // crearListaAdminProv si nAdminProvs es cero reserva 1 posicion
+
+    // Obtenemos los datos del cliente
+    generarID(datos[nAdminProvs].Id_empresa, nAdminProvs+1, ID_EMPRESA-1);
+    getNombreProvedor(&datos[nAdminProvs]);
+    getEmailAdminProv(&datos[nAdminProvs]);
+    getContraseniaAdminProv(&datos[nAdminProvs]);
+    strcpy(datos[nAdminProvs].Perfil_usuario, "proveedor");
+
+    tAdminProv nuevoProveedor = datos[nAdminProvs];
+    
+    // liberamos memoria que ya no nos hace falta
+    free(datos);    
+
+    guardarDatosAdminProvFich("../datos/AdminProv.txt", nuevoProveedor);
+}
 
 void iniciarSesion(){
     system("cls");
