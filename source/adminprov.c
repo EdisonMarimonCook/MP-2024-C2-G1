@@ -440,7 +440,6 @@ static void recrearFicheroProveedores(tAdminProv *proveedores, int numProveedore
     rename(fichTemp, fich); // fichTemp pasa a ser fich
 }
 
-// TODO: terminar modificarProveedores, no se pueden modificar ni buscar Admin, ya que no es un proovedor
 static void modificarProveedores(){
     system("cls");
     
@@ -672,8 +671,6 @@ static void buscarConTextoProveedores(BusquedaProveedores tipo){
         default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
     }
 }
-
-// TODO: modificaciones correctamente de proveedores
 
 static void imprimirProveedores(){
     FILE *pf;
