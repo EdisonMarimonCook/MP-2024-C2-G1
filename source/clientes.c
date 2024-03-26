@@ -6,8 +6,6 @@
 #include "usuarios.h"    // existeEmail(), generar
 #include "productos.h"  // consulta_productos()
 
-// TODO: extraño bug el programa se cierra si clientes.txt tiene más de 8
-
 /* FUNCIONES PUBLICAS */
 
 void menuCliente(tCliente *cliente){
