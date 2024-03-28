@@ -227,7 +227,7 @@ void perfilProveedor(tAdminProv *proveedor){
 }
 
 unsigned numAdminProvs(){
-    // Sabemos que el fichero Clientes.txt tendrá tantas lineas como clientes en el sistema ESIZON
+    // Sabemos que el fichero AdminProv.txt tendrá tantas lineas como administradores y proveedores en el sistema ESIZON
     char buffer[MAX_LIN_FICH_ADMINPROV];
     FILE *pf;
     unsigned i = 0;

@@ -146,6 +146,7 @@ void registrarse(int op){
         printf("Se ha registrado un nuevo usuario con nombre %s correctamente.\n\n", nuevoCliente.Nomb_cliente);
 }
 
+// TODO: incluir email de transportistas
 int existeEmail(char *email){
     unsigned i = 0, fin = 0;    
     tCliente *clientes = crearListaClientes();
