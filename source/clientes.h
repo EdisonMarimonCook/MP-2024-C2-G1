@@ -49,7 +49,7 @@ int inicioValidoClientes(tCliente *infocli, char *email, char *psw);
 
 // Precondicion: destino será una cadena de caracteres y datos es de tipo tCliente
 // Postcondicion: guarda el contenido de datos en el fichero destino
-void guardarDatosClienteFich(char *destino, tCliente datos);
+void guardarNuevoCliente(char *destino, tCliente datos);
 
 // Precondicion: recibe un puntero a un vector dinamico de tipo tCliente
 // Postcondicion: reserva espacio de memoria
@@ -90,7 +90,7 @@ double obtenerCartera();
 // Precondición: nada.
 // Postcondición: el administrador del sistema podrá operar en función de las opciones
 //                que proporciona el menu
-void infoClientes();
+void administracionClientes();
 
 // Precondición: nada.
 // Postcondicion: imprime todos los clientes dados de alta en la plataforma

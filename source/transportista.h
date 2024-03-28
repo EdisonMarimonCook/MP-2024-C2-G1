@@ -12,6 +12,10 @@ typedef enum {
     EMPRESA, TRANSPORTISTA
 } tNombre;
 
+typedef enum {
+    NOMBRE_TR, CORREO_TR, NOMBRE_EMP, NOM_CIUDAD
+} BusquedaTransp;
+
 typedef struct {
     char Id_transp[ID_TR];
     char Nombre[NOM];
@@ -26,7 +30,7 @@ typedef struct {
 // Precondición: nada.
 // Postcondición: el administrador del sistema podrá operar en función de las opciones
 //                que proporciona el menu.
-void infoTransportistas();
+void administracionTransportistas();
 
 // Precondición: devuelve una estructura tTransportista que no puede ser NULL
 // Postcondición: proporciona al transportista el menu
@@ -57,10 +61,9 @@ void guardarNuevoTransportista(char *destino, tTransportista datos);
 //                devuelve 0 si no se encuentra
 int inicioValidoTransportistas(tTransportista *transp, char *email, char *psw);
 
-// Precondición: variable transportista pasada por referencia y un valor tipo tNombre
-// Postcondición: almacena en el campo Nombre o Nomb_empresa (depende del valor de tNombre)
-//                el valor que proporcione el usuario 
-void getNombreTransportista(tTransportista *transportista, tNombre t);
+// Precondición: variable transportista pasada por referencia
+// Postcondición: almacena en el campo Nombre el valor que proporcione el usuario 
+void getNombreTransportista(tTransportista *transportista);
 
 // Precondición: variable transportista pasada por referencia
 // Postcondición: almacena en el campo email el valor que proporcione el usuario
@@ -72,9 +75,49 @@ void getContraseniaTransportista(tTransportista *transportista);
 
 // Precondición: variable transportista pasada por referencia
 // Postcondición: almacena en el campo Ciudad el valor que proporcione el usuario
+void getNombreEmpresa(tTransportista *transportista);
+
+// Precondición: variable transportista pasada por referencia
+// Postcondición: almacena en el campo Ciudad el valor que proporcione el usuario
 void getCiudad(tTransportista *transportista);
 
 /* FUNCIONES PRIVADAS */
+
+// Precondición: nada.
+// Postcondición: elimina los clientes indicado por el administrador del sistema.
+static void bajaTransportista();
+
+// Precondición: recibe un array dinamico de tipo tTransportista y el numero de transportistas
+// Postcondición: modifica Transportistas.txt con los transportistas que haya en transportistas
+static void recrearFicheroTransportistas(tTransportista *transportistas, int numTransp);
+
+// Precondición: nada.
+// Postcondición: menu para buscar transportistas 
+static void buscadorTransportistas();
+
+// Precondición: nada.
+// Postcondición: proporciona la busqueda por IDs de transportistas.
+static void buscarIDtransportistas();
+
+// Precondición: se debe proporcionar el tipo de Busqueda
+// Postcondición: realiza la busqueda que proporcione el administrador
+static void buscarConTextoTransportistas(BusquedaTransp tipo);
+
+// Precondición: se debe proporcionar el tipo de Busqueda, recibe un string y el tamaño de dicho string
+// Postcondición: se proporciona los transportistas bajo el criterio de busqueda
+static void buscarEnTransportistas(BusquedaTransp tipo, const char *str, unsigned tamStr);
+
+// Precondición: un transportista en concreto.
+// Postcondición: imprime los datos del transportista.
+static void desgloseCompletoTransportistas(tTransportista transportista);
+
+// Precondición: nada.
+// Postcondición: modifica en Transportistas.txt aquello que haya modificado el administrador
+static void modificarTransportistas();
+
+// Precondición: nada.
+// Postcondición: imprime por pantalla el listado de transportistas del sistema.
+static void imprimirTransportistas();
 
 // Precondición: recibe una variable de tipo tTransportista
 // Postcondición: inserta en Transportistas.txt los nuevos datos de transportistaMod
@@ -86,7 +129,7 @@ static int existeCambiosTransportistas(tTransportista nuevo, tTransportista orig
 
 // Precondición: un valor tipo tNombre.
 // Poscondición: devuelve el nombre de usuario o empresa que se introduzca, con varios mensajes de error en caso de que no sea válida.
-static char *obtenerNombreTransportistaOempresa(tNombre t);
+static char *obtenerNombreTransportista();
 
 // Precondición: nada.
 // Poscondición: devuelve el email que se introduzca, con varios mensajes de error en caso de que no sea válida.
@@ -95,6 +138,10 @@ static char *obtenerEmail();
 // Precondición: nada.
 // Poscondición: devuelve el nombre de usuario que se introduzca, con varios mensajes de error en caso de que no sea válida.
 static char *obtenerContrasenia();
+
+// Precondición: nada.
+// Poscondición: devuelve el nombre de usuario que se introduzca, con varios mensajes de error en caso de que no sea válida.
+static char *obtenerNombreEmpresa();
 
 // Precondición: nada.
 // Poscondición: devuelve el nombre de usuario que se introduzca, con varios mensajes de error en caso de que no sea válida.

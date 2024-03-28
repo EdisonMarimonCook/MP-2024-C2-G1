@@ -155,7 +155,7 @@ int inicioValidoClientes(tCliente *infocli, char *email, char *psw){
     return fin;
 }
 
-void guardarDatosClienteFich(char *destino, tCliente datos){
+void guardarNuevoCliente(char *destino, tCliente datos){
     FILE *pf;
 
     pf = fopen(destino, "a");   // append
@@ -291,7 +291,7 @@ double obtenerCartera(){
     return saldoIni;
 }
 
-void infoClientes(){
+void administracionClientes(){
     system("cls");
 
     int op;
@@ -401,7 +401,6 @@ static void bajaCliente(){
 
 static void recrearFichero(tCliente *clientes, int numClientes){
     FILE *pf, *temp;
-    char buffer[MAX_LIN_FICH_CLI];
     char *fich = "../datos/Clientes.txt";
     char *fichTemp = "../datos/Temp-Clientes.txt";
 
@@ -467,7 +466,7 @@ static void modificarClientes(){
                                                    clientes[idNum].Provincia, clientes[idNum].email,
                                                    clientes[idNum].Contrasenia, clientes[idNum].Cartera);
 
-                int op;
+                unsigned op;
 
                 do {
                     printf("\nOpciones de modificacion (CLIENTES):\n\n");
@@ -482,7 +481,7 @@ static void modificarClientes(){
 
                     printf("Inserte la opcion: ");
 
-                    if(scanf("%i", &op) != 1 || op < 1 || op > 8){
+                    if(scanf("%u", &op) != 1 || op < 1 || op > 8){
                         system("cls");
                         fflush(stdin);
                         fprintf(stderr, "Entrada no valida\n\n");
@@ -506,7 +505,7 @@ static void modificarClientes(){
             }
 
             // si se ha producido algun cambio, es necesario modificar Clientes.txt
-            if(existeCambiosClientes(clientes[idNum], original)){
+            if(existeCambiosClientes(clientes[idNum], original) && idNum <= numClientes()){
                 modificarFicheroClientes(clientes[idNum]);
                 printf("Cliente modificado.\n");
             }

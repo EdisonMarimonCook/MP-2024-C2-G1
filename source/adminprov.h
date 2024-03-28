@@ -57,7 +57,7 @@ unsigned numAdminProvs();
 
 // Precondición: recibe una cadena de caracteres y datos de tipo tAdminProv
 // Postcondición: guarda el contenido de datos en el fichero destino
-void guardarDatosAdminProvFich(char *destino, tAdminProv datos);
+void guardarNuevoAdminProv(char *destino, tAdminProv datos);
 
 // Precondición: variable adminprovs pasada por referencia
 // Postcondición: almacena en el campo Nombre el valor que proporcione el administrador o el provedor
@@ -71,7 +71,7 @@ void getEmailAdminProv(tAdminProv *adminprovs);
 // Postcondición: almacena en el campo Contrasenia el valor que proporcione el administrador o el provedor
 void getContraseniaAdminProv(tAdminProv *adminprovs);
 
-// Precondicion: recibe un puntero a un vector dinamico de tipo tAdmin
+// Precondicion: recibe un puntero a un vector dinamico de tipo tAdminProv
 // Postcondicion: reserva espacio de memoria
 void reservarAdminProv(tAdminProv *infoAdminProv);
 
@@ -79,7 +79,7 @@ void reservarAdminProv(tAdminProv *infoAdminProv);
 
 // Precondición: nada.
 // Postcondición: registra un Proveedor en el sistema.
-static void infoProveedores();
+static void administracionProveedores();
 
 // Precondición: nada.
 // Postcondición: elimina los proveedores indicado por el administrador del sistema.

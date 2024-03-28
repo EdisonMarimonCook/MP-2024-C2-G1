@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "adminprov.h"
-#include "clientes.h"   // infoClientes()
+#include "clientes.h"   // administracionClientes()
 #include "usuarios.h"   // existeEmail()
 #include "categorias.h" // mainCategorias()
 #include "descuentos.h" // menuDescuentos()
@@ -40,12 +40,12 @@ void menuAdmin(tAdminProv *admin){
             // Menu Admins
             switch(op){
                 case 1: perfilAdmin(admin); break;
-                case 2: infoClientes(); break;  // clientes.h
-                case 3: infoProveedores(); break;
+                case 2: administracionClientes(); break;  // clientes.h
+                case 3: administracionProveedores(); break;
                 case 4: break;
                 case 5: mainCategorias(); break;
                 case 6: break;
-                case 7: infoTransportistas(); break;
+                case 7: administracionTransportistas(); break;  // transportistas.h
                 case 8: menuDescuentos(); break;
                 case 9: break;
                 case 10: fin = 1; break;
@@ -251,7 +251,7 @@ unsigned numAdminProvs(){
     return i;
 }
 
-void guardarDatosAdminProvFich(char *destino, tAdminProv datos){
+void guardarNuevoAdminProv(char *destino, tAdminProv datos){
     FILE *pf;
 
     pf = fopen(destino, "a");   // append
@@ -306,6 +306,7 @@ void getContraseniaAdminProv(tAdminProv *adminprovs){
     free(psw); 
 }
 
+/* exportable a fichero: usuarios.c */
 void reservarAdminProv(tAdminProv *infoAdminProv){
     if(numAdminProvs() == 0)
         infoAdminProv = (tAdminProv *) calloc(numAdminProvs()+1, sizeof(tAdminProv));
@@ -320,7 +321,7 @@ void reservarAdminProv(tAdminProv *infoAdminProv){
 
 /* FUNCIONES PRIVADAS */
 
-static void infoProveedores(){
+static void administracionProveedores(){
     system("cls");
 
     int op;
@@ -407,7 +408,6 @@ static void bajaProveedor(){
 
 static void recrearFicheroProveedores(tAdminProv *proveedores, int numProveedores){
     FILE *pf, *temp;
-    char buffer[MAX_LIN_FICH_CLI];
     char *fich = "../datos/AdminProv.txt";
     char *fichTemp = "../datos/Temp-AdminProv.txt";
 
@@ -474,7 +474,7 @@ static void modificarProveedores(){
                                            proveedores[idNum].email, proveedores[idNum].Contrasenia, 
                                            proveedores[idNum].Perfil_usuario);
 
-                int op;
+                unsigned op;
 
                 do {
                     printf("\nOpciones de modificacion (PROVEEDORES):\n\n");
@@ -485,7 +485,7 @@ static void modificarProveedores(){
 
                     printf("Inserte la opcion: ");
 
-                    if(scanf("%i", &op) != 1 || op < 1 || op > 4){
+                    if(scanf("%u", &op) != 1 || op < 1 || op > 4){
                         system("cls");
                         fflush(stdin);
                         fprintf(stderr, "Entrada no valida\n\n");
@@ -505,7 +505,7 @@ static void modificarProveedores(){
             }
 
             // si se ha producido algun cambio, es necesario modificar AdminProv.txt
-            if(existeCambiosAdminProv(proveedores[idNum], original) && strcmp(proveedores[idNum-1].Perfil_usuario, "proveedor") == 0){
+            if(existeCambiosAdminProv(proveedores[idNum], original) && strcmp(proveedores[idNum-1].Perfil_usuario, "proveedor") == 0 && idNum <= numAdminProvs()){
                 modificarFicheroAdminProv(proveedores[idNum]);
                 printf("Proveedor modificado.\n");
             }

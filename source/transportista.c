@@ -7,10 +7,7 @@
 
 /* FUNCIONES PUBLICAS */
 
-// TODO: renombrar en adminprov y probablemente en clientes funcion de guardarAdminProv y 
-// terminar registro de transportistas en usuarios.c
-
-void infoTransportistas(){
+void administracionTransportistas(){
     system("cls");
 
     int op;
@@ -33,10 +30,10 @@ void infoTransportistas(){
             fprintf(stderr, "Entrada no valida\n\n");
         } else{
             switch(op){
-                case 1: registrarTransportista(); break;
-                case 2: bajaCliente(); break;
-                case 3: buscadorCliente(); break;
-                case 4: modificarClientes(); break;
+                case 1: registrarTransportista(); break;    // usuarios.h
+                case 2: bajaTransportista(); break;
+                case 3: buscadorTransportistas(); break;
+                case 4: modificarTransportistas(); break;
                 case 5: break;
                 default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
             }
@@ -103,10 +100,10 @@ void perfilTransportista(tTransportista *transportista){
             fprintf(stderr, "Entrada no valida.\n\n");
         } else{
             switch(op){
-                case 1: getNombreTransportista(transportista, TRANSPORTISTA); break;
+                case 1: getNombreTransportista(transportista); break;
                 case 2: getEmailTransportista(transportista); break;
                 case 3: getContraseniaTransportista(transportista); break;
-                case 4: getNombreTransportista(transportista, EMPRESA); break;
+                case 4: getNombreEmpresa(transportista); break;
                 case 5: getCiudad(transportista); break;
                 case 6: break;
                 default: fprintf(stderr, "Se ha producido un inesperado.\n"); exit(1);
@@ -203,7 +200,7 @@ void guardarNuevoTransportista(char *destino, tTransportista datos){
     }
     
     fprintf(pf, "\n%s-%s-%s-%s-%s-%s", datos.Id_transp, datos.Nombre, datos.email,
-                                  datos.Contrasenia, datos.Nomb_empresa, datos.Ciudad);
+                                       datos.Contrasenia, datos.Nomb_empresa, datos.Ciudad);
 
     fclose(pf);
 }
@@ -225,11 +222,11 @@ int inicioValidoTransportistas(tTransportista *transp, char *email, char *psw){
     return fin;
 }
 
-void getNombreTransportista(tTransportista *transportista, tNombre t){
+void getNombreTransportista(tTransportista *transportista){  
     char *nombre = NULL;
 
     while(!nombre)
-        nombre = obtenerNombreTransportistaOempresa(t);
+        nombre = obtenerNombreTransportista();
 
     strncpy(transportista->Nombre, nombre, NOM);
     free(nombre);
@@ -264,6 +261,16 @@ void getContraseniaTransportista(tTransportista *transportista){
     free(psw); 
 }
 
+void getNombreEmpresa(tTransportista *transportista){  
+    char *nombre = NULL;
+
+    while(!nombre)
+        nombre = obtenerNombreEmpresa();
+
+    strncpy(transportista->Nomb_empresa, nombre, NOM);
+    free(nombre);
+}
+
 void getCiudad(tTransportista *transportista){
     char *ciudad = NULL;
 
@@ -276,6 +283,364 @@ void getCiudad(tTransportista *transportista){
 
 
 /* FUNCIONES PRIVADAS */
+
+static void bajaTransportista(){
+    system("cls");
+    
+    int idNum;
+    tTransportista *transportistas = crearListaTransportistas();
+    cargarTransportistas(transportistas);
+
+    do {
+        imprimirTransportistas();
+
+        printf("\n\nIndique la ID del transportista a eliminar (formato 1, 2, ...): ");
+        
+        if(scanf("%i", &idNum) != 1 || idNum <= 0){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida.\n\n");
+        } else {
+            // Si la ID introducida es mayor al numero de usuarios en el sistema entonces no existe
+            if(idNum > numTransportistas())
+                printf("No existe usuario con ID: %i.", idNum);
+            else{
+                --idNum;
+
+                // eliminar cliente de idNum y reemplazar posiciones
+                for(; idNum < numTransportistas()-1; ++idNum){
+                    transportistas[idNum] = transportistas[idNum+1];    // reemplazamos
+                    generarID(transportistas[idNum].Id_transp, idNum+1, ID_TR-1); // regeneramos la ID
+                }
+
+                recrearFicheroTransportistas(transportistas, numTransportistas()-1);  // modificamos fichero
+            }
+        }
+
+        do {
+            printf("\nDesea buscar otro transportista? (1 = si, 0 = no): ");
+
+            if(scanf("%i", &idNum) != 1){
+                system("cls");
+                fflush(stdin);
+                fprintf(stderr, "Entrada no valida.\n\n");
+            }
+        } while(idNum != 1 && idNum != 0);
+
+    } while(idNum != 0);
+
+    free(transportistas);
+}
+
+static void recrearFicheroTransportistas(tTransportista *transportistas, int numTransp){
+    FILE *pf, *temp;
+    char *fich = "../datos/Transportistas.txt";
+    char *fichTemp = "../datos/Temp-Transportistas.txt";
+
+    pf = fopen(fich, "r");
+    temp = fopen(fichTemp, "w");
+
+    if(pf == NULL || temp == NULL){
+        fprintf(stderr, "Error en la apertura de ficheros.\n");
+        exit(1);
+    }
+
+    int i;
+
+    for(i = 0; i < numTransp; ++i){
+        if(i+1 == numTransp)
+            fprintf(temp, "%s-%s-%s-%s-%s-%s", transportistas[i].Id_transp, transportistas[i].Nombre, 
+                                               transportistas[i].email, transportistas[i].Contrasenia, 
+                                               transportistas[i].Nomb_empresa, transportistas[i].Ciudad);
+        else
+            fprintf(temp, "%s-%s-%s-%s-%s-%s\n", transportistas[i].Id_transp, transportistas[i].Nombre, 
+                                                 transportistas[i].email, transportistas[i].Contrasenia, 
+                                                 transportistas[i].Nomb_empresa, transportistas[i].Ciudad);
+    }
+                
+    // cerramos ficheros
+    fclose(pf);
+    fclose(temp);
+
+    // Tenemos que renombrar temp y eliminar pf
+    remove(fich);
+    rename(fichTemp, fich); // fichTemp pasa a ser fich
+}
+
+static void buscadorTransportistas(){
+    system("cls");
+
+    int op;
+
+    do {
+        printf("\nOpciones de busqueda (CLIENTES):\n\n");
+        printf("1. Buscar por ID.\n");
+        printf("2. Buscar por nombre.\n");
+        printf("3. Buscar por correo.\n");
+        printf("4. Buscar por nombre de empresa.\n");
+        printf("5. Buscar por ciudad de reparto.\n");
+        printf("6. Volver.\n\n");
+
+        printf("Inserte la opcion: ");
+
+        if(scanf("%i", &op) != 1 || op < 1 || op > 6){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida\n\n");
+        } else{
+            switch(op){
+                case 1: buscarIDtransportistas(); break;
+                case 2: buscarConTextoTransportistas(NOMBRE_TR); break;
+                case 3: buscarConTextoTransportistas(CORREO_TR); break;
+                case 4: buscarConTextoTransportistas(NOMBRE_EMP); break;
+                case 5: buscarConTextoTransportistas(NOM_CIUDAD); break;
+                case 6: break;
+                default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
+            }
+
+            system("cls");
+        }
+
+    } while(op < 1 || op > 6);
+}
+
+static void buscarIDtransportistas(){
+    system("cls");
+    printf("Tipo de Buscador: por ID.\n");
+
+    int idNum;
+
+    do {
+        printf("Indique la ID (formato 1, 2, ...): ");
+        
+        if(scanf("%i", &idNum) != 1 || idNum <= 0){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida.\n\n");
+        } else {
+            // Si la ID introducida es mayor al numero de usuarios en el sistema entonces no existe
+            if(idNum > numTransportistas())
+                printf("No existe usuario con ID: %i.", idNum);
+            else{
+                tTransportista *transportistas = crearListaTransportistas();
+                cargarTransportistas(transportistas);
+
+                --idNum;
+
+                printf("\nDatos del usuario buscado: ");
+                printf("%s-%s-%s-%s-%s-%s\n", transportistas[idNum].Id_transp, transportistas[idNum].Nombre, 
+                                              transportistas[idNum].email, transportistas[idNum].Contrasenia, 
+                                              transportistas[idNum].Nomb_empresa, transportistas[idNum].Ciudad);
+
+                free(transportistas);
+            }
+        }
+
+        printf("\nDesea buscar otro usuario? (1 = si, 0 = no): ");
+
+        if(scanf("%i", &idNum) != 1){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida.\n\n");
+        }
+
+    } while(idNum != 0);
+}
+
+static void buscarConTextoTransportistas(BusquedaTransp tipo){
+    system("cls");
+
+    // Por temas de legibilidad en el programa, se indica que tipo de busqueda se hará
+    // se hace esto también para no tener que repetir el codigo en todos los casos que hay
+    // de búsqueda.
+    switch(tipo){
+        case NOMBRE_TR: 
+            printf("Tipo de Buscador: por nombre.\n\n"); 
+            printf("Inserte el nombre a buscar.\n"); 
+            char *nombre = NULL;
+
+            while(!nombre)
+                nombre = obtenerNombreTransportista();
+
+            buscarEnTransportistas(tipo, nombre, NOM);
+
+            free(nombre);
+            break;
+
+        case CORREO_TR: 
+            printf("Tipo de Buscador: por email.\n\n"); 
+            printf("Inserte el email a buscar.\n"); 
+            char *email = NULL;
+
+            while(!email)
+                email = obtenerEmail();
+
+            buscarEnTransportistas(tipo, email, EMAIL);
+
+            free(email);            
+            break;
+        case NOMBRE_EMP: 
+            printf("Tipo de Buscador: por nombre de empresa.\n\n"); 
+            printf("Inserte el nombre de empresa a buscar.\n"); 
+            char *nomEmp = NULL;
+
+            while(!nomEmp)
+                nomEmp = obtenerNombreEmpresa();
+
+            buscarEnTransportistas(tipo, nomEmp, NOM);
+
+            free(nomEmp);
+            break;
+        case NOM_CIUDAD: 
+            printf("Tipo de Buscador: por ciudad.\n\n"); 
+            printf("Inserte la ciudad a buscar.\n"); 
+            char *ciudad = NULL;
+
+            while(!ciudad)
+                ciudad = obtenerCiudad();
+
+            buscarEnTransportistas(tipo, ciudad, CIUDAD);
+
+            free(ciudad);
+            break;
+        default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
+    }
+}
+
+static void buscarEnTransportistas(BusquedaTransp tipo, const char *str, unsigned tamStr){
+    unsigned i = 0, cont = 0;
+    tTransportista *transportistas = crearListaTransportistas();
+    cargarTransportistas(transportistas);
+
+    while(i < numTransportistas()){
+        switch(tipo){
+            case NOMBRE_TR: 
+                if(strncmp(str, transportistas[i].Nombre, tamStr) == 0){
+                    desgloseCompletoTransportistas(transportistas[i]);
+                    ++cont;
+                }
+                break;
+            case CORREO_TR: 
+                if(strncmp(str, transportistas[i].email, tamStr) == 0) 
+                    desgloseCompletoTransportistas(transportistas[i]);
+                    // no hacemos ++cont ya que no se van a repetir dos emails
+                break;
+            case NOMBRE_EMP: 
+                if(strncmp(str, transportistas[i].Nomb_empresa, tamStr) == 0){
+                    desgloseCompletoTransportistas(transportistas[i]);
+                    ++cont;
+                }
+                break;
+            case NOM_CIUDAD: 
+                if(strncmp(str, transportistas[i].Ciudad, tamStr) == 0){
+                    desgloseCompletoTransportistas(transportistas[i]);
+                    ++cont;
+                }
+                break;
+            default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
+        }
+            
+        ++i;
+    }
+
+    if(tipo != CORREO_TR)  // dos emails no se repiten
+        printf("Resultados encontrados: %u.\n", cont);
+    
+    free(transportistas);
+    system("pause");
+}
+
+static void desgloseCompletoTransportistas(tTransportista transportista){
+    printf("Coincidencia: %s-%s-%s-%s-%s-%s\n", transportista.Id_transp, transportista.Nombre, 
+                                                transportista.email, transportista.Contrasenia, 
+                                                transportista.Nomb_empresa, transportista.Ciudad);
+}
+
+static void modificarTransportistas(){
+    system("cls");
+    
+    int idNum;
+    tTransportista original;
+    tTransportista *transportistas = crearListaTransportistas();
+    cargarTransportistas(transportistas);
+
+    do {
+        imprimirTransportistas();
+
+        printf("\n\nIndique la ID (formato 1, 2, ...): ");
+        
+        if(scanf("%i", &idNum) != 1 || idNum <= 0){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida.\n\n");
+        } else {
+            // Si la ID introducida es mayor al numero de transportistas en el sistema entonces no existe
+            if(idNum > numTransportistas())
+                printf("No existe transportista con ID: %i.", idNum);
+            else{
+                --idNum;
+
+                original = transportistas[idNum];
+
+                printf("\nDatos del transportista buscado: ");
+                printf("%s-%s-%s-%s-%s-%s\n", transportistas[idNum].Id_transp, transportistas[idNum].Nombre,
+                                                   transportistas[idNum].email, transportistas[idNum].Contrasenia,
+                                                   transportistas[idNum].Nomb_empresa, transportistas[idNum].Ciudad);
+
+                unsigned op;
+
+                do {
+                    printf("\nOpciones de modificacion (TRANSPORTISTA):\n\n");
+                    printf("1. Modificar nombre.\n");
+                    printf("2. Modificar email.\n");
+                    printf("3. Modificar contrasena.\n");
+                    printf("4. Modificar nombre de empresa.\n");
+                    printf("5. Modificar ciudad.\n");
+                    printf("6. Volver.\n\n");
+
+                    printf("Inserte la opcion: ");
+
+                    if(scanf("%u", &op) != 1 || op < 1 || op > 6){
+                        system("cls");
+                        fflush(stdin);
+                        fprintf(stderr, "Entrada no valida\n\n");
+                    } else{
+                        switch(op){
+                            case 1: getNombreTransportista(&transportistas[idNum]); break;
+                            case 2: getEmailTransportista(&transportistas[idNum]); break;
+                            case 3: getContraseniaTransportista(&transportistas[idNum]); break;
+                            case 4: getNombreEmpresa(&transportistas[idNum]); break;
+                            case 5: getCiudad(&transportistas[idNum]); break;
+                            case 6: break;
+                            default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
+                        }
+
+                        system("cls");
+                    }
+
+                } while(op < 1 || op > 6);       
+            }
+
+            // si se ha producido algun cambio, es necesario modificar Transportistas.txt
+            if(existeCambiosTransportistas(transportistas[idNum], original) && idNum <= numTransportistas()){
+                modificarFicheroTransportistas(transportistas[idNum]);
+                printf("Transportista modificado.\n");
+            }
+        }
+
+        printf("\nDesea buscar otro transportista? (1 = si, 0 = no): ");
+
+        if(scanf("%i", &idNum) != 1){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida.\n\n");
+        }
+
+    } while(idNum != 0);
+
+    free(transportistas);
+}
+
 
 static void imprimirTransportistas(){
     FILE *pf;
@@ -320,7 +685,7 @@ static void modificarFicheroTransportistas(tTransportista transportistaMod){
 
         // En temp se guardara el fichero modificado
         if(strncmp(idFich, transportistaMod.Id_transp, ID_TR-1) == 0){
-            // si se añade una linea de mas al final del fichero, tendremos problemas con el numClientes
+            // si se añade una linea de mas al final del fichero, tendremos problemas con el numTransportistas
             if(numTransportistas() == atoi(idFich))
                 fprintf(temp, "%s-%s-%s-%s-%s-%s", transportistaMod.Id_transp, transportistaMod.Nombre, transportistaMod.email,
                                                    transportistaMod.Contrasenia, transportistaMod.Nomb_empresa, transportistaMod.Ciudad);
@@ -353,7 +718,7 @@ static int existeCambiosTransportistas(tTransportista nuevo, tTransportista orig
     return boole;
 }
 
-static char *obtenerNombreTransportistaOempresa(tNombre t){
+static char *obtenerNombreTransportista(){
     int i = 0;
     char c, *nombre;
 
@@ -364,11 +729,7 @@ static char *obtenerNombreTransportistaOempresa(tNombre t){
         exit(1);
     }
 
-    if(t == TRANSPORTISTA) 
-        printf("\nEscriba su nombre de transportista (maximo 20 caracteres): ");
-    else // t es o TRANSPORTISTA o EMPRESA
-        printf("\nEscriba el nombre de su empresa (maximo 20 caracteres): ");
-    
+    printf("\nEscriba su nombre de transportista (maximo 20 caracteres): ");    
     fflush(stdin);
 
     while((c = getchar()) != '\n' && i < NOM){    // Recogemos caracter a caracter para controlar el tamaño de entrada
@@ -460,6 +821,41 @@ static char *obtenerContrasenia(){
     } 
 
     return contrasenia;
+}
+
+static char *obtenerNombreEmpresa(){
+    int i = 0;
+    char c, *nombre;
+
+    nombre = (char *) calloc(NOM, sizeof(char));
+
+    if(nombre == NULL){
+        fprintf(stderr, "Error en asignacion de memoria.\n");
+        exit(1);
+    }
+
+    printf("\nEscriba su nombre de su empresa (maximo 20 caracteres): ");    
+    fflush(stdin);
+
+    while((c = getchar()) != '\n' && i < NOM){    // Recogemos caracter a caracter para controlar el tamaño de entrada
+        nombre[i] = c;
+        i++;
+    }
+
+    // Comprobamos si el tamaño es correcto, en caso de no serlo, limpiamos la cadena y volvemos a llamar a la función
+    if(strlen(nombre) > NOM-1){
+        fprintf(stderr, "El nombre excede los 20 caracteres.");
+        free(nombre);
+        return NULL;
+    } 
+    
+    if(strlen(nombre) == 0){
+        fprintf(stderr, "El nombre no puede estar vacio.");
+        free(nombre);
+        return NULL;
+    }
+
+    return nombre;
 }
 
 static char *obtenerCiudad(){
