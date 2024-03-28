@@ -5,6 +5,34 @@
 #include "usuarios.h"
 #include "clientes.h"   // tCliente
 #include "adminprov.h"  // tAdminProv
+#include "transportista.h"  // tTransportista
+
+void registrarTransportista(){
+    system("cls");
+    printf("\t\t\tESIZON\n\n");
+
+    tTransportista *datos = crearListaTransportistas(); 
+    cargarTransportistas(datos);
+    unsigned nTransp = numTransportistas();
+
+    if(nTransp != 0)
+        reservarAdminProv(datos);    // crearListaAdminProv si nTransp es cero reserva 1 posicion
+
+    // Obtenemos los datos del cliente
+    generarID(datos[nTransp].Id_transp, nTransp+1, ID_TR-1);
+    getNombreTransportista(&datos[nTransp], TRANSPORTISTA);
+    getEmailTransportista(&datos[nTransp]);
+    getContraseniaTransportista(&datos[nTransp]);
+    getNombreTransportista(&datos[nTransp], EMPRESA);
+    getCiudad(&datos[nTransp]);    
+
+    tTransportista nuevoTransportista = datos[nTransp];
+    
+    // liberamos memoria que ya no nos hace falta
+    free(datos);    
+
+    guardarNuevoTransportista("../datos/Transportistas.txt", nuevoTransportista);
+}
 
 void registrarProveedor(){
     system("cls");
@@ -36,15 +64,18 @@ void iniciarSesion(){
     system("cls");
     printf("\t\t\tESIZON\n\n");
 
-    int valdCli, valdAdPr, op = 0; 
+    int validoCliente, validoAdminProv, validoTransp, op = 0; 
     tCliente *infoClientes;
     tAdminProv *infoAdminProvs;
+    tTransportista *infoTransp;
     char email[EMAIL], psw[PASS];
 
     infoClientes = crearListaClientes();
     cargarClientes(infoClientes);
     infoAdminProvs = crearListaAdminProv();
     cargarAdminProvs(infoAdminProvs);
+    infoTransp = crearListaTransportistas();
+    cargarTransportistas(infoTransp);
 
     do {
         op = 0;
@@ -63,10 +94,11 @@ void iniciarSesion(){
         psw[strcspn(psw, "\n")] = 0;
 
         // comprobamos si el inicio es valido o no
-        int validoCliente = inicioValidoClientes(infoClientes, email, psw);
-        int validoAdminProv = inicioValidoAdminProv(infoAdminProvs, email, psw);
+        validoCliente = inicioValidoClientes(infoClientes, email, psw);
+        validoAdminProv = inicioValidoAdminProv(infoAdminProvs, email, psw);
+        validoTransp = inicioValidoTransportistas(infoTransp, email, psw);
 
-        if(validoCliente == 0 && validoAdminProv == 0){
+        if(validoCliente == 0 && validoAdminProv == 0 && validoTransp == 0){
             fprintf(stderr, "\nEl usuario o la contrasena no coinciden.\n\n");
 
             // manejo de opciones
@@ -81,31 +113,33 @@ void iniciarSesion(){
             } while(op != 1 && op != 2);
         }
 
-        valdCli = validoCliente;
-        valdAdPr = validoAdminProv;
-
-    } while(valdCli == 0 && valdAdPr == 0 && op != 1);
+    } while(validoCliente == 0 && validoAdminProv == 0 && validoTransp == 0 && op != 1);
 
     // las funciones de inicio valido tanto para clientes como para adminProv devolvían la posición en el array
-    int posC = valdCli-1;
-    int posAP = valdAdPr-1;    
+    int posC = validoCliente-1;
+    int posAP = validoAdminProv-1; 
+    int posT = validoTransp-1;
+
     tCliente cliente = infoClientes[posC];
     tAdminProv adminprov = infoAdminProvs[posAP];
+    tTransportista transportista = infoTransp[posT];
 
     free(infoClientes);
     free(infoAdminProvs);
+    free(infoTransp);
 
     if(op == 1)
         registrarse(CON_MENU);    // usuario es preguntado por registrarse (opcion 1)
-    else if(valdCli == 0 || valdAdPr == 0){
-        if(valdCli)
+    else if(validoCliente == 0 || validoAdminProv == 0 || validoTransp == 0){
+        if(validoCliente)
             menuCliente(&cliente);      // menu principal de usuario cliente
-        else if(valdAdPr){
+        else if(validoAdminProv){
             if(strcmp("administrador", adminprov.Perfil_usuario) == 0)
                 menuAdmin(&adminprov);      // menu principal de usuario admin
             else
                 menuProveedor(&adminprov);   // menu principal de usuario proveedor
-        }    
+        } else  // el que queda no puede ser otro que no sea transportista
+            menuTransportista(&transportista);  // menu principal de usuario transportista
     }
 }
 
@@ -151,9 +185,11 @@ int existeEmail(char *email){
     unsigned i = 0, fin = 0;    
     tCliente *clientes = crearListaClientes();
     tAdminProv *adminprovs = crearListaAdminProv();
+    tTransportista *transp = crearListaTransportistas();
 
     cargarClientes(clientes);
     cargarAdminProvs(adminprovs);
+    cargarTransportistas(transp);
 
     // buscamos si coinciden dos emails para los usuarios
     while(i < numClientes() && !fin){
@@ -163,7 +199,7 @@ int existeEmail(char *email){
         ++i;
     }
 
-    i = 0; // ahora para los clientes
+    i = 0; // ahora para los administradores y proveedores
     
     while(i < numAdminProvs() && !fin){
         if(strcmp(adminprovs[i].email, email) == 0)
@@ -172,11 +208,20 @@ int existeEmail(char *email){
         ++i;
     }
 
+    i = 0;  // ahora para los transportistas
+
+    while(i < numTransportistas() && !fin){
+        if(strcmp(transp[i].email, email) == 0)
+            fin = 1;
+
+        ++i;
+    }
+
     free(clientes);
     free(adminprovs);
+    free(transp);
     return fin;
 }
-
 
 void generarID(char *id, int idNum, int numDigitos){
     if(idNum >= 0 && numDigitos > 0)

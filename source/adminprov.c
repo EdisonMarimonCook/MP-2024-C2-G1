@@ -7,6 +7,7 @@
 #include "usuarios.h"   // existeEmail()
 #include "categorias.h" // mainCategorias()
 #include "descuentos.h" // menuDescuentos()
+#include "transportista.h"  // infoTransportista()
 
 /* FUNCIONES PUBLICAS */
 
@@ -44,7 +45,7 @@ void menuAdmin(tAdminProv *admin){
                 case 4: break;
                 case 5: mainCategorias(); break;
                 case 6: break;
-                case 7: break;
+                case 7: infoTransportistas(); break;
                 case 8: menuDescuentos(); break;
                 case 9: break;
                 case 10: fin = 1; break;
@@ -725,7 +726,7 @@ static void modificarFicheroAdminProv(tAdminProv adminprovMod){
         exit(1);
     }
 
-    // Buscar la ID en el fichero y cambiar la linea por los datos de clienteMod
+    // Buscar la ID en el fichero y cambiar la linea por los datos de adminprovMod
     while(fgets(buffer, MAX_LIN_FICH_ADMINPROV, pf) != NULL){
         strncpy(idFich, buffer, ID_EMPRESA);    // En id se almacena los 4 primeros caracteres de cada linea
 

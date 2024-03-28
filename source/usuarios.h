@@ -8,6 +8,10 @@
 
 // Precondición: nada.
 // Postcondición: registra a un provedor en el sistema ESIZON.
+void registrarTransportista();
+
+// Precondición: nada.
+// Postcondición: registra a un provedor en el sistema ESIZON.
 void registrarProveedor();
 
 // Precondición: nada.

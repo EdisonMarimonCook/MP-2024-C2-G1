@@ -96,7 +96,6 @@ void infoClientes();
 // Postcondicion: imprime todos los clientes dados de alta en la plataforma
 void imprimirClientes();
 
-
 /* FUNCIONES PRIVADAS */
 
 // Precondición: nada.

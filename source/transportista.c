@@ -1,11 +1,51 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "transportista.h"
 #include "usuarios.h"   // existeEmail()
 
 /* FUNCIONES PUBLICAS */
 
-// TODO terminar modificaciones del perfil de transportistas
+// TODO: renombrar en adminprov y probablemente en clientes funcion de guardarAdminProv y 
+// terminar registro de transportistas en usuarios.c
+
+void infoTransportistas(){
+    system("cls");
+
+    int op;
+
+    imprimirTransportistas(); // listado de transportistas
+
+    do {
+        printf("\n\nMenu:\n\n");
+        printf("1. Dar de alta.\n");
+        printf("2. Dar de baja.\n");
+        printf("3. Buscar.\n");
+        printf("4. Modificar.\n");
+        printf("5. Volver.\n\n");
+
+        printf("Inserte la opcion: ");
+
+        if(scanf("%i", &op) != 1 || op < 1 || op > 5){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida\n\n");
+        } else{
+            switch(op){
+                case 1: registrarTransportista(); break;
+                case 2: bajaCliente(); break;
+                case 3: buscadorCliente(); break;
+                case 4: modificarClientes(); break;
+                case 5: break;
+                default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
+            }
+
+            system("cls");
+        }
+
+    } while(op < 1 || op > 5);
+}
 
 void menuTransportista(tTransportista *transportista){
     system("cls");
@@ -13,7 +53,7 @@ void menuTransportista(tTransportista *transportista){
     int op, fin = 0;
 
     do {
-        printf("Menu: Tipo Cliente.\n\n");
+        printf("Menu: Tipo Transportista.\n\n");
         printf("\t\tTransportista: %s\n\n", transportista->Nombre);
         printf("1. Perfil.\n");
         printf("2. Repartos.\n");
@@ -30,7 +70,7 @@ void menuTransportista(tTransportista *transportista){
             // Menu Transportista
             switch(op){
                 case 1: perfilTransportista(transportista); break;
-                case 2: consulta_Productos(); break;
+                case 2: break;
                 case 3: break;
                 case 4: fin = 1; break;
                 default: fprintf(stderr, "Se ha producido un error\n"); exit(1);
@@ -64,8 +104,8 @@ void perfilTransportista(tTransportista *transportista){
         } else{
             switch(op){
                 case 1: getNombreTransportista(transportista, TRANSPORTISTA); break;
-                case 2: getEmail(transportista); break;
-                case 3: getContrasenia(transportista); break;
+                case 2: getEmailTransportista(transportista); break;
+                case 3: getContraseniaTransportista(transportista); break;
                 case 4: getNombreTransportista(transportista, EMPRESA); break;
                 case 5: getCiudad(transportista); break;
                 case 6: break;
@@ -79,17 +119,17 @@ void perfilTransportista(tTransportista *transportista){
 
     // si se ha producido algun cambio, es necesario modificar Transportistas.txt
     if(existeCambiosTransportistas(*transportista, original))
-        modificarFicheroClientes(*transportista);
+        modificarFicheroTransportistas(*transportista);
 }
 
-tTransportista *crearListaClientes(){
+tTransportista *crearListaTransportistas(){
     tTransportista *transportista;
 
-    // Reservamos la memoria necesaria gracias a la función numClientes()
-    if(numClientes() == 0)
-        transportista = (tTransportista *) calloc(numClientes()+1, sizeof(tTransportista)); 
+    // Reservamos la memoria necesaria gracias a la función numTransportistas()
+    if(numTransportistas() == 0)
+        transportista = (tTransportista *) calloc(numTransportistas()+1, sizeof(tTransportista)); 
     else
-        transportista = (tTransportista *) calloc(numClientes(), sizeof(tTransportista));
+        transportista = (tTransportista *) calloc(numTransportistas(), sizeof(tTransportista));
 
     if(transportista == NULL){   // Comprobamos si surge algún error en la asignación
         fprintf(stderr, "Error en la asignacion de memoria.");
@@ -97,6 +137,35 @@ tTransportista *crearListaClientes(){
     }
 
     return transportista;    // Devolvemos dicho vector.
+}
+
+void cargarTransportistas(tTransportista *infotransp){
+    unsigned i;
+    char buffer[MAX_LIN_FICH_TRANS];
+
+    if(numTransportistas() != 0){    // Comprobamos si existe algún usuario en Transportistas.txt
+        FILE *pf;
+
+        pf = fopen("../datos/Transportistas.txt", "r");    // Abrimos el fichero en tipo lectura.
+
+        if(pf == NULL){     // Comprobamos si su apertura es correcta.
+            fprintf(pf, "Error en la apertura de archivos.\n");
+            exit(1);
+        }
+
+        for(i = 0; i < numTransportistas(); ++i){   // Recorremos el vector
+            // Cogemos línea por línea, ya que sabemos que MAX_LIN_FICH es el máximo que ocupara cada línea de Usuarios.txt
+            // Tras recoger una línea completa, eliminamos el \n y lo transformamos por un \0, y dicha cadena la metemos en los campos de infoper gracias a sscanf.
+            if(fgets(buffer, MAX_LIN_FICH_TRANS, pf) != NULL){
+                buffer[strcspn(buffer, "\n")] = '\0';
+                sscanf(buffer, "%[^-]-%[^-]-%[^-]-%[^-]-%[^-]-%[^-]", infotransp[i].Id_transp, infotransp[i].Nombre, 
+                                                                      infotransp[i].email, infotransp[i].Contrasenia, 
+                                                                      infotransp[i].Nomb_empresa, infotransp[i].Ciudad);
+            }
+        }
+
+        fclose(pf); // Cerramos fichero.
+    }
 }
 
 unsigned numTransportistas(){
@@ -123,21 +192,40 @@ unsigned numTransportistas(){
     return i;
 }
 
+void guardarNuevoTransportista(char *destino, tTransportista datos){
+    FILE *pf;
 
-/* FUNCIONES PRIVADAS */
+    pf = fopen(destino, "a");   // append
 
-static int existeCambiosTransportistas(tTransportista nuevo, tTransportista original){
-    int boole = 1;
-
-    if(nuevo.Nombre == original.Nombre && nuevo.email == original.email
-        && nuevo.Contrasenia == original.Contrasenia && nuevo.Nomb_empresa == original.Nomb_empresa 
-        && nuevo.Ciudad == original.Ciudad)
-        boole = 0;
+    if(pf == NULL){
+        fprintf(stderr, "Error en la apertura de archivos.\n");
+        exit(1);
+    }
     
-    return boole;
+    fprintf(pf, "\n%s-%s-%s-%s-%s-%s", datos.Id_transp, datos.Nombre, datos.email,
+                                  datos.Contrasenia, datos.Nomb_empresa, datos.Ciudad);
+
+    fclose(pf);
 }
 
-static void getNombreTransportista(tTransportista *transportista, tNombre t){
+int inicioValidoTransportistas(tTransportista *transp, char *email, char *psw){
+    int fin = 0;
+    unsigned i = 0;
+    
+    while(i < numTransportistas() && !fin){
+        if(strcmp(transp[i].email, email) == 0 && strcmp(transp[i].Contrasenia, psw) == 0)
+            fin = 1;
+
+        ++i;
+    }
+
+    if(fin == 1)
+        fin = i;    // devolvemos en que posicion se ha encontrado del vector transp
+
+    return fin;
+}
+
+void getNombreTransportista(tTransportista *transportista, tNombre t){
     char *nombre = NULL;
 
     while(!nombre)
@@ -147,7 +235,7 @@ static void getNombreTransportista(tTransportista *transportista, tNombre t){
     free(nombre);
 }
 
-static void getEmail(tTransportista *transportista){
+void getEmailTransportista(tTransportista *transportista){
     char *email = NULL;
 
     while(!email)
@@ -162,11 +250,11 @@ static void getEmail(tTransportista *transportista){
     // Comprobamos si el Email introducido ya existe
     if(existeEmail(copia)){
         fprintf(stderr, "El email ya esta registrado en ESIZON.\n");
-        getEmail(transportista);
+        getEmailTransportista(transportista);
     }    
 }
 
-static void getContrasenia(tTransportista *transportista){
+void getContraseniaTransportista(tTransportista *transportista){
     char *psw = NULL;
 
     while(!psw)
@@ -176,14 +264,93 @@ static void getContrasenia(tTransportista *transportista){
     free(psw); 
 }
 
-static void getCiudad(tTransportista *transportista){
+void getCiudad(tTransportista *transportista){
     char *ciudad = NULL;
 
     while(!ciudad)
-        ciudad = obtenerPoblacion();
+        ciudad = obtenerCiudad();
 
     strncpy(transportista->Ciudad, ciudad, CIUDAD);
     free(ciudad);
+}
+
+
+/* FUNCIONES PRIVADAS */
+
+static void imprimirTransportistas(){
+    FILE *pf;
+
+    pf = fopen("../datos/Transportistas.txt", "r");
+
+    if(pf == NULL){
+        fprintf(stderr, "Error en la apertura de ficheros.\n");
+        exit(1);
+    }
+
+    char buffer[MAX_LIN_FICH_TRANS];  
+
+    printf("\tListado de Transportistas:\n\n");
+
+    // leemos linea a linea el fichero Transportistas.txt
+    while(fgets(buffer, MAX_LIN_FICH_TRANS, pf) != NULL)
+        printf("%s", buffer);
+
+    fclose(pf);  
+}
+
+static void modificarFicheroTransportistas(tTransportista transportistaMod){
+    FILE *pf, *temp;
+    char buffer[MAX_LIN_FICH_TRANS];
+    char *fich = "../datos/Transportistas.txt";
+    char *fichTemp = "../datos/Temp-Transportistas.txt";
+
+    pf = fopen(fich, "r");
+    temp = fopen(fichTemp, "w");
+
+    if(pf == NULL || temp == NULL){
+        fprintf(stderr, "Error en la apertura de ficheros.\n");
+        exit(1);
+    }
+
+    // Buscar la ID en el fichero y cambiar la linea por los datos de transportistaMod
+    while(fgets(buffer, MAX_LIN_FICH_TRANS, pf) != NULL){
+        char idFich[ID_TR];
+        
+        strncpy(idFich, buffer, ID_TR-1);    // En id se almacena los 7 primeros caracteres de cada linea
+
+        // En temp se guardara el fichero modificado
+        if(strncmp(idFich, transportistaMod.Id_transp, ID_TR-1) == 0){
+            // si se añade una linea de mas al final del fichero, tendremos problemas con el numClientes
+            if(numTransportistas() == atoi(idFich))
+                fprintf(temp, "%s-%s-%s-%s-%s-%s", transportistaMod.Id_transp, transportistaMod.Nombre, transportistaMod.email,
+                                                   transportistaMod.Contrasenia, transportistaMod.Nomb_empresa, transportistaMod.Ciudad);
+        
+            else
+                fprintf(temp, "%s-%s-%s-%s-%s-%s\n", transportistaMod.Id_transp, transportistaMod.Nombre, transportistaMod.email,
+                                                     transportistaMod.Contrasenia, transportistaMod.Nomb_empresa, transportistaMod.Ciudad);
+        } else
+            fprintf(temp, "%s", buffer);
+    }
+
+    // cerramos ficheros
+    fclose(pf);
+    fclose(temp);
+
+    // Tenemos que renombrar temp y eliminar pf
+    remove(fich);
+    rename(fichTemp, fich); // fichTemp pasa a ser fich
+}
+
+
+static int existeCambiosTransportistas(tTransportista nuevo, tTransportista original){
+    int boole = 1;
+
+    if(nuevo.Nombre == original.Nombre && nuevo.email == original.email
+        && nuevo.Contrasenia == original.Contrasenia && nuevo.Nomb_empresa == original.Nomb_empresa 
+        && nuevo.Ciudad == original.Ciudad)
+        boole = 0;
+    
+    return boole;
 }
 
 static char *obtenerNombreTransportistaOempresa(tNombre t){
