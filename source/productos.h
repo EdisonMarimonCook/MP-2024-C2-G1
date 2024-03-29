@@ -2,20 +2,21 @@
 #define _PRODUCTOS_H_
 
 #include "clientes.h"   // MACRO ID
+#include "categorias.h"
 
-#define DES 50
-#define ID_PROD 4
-#define MAX_LIN_FICH_PROD 82
+#define DES 51
+#define ID_PROD 5
+#define MAX_LIN_FICH_PROD 85
 
 typedef struct{
     char id_prod[ID];           // 8 bytes
-    char descrip[DES];          // 50 bytes
-    char id_categ[ID_PROD];     // 4 bytes
-    char id_gestor[ID_PROD];    // 4 bytes
+    char descrip[DES];          // 51 bytes
+    char id_categ[ID_PROD];     // 5 bytes
+    char id_gestor[ID_PROD];    // 5 bytes
     unsigned stock;             // 4 bytes
     unsigned entrega;           // 4 bytes
-    double importe;             // 8 bytes          TOTAL = 82 BYTES
-} t_productos;
+    double importe;             // 8 bytes          TOTAL = 85 BYTES
+}t_productos;
 
 
 /*  FUNCIONES PUBLICAS  */
@@ -23,6 +24,10 @@ typedef struct{
 //Precondición: nada
 //Postcondición: devuelve el listado de productos
 void consulta_Productos();
+
+//Precondicion: nada
+//Postcondicion: da la informacion del fichero productos.txt
+void infoProdAdmin();
 
 
 
@@ -40,8 +45,19 @@ static unsigned num_prod();
 //Postcondicion: devuelve esa cadena de caracteres vacia
 static void vaciar(char temp[]);
 
+//Precondicion: recibe una estructura tipo productos
+//Postcondicion: si encuentra el producto te da su informacion
 static void producto_encontrado(t_productos prod);
 
-void infoProdAdmin();
+//Precondicion: recibe una línea del fichero, el delimitador entre los datos y una estructura tipo productos
+//Postcondicion: devuelve la estructura con los datos de la linea del fichero
+static void dividir_cadena_prod(char temp[], char del[], t_productos *producto);
+
+static void buscar_cat_prod();
+
+static void categoria_encontrada(Categorias *cat, char del[]);
+
+static void dividir_cadena_cat(char temp[], char del[], Categorias *cat);
+
 
 #endif
