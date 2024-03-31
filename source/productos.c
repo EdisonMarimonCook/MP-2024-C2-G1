@@ -35,7 +35,7 @@ void consulta_Productos(){
 }
 
 static void buscar_cat_prod(){
-    int i, aux, op = 0;
+    int i, aux, op;
     unsigned num;
     char temp[56], c[51], *categoria, del[] = "-";      //la longitud de temp2 = 56 pq es la longitud maxima de la linea del fichero, edison no tiene macro todavia para esto, estoy a la espera para cambiarlo
                                                         // Mismo razonamiento para c[51] pero para la descripcion de la categoria; 
@@ -66,6 +66,7 @@ static void buscar_cat_prod(){
 
     do{
         aux = 0;                        //Para que en cada iteracion vuelva a tomar el valor 0 y no nos de un falso encontrado
+        op = 0;                         //      "           "             "             "                           resultado
         system ("cls");
         printf("Buscar categoria: ");
         fgets(c, 51, stdin);
@@ -105,15 +106,19 @@ static void buscar_cat_prod(){
         }
 
         if (aux != 1){              // No se ha encontrado ninguna categoria
-            fprintf (stderr, "La categoria buscada no existe.\n");
-            printf ("Quiere buscar otra vez? (1) Si (2) No.\n");
-            printf ("Elige opcion: ");
-            scanf("%s", &op);
+            fprintf (stderr, "La categoria introducida no existe.\n");
         }
 
+        printf ("Quiere buscar otra vez? (1) Si (2) No.\n");
+        printf ("Elige opcion: ");
+        if (scanf("%d", &op) != 1){
+            fprintf (stderr, "Opcion no contemplada.\n");
+        }
+        fflush(stdin);
+
+        rewind(f_categorias);       // Puntero al inicio del fichero
+
     }while(op == 1);
-    
-    // ESTE DO WHILE NO FUNCIONA!!!!!!!! mirar esto primero
 
     fclose(f_categorias);
     free(cat);
@@ -162,6 +167,7 @@ static void categoria_encontrada(Categorias *cat, char del[]){
 
     system("pause");
     system("cls");
+    fflush(stdin);
 
     free(prod);
     fclose(f_productos);
@@ -339,8 +345,6 @@ static void dividir_cadena_prod(char temp[], char del[], t_productos *producto){
     char *p7 = strtok (NULL, del);
     producto->importe = atof(p7); //          "           "                   "                   "           a double
 
-    printf("%s-%s-%s-%s-%d-%d-%lf.\n", producto->id_prod, producto->descrip, producto->id_categ, producto->id_gestor, producto->stock,
-                                        producto->entrega, producto->importe);
 }
 
 static void producto_encontrado(t_productos prod){
@@ -353,7 +357,7 @@ static void producto_encontrado(t_productos prod){
 
 void infoProdAdmin(){       // Para Pablo
     int i;
-    char buffer[MAX_LIN_FICH_PROD], del[] = "-";
+    char buffer[MAX_LIN_FICH_PROD];
 
     FILE *fp;
         
