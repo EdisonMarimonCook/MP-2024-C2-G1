@@ -4,12 +4,16 @@
 #include "categorias.h"
 
 void mainCategorias();
+<<<<<<< HEAD
 unsigned lenCategorias();
+=======
+>>>>>>> 0be5ab220d516970d3e01a7ff1e9a04674d2380b
 
 static void realizarBaja();
 static void realizarAlta(char id_actual[]);
 static void modificarCategoria();
 
+<<<<<<< HEAD
 unsigned lenCategorias(){
 
     unsigned numCat = 0;
@@ -30,6 +34,8 @@ unsigned lenCategorias(){
 
 }
 
+=======
+>>>>>>> 0be5ab220d516970d3e01a7ff1e9a04674d2380b
 static void modificarCategoria() {
 
     char idCategoria[5]; 
@@ -111,9 +117,14 @@ static void realizarBaja() {
     int encontrado = 0;
 
     printf("Ingrese el ID de la categoría que desea dar de baja: ");
+<<<<<<< HEAD
     fgets(id_baja, 4, stdin);
     if (id_baja[strlen(id_baja) - 1] == '\n') 
         id_baja[strlen(id_baja) - 1] = '\0';
+=======
+    scanf("%s", id_baja);
+    while (getchar() != '\n');
+>>>>>>> 0be5ab220d516970d3e01a7ff1e9a04674d2380b
 
     FILE *fichero_entrada = fopen("../datos/Categorias.txt", "r");
     if (fichero_entrada == NULL) {
@@ -202,6 +213,7 @@ void mainCategorias(){
     id_numerica--;
 
     printf("1 para realizar alta, 2 para baja y 3 para modificar: ");
+<<<<<<< HEAD
 
     do{
         if(scanf("%d", &op) != 1 || op < 1 || op > 3){
@@ -219,11 +231,36 @@ void mainCategorias(){
             }
         }
     }while(op < 1 || op > 3)
+=======
+    scanf("%d", &op);
+    while (getchar() != '\n');
+
+    if(op < 1 || op > 3){
+        printf("Escriba un numero entre 1 y 3.\n");
+        system("cls");
+        mainCategorias();
+    }
+
+    switch(op){
+        case 1: realizarAlta(id_actual); break;
+
+        case 2: realizarBaja(); break;
+
+        case 3: modificarCategoria(); break;
+    }
+>>>>>>> 0be5ab220d516970d3e01a7ff1e9a04674d2380b
     
     fclose(fichero);
 }
 
+<<<<<<< HEAD
 /*int main(){
     mainCategorias();
     return 0;
 }*/
+=======
+int main(){
+    mainCategorias();
+    return 0;
+}
+>>>>>>> 0be5ab220d516970d3e01a7ff1e9a04674d2380b
