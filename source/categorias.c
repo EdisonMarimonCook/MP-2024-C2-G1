@@ -4,8 +4,33 @@
 #include "categorias.h"
 
 void mainCategorias();
+unsigned lenCategorias();
 
-void modificarCategoria() {
+static void realizarBaja();
+static void realizarAlta(char id_actual[]);
+static void modificarCategoria();
+
+unsigned lenCategorias(){
+
+    unsigned numCat = 0;
+
+    FILE *fich = fopen("../datos/Categorias.txt", "r");
+    if(fich == NULL){
+        perror("No se pudo abrir Categorias.txt");
+        exit(1);
+    }
+
+    while(!feof(fich)){
+        numCat++;
+    }
+
+    fclose(fich);
+
+    return numCat;
+
+}
+
+static void modificarCategoria() {
 
     char idCategoria[5]; 
     char nuevaDescrip[50];
@@ -58,7 +83,7 @@ void modificarCategoria() {
     }
 }
 
-void realizarAlta(char id_actual[]) {
+static void realizarAlta(char id_actual[]) {
     FILE *fichero = fopen("../datos/Categorias.txt", "a+");
     if (fichero == NULL) {
         printf("No se pudo abrir el archivo Categorias.txt\n");
@@ -81,13 +106,14 @@ void realizarAlta(char id_actual[]) {
     printf("Se ha agregado una nueva categoría al archivo: %s-%s\n", nueva_categoria.Id_categ, nueva_categoria.Descrip);
 }
 
-void realizarBaja() {
+static void realizarBaja() {
     char id_baja[5];
     int encontrado = 0;
 
     printf("Ingrese el ID de la categoría que desea dar de baja: ");
-    scanf("%s", id_baja);
-    while (getchar() != '\n');
+    fgets(id_baja, 4, stdin);
+    if (id_baja[strlen(id_baja) - 1] == '\n') 
+        id_baja[strlen(id_baja) - 1] = '\0';
 
     FILE *fichero_entrada = fopen("../datos/Categorias.txt", "r");
     if (fichero_entrada == NULL) {
@@ -132,10 +158,8 @@ void mainCategorias(){
 
     FILE *fichero = fopen("../datos/Categorias.txt", "r+");
     if (fichero == NULL){
-        if(FILE *fichero = fopen("../datos/Categorias.txt", "w+") == NULL){
-            perror("No se pudo abrir Categorias.txt");
-            exit(1);
-        }
+        perror("No se pudo abrir Categorias.txt");
+        exit(1);
     }
 
     char id_actual[5];
@@ -178,27 +202,28 @@ void mainCategorias(){
     id_numerica--;
 
     printf("1 para realizar alta, 2 para baja y 3 para modificar: ");
-    scanf("%d", &op);
-    while (getchar() != '\n');
 
-    if(op < 1 || op > 3){
-        printf("Escriba un numero entre 1 y 3.\n");
-        system("cls");
-        mainCategorias();
-    }
+    do{
+        if(scanf("%d", &op) != 1 || op < 1 || op > 3){
+            system("cls");
+            fflush(stdin);
+            perror("Entrada no valida. \n\n");
+        }else{
 
-    switch(op){
-        case 1: realizarAlta(id_actual); break;
+            switch(op){
+                case 1: realizarAlta(id_actual); break;
 
-        case 2: realizarBaja(); break;
+                case 2: realizarBaja(); break;
 
-        case 3: modificarCategoria(); break;
-    }
+                case 3: modificarCategoria(); break;
+            }
+        }
+    }while(op < 1 || op > 3)
     
     fclose(fichero);
 }
 
-int main(){
+/*int main(){
     mainCategorias();
     return 0;
-}
+}*/

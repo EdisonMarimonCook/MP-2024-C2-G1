@@ -13,4 +13,8 @@ typedef struct{
 
 void menuDescuentos();
 
+static void agregarDescuento(Descuentos *descuentos, int *numDescuentos);
+static void buscarDescuento(Descuentos *descuentos, int numDescuentos, char *id);
+static void guardarDescuentos(Descuentos *descuentos, int numDescuentos, char *filename);
+
 #endif
