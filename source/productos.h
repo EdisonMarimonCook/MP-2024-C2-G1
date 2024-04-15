@@ -16,18 +16,18 @@ typedef struct{
     unsigned stock;             // 4 bytes
     unsigned entrega;           // 4 bytes
     double importe;             // 8 bytes          TOTAL = 85 BYTES
-}t_productos;
+}tProductos;
 
 
 /*  FUNCIONES PUBLICAS  */
 
 //Precondición: nada
 //Postcondición: devuelve el listado de productos
-void consulta_Productos();
+void consultaProductoscli();
 
 //Precondicion: nada
-//Postcondicion: da la informacion del fichero productos.txt
-void infoProdAdmin();
+//Postcondicion: 
+void consultaProdAdmin();
 
 
 
@@ -35,11 +35,11 @@ void infoProdAdmin();
 
 //Precondicion: nada
 //Postcondicion: devuelve la informacion sobre un producto referenciado
-static void buscar_nombre_prod();
+static void buscarNombreProd();
 
 //Precondicion: nada
 //Postcondicion: devuelve el numero de productos que hay en el fichero Productos.txt
-static unsigned num_prod();
+static unsigned numProd();
 
 //Precondicion: recibe una cadena de caracteres
 //Postcondicion: devuelve esa cadena de caracteres vacia
@@ -47,17 +47,25 @@ static void vaciar(char temp[]);
 
 //Precondicion: recibe una estructura tipo productos
 //Postcondicion: si encuentra el producto te da su informacion
-static void producto_encontrado(t_productos prod);
+static void productoEncontrado(tProductos prod);
 
 //Precondicion: recibe una línea del fichero, el delimitador entre los datos y una estructura tipo productos
 //Postcondicion: devuelve la estructura con los datos de la linea del fichero
-static void dividir_cadena_prod(char temp[], char del[], t_productos *producto);
+static void dividirCadenaProd(char temp[], char del[], tProductos *producto);
 
-static void buscar_cat_prod();
+static void buscarCatProd();
 
-static void categoria_encontrada(Categorias *cat, char del[]);
+static void categoriaEncontrada(Categorias *cat, char del[]);
 
-static void dividir_cadena_cat(char temp[], char del[], Categorias *cat);
+static void dividirCadenaCat(char temp[], char del[], Categorias *cat);
+
+//Precondicion: nada
+//Postcondicion: da la informacion del fichero productos.txt
+static void infoProdAdmin();
+
+static void darAltaProd();
+
+static void modProdAdmin();
 
 
 #endif

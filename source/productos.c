@@ -6,7 +6,7 @@
 #include "clientes.h"
 #include "categorias.h"
 
-void consulta_Productos(){
+void consultaProductosCli(){
 
     system ("cls");
 
@@ -18,23 +18,27 @@ void consulta_Productos(){
         printf ("(2) Realizar consulta por nombre.\n");
         printf ("(3) Salir.\n");
         printf ("Elige opcion: ");
+
         if ((scanf ("%d", &op) != 1) || (op < 1 || op > 3)){
             system("cls");
             fflush(stdin);
-            fprintf(stderr, "Opcion no contemplada.\n\n");
+            fprintf(stderr, "Opcion no contemplada. Pruebe de nuevo.\n\n");
+            system("pause");
+            break;
         }else{
             switch (op){
-                case 1: buscar_cat_prod(); break;
-                case 2: buscar_nombre_prod(); break;
-                case 3: break;
-                default: fprintf(stderr, "Ha ocurrido un error.\n"); exit(1);
+            case 1: buscarCatProd(); break;
+            case 2: buscarNombreProd(); break;
+            case 3: break;
+            default: fprintf(stderr, "Ha ocurrido un error.\n"); exit(1);
             }
         }
+        
     }while(op < 1 || op > 3);
 
 }
 
-static void buscar_cat_prod(){
+static void buscarCatProd(){
     int i, aux, op;
     unsigned num;
     char temp[56], c[51], *categoria, del[] = "-";      //la longitud de temp2 = 56 pq es la longitud maxima de la linea del fichero, edison no tiene macro todavia para esto, estoy a la espera para cambiarlo
@@ -90,7 +94,7 @@ static void buscar_cat_prod(){
                 if (temp[strlen(temp) - 1] == '\n')            // Ver si hay un salto de linea al final y reemplazarla con '\0'
                     temp[strlen(temp) - 1] = '\0';
                 
-                dividir_cadena_cat(temp, del, &cat[i]);        // Guardo en las estructuras los datos del fichero Categorias.txt 
+                dividirCadenaCat(temp, del, &cat[i]);        // Guardo en las estructuras los datos del fichero Categorias.txt 
 
                 // HASTA AQUI FUNCIONA BIEN
 
@@ -99,7 +103,7 @@ static void buscar_cat_prod(){
                 system("pause");*/     
 
                 if(strcmp(categoria, cat[i].Descrip) == 0){
-                    categoria_encontrada(&cat[i], del);
+                    categoriaEncontrada(&cat[i], del);
                     aux = 1;                                    // Variable que me permite salir del bucle y me dice si he encontrado o no la categoria
                 }
             }
@@ -109,12 +113,18 @@ static void buscar_cat_prod(){
             fprintf (stderr, "La categoria introducida no existe.\n");
         }
 
-        printf ("Quiere buscar otra vez? (1) Si (2) No.\n");
-        printf ("Elige opcion: ");
-        if (scanf("%d", &op) != 1){
-            fprintf (stderr, "Opcion no contemplada.\n");
-        }
-        fflush(stdin);
+        system("pause");
+        system("cls");
+
+        do{
+            printf ("Quiere buscar otra vez? (1) Si (2) No.\n");
+            printf ("Elige opcion: ");
+            if (scanf("%d", &op) != 1){
+                fprintf (stderr, "Opcion no contemplada. Pruebe de nuevo.\n");
+                system("pause");
+            }
+            fflush(stdin);
+        }while(op < 1 || op > 2);
 
         rewind(f_categorias);       // Puntero al inicio del fichero
 
@@ -124,7 +134,7 @@ static void buscar_cat_prod(){
     free(cat);
 }
 
-static void categoria_encontrada(Categorias *cat, char del[]){
+static void categoriaEncontrada(Categorias *cat, char del[]){
 
     int i;
     unsigned num1;
@@ -139,11 +149,11 @@ static void categoria_encontrada(Categorias *cat, char del[]){
         exit (1);
     }
 
-    num1 = num_prod();   //Almaceno el numero de productos
+    num1 = numProd();   //Almaceno el numero de productos
 
-    t_productos *prod;
+    tProductos *prod;
 
-    prod = (t_productos*)malloc(num1*sizeof(t_productos));       //Creo tantas estructuras como productos existan
+    prod = (tProductos*)malloc(num1*sizeof(tProductos));       //Creo tantas estructuras como productos existan
 
     if(prod == NULL){
         fprintf(stderr, "No se ha podido reservar memoria.\n");
@@ -155,13 +165,13 @@ static void categoria_encontrada(Categorias *cat, char del[]){
             if (temp[strlen(temp) - 1] == '\n')            // Ver si hay un salto de linea al final y reemplazarla con '\0'
                 temp[strlen(temp) - 1] = '\0';
             
-            dividir_cadena_prod(temp, del, &prod[i]);       // Guardo en las estructuras los datos del fichero Productos.txt
+            dividirCadenaProd(temp, del, &prod[i]);       // Guardo en las estructuras los datos del fichero Productos.txt
         }
     }
 
     for(i = 0; i < num1; i++){
         if(strcmp(prod[i].id_categ, cat->Id_categ) == 0){
-                producto_encontrado(prod[i]);
+                productoEncontrado(prod[i]);
         }
     }
 
@@ -173,7 +183,7 @@ static void categoria_encontrada(Categorias *cat, char del[]){
     fclose(f_productos);
 }   
 
-static void buscar_nombre_prod(){
+static void buscarNombreProd(){
 
     int i, j, aux, op;
     unsigned num;
@@ -188,11 +198,11 @@ static void buscar_nombre_prod(){
         exit (1);
     }
 
-    num = num_prod();   //Almaceno el numero de productos
+    num = numProd();   //Almaceno el numero de productos
 
-    t_productos *prod;
+    tProductos *prod;
 
-    prod = (t_productos*)malloc(num*sizeof(t_productos));       //Creo tantas estructuras como productos existan
+    prod = (tProductos*)malloc(num*sizeof(tProductos));       //Creo tantas estructuras como productos existan
 
     if(prod == NULL){
         fprintf(stderr, "No se ha podido reservar memoria.\n");
@@ -228,10 +238,10 @@ static void buscar_nombre_prod(){
                     temp[strlen(temp) - 1] = '\0';
                 
 
-                dividir_cadena_prod(temp, del, &prod[i]);
+                dividirCadenaProd(temp, del, &prod[i]);
 
                 if(strcmp(nombre, prod[i].descrip) == 0){
-                    producto_encontrado(prod[i]);
+                    productoEncontrado(prod[i]);
                     aux = 1;        // Variable que nos sirve para salir del bucle cuando hemos encontrado el producto
                 }
 
@@ -246,6 +256,7 @@ static void buscar_nombre_prod(){
         }
 
         system ("pause");
+        system ("cls");
 
         do{
             printf ("Desea seguir buscando productos?\n");
@@ -253,7 +264,8 @@ static void buscar_nombre_prod(){
             printf ("Elige opcion: ");
             
             if (scanf ("%d", &op) != 1){
-                fprintf(stderr, "Opcion no contemplada.\n");
+                fprintf(stderr, "Opcion no contemplada. Pruebe de nuevo.\n");
+                system("pause");
             }
             
             fflush(stdin);
@@ -273,7 +285,7 @@ static void buscar_nombre_prod(){
     fclose(f_productos);
 }
 
-static unsigned num_prod(){
+static unsigned numProd(){
 
     char buffer[MAX_LIN_FICH_PROD];
     unsigned cont = 0;
@@ -297,7 +309,7 @@ static unsigned num_prod(){
         fprintf(stderr, "Ha ocurrido un error en el fichero.\n");
         exit(1);
     }
-    fputs("\n", f_productos);
+    fputs("\n", f_productos);                           
 
     fclose(f_productos);
 
@@ -313,7 +325,7 @@ static void vaciar(char temp[]){
     }
 }
 
-static void dividir_cadena_cat(char temp[], char del[], Categorias *cat){
+static void dividirCadenaCat(char temp[], char del[], Categorias *cat){
     // Divido la cadena mediante su delimitador y la almaceno en la estructura
     char *p1 = strtok(temp, del);
     sprintf(cat->Id_categ, "%s", p1);
@@ -322,7 +334,7 @@ static void dividir_cadena_cat(char temp[], char del[], Categorias *cat){
     sprintf(cat->Descrip, "%s", p2);
 }
 
-static void dividir_cadena_prod(char temp[], char del[], t_productos *producto){
+static void dividirCadenaProd(char temp[], char del[], tProductos *producto){
     // Divido la cadena mediante su delimitador y la almaceno en la estructura
     char *p1 = strtok (temp, del);
     sprintf(producto->id_prod, "%s", p1);
@@ -347,7 +359,7 @@ static void dividir_cadena_prod(char temp[], char del[], t_productos *producto){
 
 }
 
-static void producto_encontrado(t_productos prod){
+static void productoEncontrado(tProductos prod){
     if(prod.stock == 0){
         fprintf (stderr, "No hay stock temporalmente del producto %s.\n", prod.descrip);
     }else{
@@ -355,25 +367,95 @@ static void producto_encontrado(t_productos prod){
     }
 }
 
-void infoProdAdmin(){       // Para Pablo
+void consultaProdAdmin(){
+
+    system("cls");
+
+    int op;
+
+    do{
+        printf ("\tApartado de Productos\n");
+        printf ("(1) Consultar informacion de los productos.\n");
+        printf ("(2) Dar de alta un producto.\n");
+        printf ("(3) Dar de baja un producto.\n");
+        printf ("(4) Buscar producto por nombre.\n");
+        printf ("(5) Buscar producto por categoria.\n");
+        printf ("(6) Modificar un producto.\n");
+
+        if((scanf("%d", &op) != 1) || (op < 1 || op > 6)){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Opcion no contemplada. Pruebe de nuevo.\n\n");
+            system("pause");
+        }else{
+            switch(op){
+            case 1: infoProdAdmin(); break;
+            case 2: break;
+            case 3: break;
+            case 4: buscarNombreProd(); break;
+            case 5: buscarCatProd(); break;
+            case 6: break;
+            default: fprintf(stderr, "Opcion no contemplada"); break;
+            }
+        }
+
+
+    }while(op < 1 || op > 6);
+}
+
+static void infoProdAdmin(){       // Para Pablo
+
+    system("cls");          // Limpiar la terminal
+
     int i;
-    char buffer[MAX_LIN_FICH_PROD];
+    unsigned num;
+    char temp[MAX_LIN_FICH_PROD], del[] = "-";
 
-    FILE *fp;
+    FILE *f_productos;
         
-    fp = fopen("../datos/Productos.txt", "r");
+    f_productos = fopen("../datos/Productos.txt", "r");
 
-    if (fp == NULL){
+    if (f_productos == NULL){
         fprintf (stderr, "Error en la apertura de fichero.\n");
         exit (1);
     }
 
-    while(!feof(fp)){
-        if (fgets(buffer, MAX_LIN_FICH_PROD, fp) != NULL){
-            printf ("%s\n", buffer);
+    num = numProd();   //Almaceno el numero de productos
+
+    tProductos *prod;
+
+    prod = (tProductos*)malloc(num*sizeof(tProductos));       //Creo tantas estructuras como productos existan
+
+    if(prod == NULL){
+        fprintf(stderr, "No se ha podido reservar memoria.\n");
+        exit(1);
+    }
+
+    fflush(stdin);
+
+    for(i = 0; i < num; i++){   // Recorremos el vector
+        // Cogemos línea por línea, ya que sabemos que MAX_LIN_FICH_PROD es el máximo que ocupara cada línea de Productos.txt
+        // Tras recoger una línea completa, eliminamos el \n y lo transformamos por un \0, y dicha cadena la metemos en los campos de infoper gracias a sscanf.
+        if(fgets(temp, MAX_LIN_FICH_PROD, f_productos) != NULL){
+            if (temp[strlen(temp) - 1] == '\n')        // Ver si hay un salto de linea al final y reemplazarla con '\0'
+                temp[strlen(temp) - 1] = '\0';
+            
+            dividirCadenaProd(temp, del, &prod[i]);
+
+            printf ("\nId producto: %s, producto: %s, id categoria: %s, id gestor: %s, stock: %d, entrega: %d, importe: %lf.\n\n", 
+            prod[i].id_prod, prod[i].descrip, prod[i].id_categ, prod[i].id_gestor, prod[i].stock, prod[i].entrega, prod[i].importe);
+                                            
         }
     }
     
-    fclose(fp);
+    fclose(f_productos);
+    system("pause");
 }
 
+void darAltaProd(){
+
+}
+
+void modProdAdmin(){
+
+}
