@@ -5,6 +5,7 @@
 #include "productos.h"
 #include "clientes.h"
 #include "categorias.h"
+#include "usuarios.h"
 
 void consultaProductosCli(){
 
@@ -76,8 +77,7 @@ static void buscarCatProd(){
         fgets(c, 51, stdin);
         fflush(stdin);
 
-        if (c[strlen(c) - 1] == '\n') // Ver si hay un salto de linea al final y reemplazarla con '\0'
-            c[strlen(c) - 1] = '\0';
+        cambio(c);                      // Quito el salto de linea del \n y meto un \0
 
         categoria = (char *)malloc(strlen(c)+1*sizeof(char));
 
@@ -91,8 +91,8 @@ static void buscarCatProd(){
 
         for(i = 0; i < num && aux == 0; i++){
             if(fgets(temp, 56, f_categorias) != NULL){
-                if (temp[strlen(temp) - 1] == '\n')            // Ver si hay un salto de linea al final y reemplazarla con '\0'
-                    temp[strlen(temp) - 1] = '\0';
+                
+                cambio(temp);                      // Quito el salto de linea del \n y meto un \0
                 
                 dividirCadenaCat(temp, del, &cat[i]);        // Guardo en las estructuras los datos del fichero Categorias.txt 
 
@@ -162,8 +162,8 @@ static void categoriaEncontrada(Categorias *cat, char del[]){
 
     for(i = 0; i < num1; i++){
         if(fgets(temp, MAX_LIN_FICH_PROD, f_productos) != NULL){
-            if (temp[strlen(temp) - 1] == '\n')            // Ver si hay un salto de linea al final y reemplazarla con '\0'
-                temp[strlen(temp) - 1] = '\0';
+            
+            cambio(temp);                      // Quito el salto de linea del \n y meto un \0
             
             dividirCadenaProd(temp, del, &prod[i]);       // Guardo en las estructuras los datos del fichero Productos.txt
         }
@@ -218,8 +218,7 @@ static void buscarNombreProd(){
         fgets(c, 50, stdin);
         fflush(stdin);
         
-        if (c[strlen(c) - 1] == '\n') // Ver si hay un salto de linea al final y reemplazarla con '\0'
-            c[strlen(c) - 1] = '\0';
+        cambio(c);                      // Quito el salto de linea del \n y meto un \0
 
         nombre = (char*)malloc(strlen(c)+1*sizeof(char));
         
@@ -234,9 +233,8 @@ static void buscarNombreProd(){
             // Cogemos línea por línea, ya que sabemos que MAX_LIN_FICH_PROD es el máximo que ocupara cada línea de Productos.txt
             // Tras recoger una línea completa, eliminamos el \n y lo transformamos por un \0, y dicha cadena la metemos en los campos de infoper gracias a sscanf.
             if(fgets(temp, MAX_LIN_FICH_PROD, f_productos) != NULL){
-                if (temp[strlen(temp) - 1] == '\n')        // Ver si hay un salto de linea al final y reemplazarla con '\0'
-                    temp[strlen(temp) - 1] = '\0';
                 
+                cambio(temp);                      // Quito el salto de linea del \n y meto un \0
 
                 dividirCadenaProd(temp, del, &prod[i]);
 
@@ -390,7 +388,7 @@ void consultaProdAdmin(){
         }else{
             switch(op){
             case 1: infoProdAdmin(); break;
-            case 2: break;
+            case 2: darAltaProd(); break;
             case 3: break;
             case 4: buscarNombreProd(); break;
             case 5: buscarCatProd(); break;
@@ -437,8 +435,8 @@ static void infoProdAdmin(){       // Para Pablo
         // Cogemos línea por línea, ya que sabemos que MAX_LIN_FICH_PROD es el máximo que ocupara cada línea de Productos.txt
         // Tras recoger una línea completa, eliminamos el \n y lo transformamos por un \0, y dicha cadena la metemos en los campos de infoper gracias a sscanf.
         if(fgets(temp, MAX_LIN_FICH_PROD, f_productos) != NULL){
-            if (temp[strlen(temp) - 1] == '\n')        // Ver si hay un salto de linea al final y reemplazarla con '\0'
-                temp[strlen(temp) - 1] = '\0';
+            
+            cambio(temp);                      // Quito el salto de linea del \n y meto un \0
             
             dividirCadenaProd(temp, del, &prod[i]);
 
@@ -449,13 +447,144 @@ static void infoProdAdmin(){       // Para Pablo
     }
     
     fclose(f_productos);
+    free(prod);
+
     system("pause");
 }
 
-void darAltaProd(){
+static void darAltaProd(){
+
+    unsigned num = numProd();
+    tProductos NuevoProd;
+
+    generarID(NuevoProd.id_prod, num, ID);
+    getDescripcion(NuevoProd.descrip);
+    printf ("Nueva descripcion: %s.\n", NuevoProd.descrip);
+    getIDcateg(NuevoProd.id_categ);
+    printf("Id categ: %s.\n", NuevoProd.id_categ);
+    /*getIDgestor(&NuevoProd.id_gestor);
+    getStock(&NuevoProd.stock);
+    getEntrega(&NuevoProd.entrega);
+    getImporte(&NuevoProd.importe);*/
 
 }
 
 void modProdAdmin(){
 
+}
+
+static void getDescripcion(char *descripcion){
+    
+    char Descrip[100];              // aux[DES+1] para saber si nos excedemos de caracteres
+    int op;
+
+    fflush(stdin);
+
+    do{
+        op = 0;                         // Ruta de escape 
+        printf ("Introduce la descripcion del nuevo producto: ");
+        fgets(Descrip, 100, stdin);
+        cambio(Descrip);                // Quito el salto de linea del \n y meto un \0
+        fflush(stdin);
+
+        if(strlen(Descrip) > DES-1){
+            fprintf(stderr, "Se excede la longitud maxima de caracteres, pruebe de nuevo.\n");
+            op = 1;
+            system("pause");
+        }else
+            strcpy(descripcion, Descrip);
+        
+    }while(op == 1);
+
+}
+
+static void getIDcateg(char *categ){
+
+    char id[ID_PROD], temp[56], del[] = "-";      //la longitud de temp2 = 56 pq es la longitud maxima de la linea del fichero, edison no tiene macro todavia para esto, estoy a la espera para cambiarlo;
+    int op, i, aux;
+    unsigned num;
+
+    fflush(stdin);
+
+    FILE *f_categorias;
+
+    f_categorias = fopen("../datos/Categorias.txt", "r");
+
+    if (f_categorias == NULL){
+        fprintf (stderr, "Error en la apertura del fichero.\n");
+        exit(1);
+    }
+
+    //num = funcionEdison;
+
+    num = 1;
+
+    Categorias *cat;
+
+    cat = (Categorias*)malloc(num*sizeof(Categorias));
+
+    if(cat == NULL){
+        fprintf(stderr, "No se ha podido reservar memoria.\n");
+        exit(1);
+    }
+
+    do{
+        aux = 0;                          // Para que en cada iteracion vuelva a tomar el valor 0 y no nos de un falso encontrado
+        op = 0;                           ///      "           "             "             "                           resultado
+        printf("Introduce la ID de la categoria (formato 0000): ");
+        fgets(id, ID_PROD, stdin);
+        cambio(id);                       // Quito el salto de linea del \n y meto un \0
+        fflush(stdin);
+
+        if(strlen(id) != ID_PROD-1){
+            fprintf(stderr, "La longitud del ID es distinta a la requerida, pruebe de nuevo.\n");
+            aux = 2;                // Para que no entre en el bucle
+        }
+
+        for(i = 0; i < num && aux == 0; i++){
+            if(fgets(temp, 56, f_categorias) != NULL){
+                
+                cambio(temp);                      // Quito el salto de linea del \n y meto un \0
+                
+                dividirCadenaCat(temp, del, &cat[i]);        // Guardo en las estructuras los datos del fichero Categorias.txt      
+
+                if(strcmp(id, cat[i].Id_categ) == 0){
+                    strcpy(categ, id);
+                    aux = 1;                                    // Variable que me permite salir del bucle y me dice si he encontrado o no la categoria
+                }
+            }
+        }
+
+        if (aux != 1){              // No se ha encontrado ninguna categoria
+            fprintf (stderr, "La categoria introducida no existe.\n");
+        }
+
+        system("pause");
+        system("cls");
+
+        do{
+            printf ("Quiere probar otra vez? (1) Si (2) No.\n");
+            printf ("Elige opcion: ");
+            if (scanf("%d", &op) != 1){
+                fprintf (stderr, "Opcion no contemplada. Pruebe de nuevo.\n");
+                system("pause");
+            }
+            fflush(stdin);
+        }while(op < 1 || op > 2);
+
+        rewind(f_categorias);       // Puntero al inicio del fichero
+
+        if(op == 2)
+            break;          //Para que no continue la ejecucion de las siguientes funciones en darAltaProd
+
+    }while(op == 1);
+
+    fclose(f_categorias);
+
+}
+
+
+void cambio(char *temp){
+    if (temp[strlen(temp) - 1] == '\n') // Ver si hay un salto de linea al final y reemplazarla con '\0'
+        temp[strlen(temp) - 1] = '\0';
 }

@@ -29,6 +29,8 @@ void consultaProductoscli();
 //Postcondicion: 
 void consultaProdAdmin();
 
+void cambio(char *temp);
+
 
 
 /*  FUNCIONES PRIVADAS  */
@@ -66,6 +68,10 @@ static void infoProdAdmin();
 static void darAltaProd();
 
 static void modProdAdmin();
+
+static void getDescripcion(char *Descripcion);
+
+static void getIDcateg(char *categ);
 
 
 #endif
