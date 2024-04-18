@@ -3,6 +3,7 @@
 
 #include "clientes.h"   // MACRO ID
 #include "categorias.h"
+#include "adminprov.h"
 
 #define DES 51
 #define ID_PROD 5
@@ -73,5 +74,8 @@ static void getDescripcion(char *Descripcion);
 
 static void getIDcateg(char *categ);
 
+static void getIDgestor(char *idNProd);
+
+static void dividirCadenaAdminProv(char temp[], char del[], tAdminProv *adminProv);
 
 #endif

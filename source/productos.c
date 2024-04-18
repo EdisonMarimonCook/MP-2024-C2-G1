@@ -6,6 +6,7 @@
 #include "clientes.h"
 #include "categorias.h"
 #include "usuarios.h"
+#include "adminprov.h"
 
 void consultaProductosCli(){
 
@@ -56,9 +57,9 @@ static void buscarCatProd(){
         exit(1);
     }
 
-    //num = funcionEdison;
-
     num = 1;
+
+    //num = lenCategorias();
 
     Categorias *cat;
 
@@ -462,8 +463,8 @@ static void darAltaProd(){
     printf ("Nueva descripcion: %s.\n", NuevoProd.descrip);
     getIDcateg(NuevoProd.id_categ);
     printf("Id categ: %s.\n", NuevoProd.id_categ);
-    /*getIDgestor(&NuevoProd.id_gestor);
-    getStock(&NuevoProd.stock);
+    getIDgestor(NuevoProd.id_gestor);
+    /*getStock(&NuevoProd.stock);
     getEntrega(&NuevoProd.entrega);
     getImporte(&NuevoProd.importe);*/
 
@@ -515,9 +516,9 @@ static void getIDcateg(char *categ){
         exit(1);
     }
 
-    //num = funcionEdison;
-
     num = 1;
+
+    //num = lenCategorias();
 
     Categorias *cat;
 
@@ -581,6 +582,103 @@ static void getIDcateg(char *categ){
 
     fclose(f_categorias);
 
+}
+
+static void getIDgestor(char *idNProd){
+    
+    char id[ID_PROD], temp[MAX_LIN_FICH_ADMINPROV], del[] = "-";
+    int op, i, aux;
+    unsigned num;
+
+    fflush(stdin);
+
+    FILE *f_adminprov;
+
+    f_adminprov = fopen("../datos/AdminProv.txt", "r");
+
+    if (f_adminprov == NULL){
+        fprintf (stderr, "Error en la apertura del fichero.\n");
+        exit(1);
+    }
+
+    num = numAdminProvs();
+
+    tAdminProv *adminprov;
+
+    adminprov = (tAdminProv*)malloc(num*sizeof(tAdminProv));
+
+    if (adminprov == NULL){
+        fprintf(stderr, "No se ha podido reservar memoria.\n");
+        exit(1);
+    }
+
+    do{
+        aux = 0;
+        printf ("Introduce el ID del gestor (formato 0000): ");
+        fgets(id, MAX_LIN_FICH_ADMINPROV, stdin);
+        cambio(id);
+        fflush(stdin);
+
+        if(strlen(id) != ID_PROD-1){
+            fprintf(stderr, "La longitud del ID es distinta a la requerida, pruebe de nuevo.\n");
+            aux = 2;                // Para que no entre en el bucle
+        }
+
+        for(i = 0; i < num && aux == 0; i++){
+            if(fgets(temp, MAX_LIN_FICH_ADMINPROV, f_adminprov) != NULL){
+                
+                cambio(temp);                      // Quito el salto de linea del \n y meto un \0
+                
+                dividirCadenaAdminProv(temp, del, &adminprov[i]);        // Guardo en las estructuras los datos del fichero Categorias.txt      
+
+                if(strcmp(id, adminprov[i].Id_empresa) == 0){
+                    strcpy(idNProd, id);
+                    aux = 1;                                    // Variable que me permite salir del bucle y me dice si he encontrado o no la categoria
+                }
+            }
+        }
+
+        if (aux != 1){              // No se ha encontrado ninguna categoria
+            fprintf (stderr, "El gestor introducido no existe.\n");
+        }
+
+        system("pause");
+        system("cls");
+
+        do{
+            printf ("Quiere probar otra vez? (1) Si (2) No.\n");
+            printf ("Elige opcion: ");
+            if (scanf("%d", &op) != 1){
+                fprintf (stderr, "Opcion no contemplada. Pruebe de nuevo.\n");
+                system("pause");
+            }
+            fflush(stdin);
+        }while(op < 1 || op > 2);
+
+        rewind(f_adminprov);       // Puntero al inicio del fichero
+
+        if(op == 2)
+            break;          //Para que no continue la ejecucion de las siguientes funciones en darAltaProd
+    }while(op == 1);
+
+}
+
+static void dividirCadenaAdminProv(char temp[], char del[], tAdminProv *adminProv){
+    // Divido la cadena mediante su delimitador y la almaceno en la estructura
+    char *p1 = strtok (temp, del);
+    sprintf(adminProv->Id_empresa, "%s", p1);
+
+    char *p2 = strtok (NULL, del);
+    sprintf(adminProv->Nombre, "%s", p2);
+
+    char *p3 = strtok (NULL, del);
+    sprintf(adminProv->email, "%s", p3);
+
+    char *p4 = strtok (NULL, del);
+    sprintf(adminProv->Contrasenia, "%s", p4);
+        
+    char *p5 = strtok (NULL, del);
+    sprintf(adminProv->Perfil_usuario, "%s", p4);
 }
 
 
