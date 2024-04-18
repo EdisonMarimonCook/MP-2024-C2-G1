@@ -5,6 +5,7 @@
 #include "clientes.h"
 #include "usuarios.h"    // existeEmail(), generar
 #include "productos.h"  // consulta_productos()
+#include "descuentosCliente.h" // descuentosCliente
 
 /* FUNCIONES PUBLICAS */
 
