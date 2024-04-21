@@ -455,18 +455,20 @@ static void infoProdAdmin(){       // Para Pablo
 
 static void darAltaProd(){
 
+    system("cls");
     unsigned num = numProd();
     tProductos NuevoProd;
 
     generarID(NuevoProd.id_prod, num, ID);
     getDescripcion(NuevoProd.descrip);
-    printf ("Nueva descripcion: %s.\n", NuevoProd.descrip);
     getIDcateg(NuevoProd.id_categ);
-    printf("Id categ: %s.\n", NuevoProd.id_categ);
-    getIDgestor(NuevoProd.id_gestor);
-    /*getStock(&NuevoProd.stock);
+    getIDgestor(NuevoProd.id_gestor);         //MIRAR!!!!!!!!!!!
+    getStock(&NuevoProd.stock);
+    //printf("Stock: %d", NuevoProd.stock);
     getEntrega(&NuevoProd.entrega);
-    getImporte(&NuevoProd.importe);*/
+    //printf("Entrega: %d", NuevoProd.entrega);
+    getImporte(&NuevoProd.importe);
+    //printf("Importe: %lf.\n", NuevoProd.importe);
 
 }
 
@@ -497,6 +499,8 @@ static void getDescripcion(char *descripcion){
         
     }while(op == 1);
 
+    system("cls");
+
 }
 
 static void getIDcateg(char *categ){
@@ -516,7 +520,7 @@ static void getIDcateg(char *categ){
         exit(1);
     }
 
-    num = 1;
+    num = 2;
 
     //num = lenCategorias();
 
@@ -531,7 +535,7 @@ static void getIDcateg(char *categ){
 
     do{
         aux = 0;                          // Para que en cada iteracion vuelva a tomar el valor 0 y no nos de un falso encontrado
-        op = 0;                           ///      "           "             "             "                           resultado
+        op = 0;                           //      "           "             "             "                           resultado
         printf("Introduce la ID de la categoria (formato 0000): ");
         fgets(id, ID_PROD, stdin);
         cambio(id);                       // Quito el salto de linea del \n y meto un \0
@@ -540,6 +544,7 @@ static void getIDcateg(char *categ){
         if(strlen(id) != ID_PROD-1){
             fprintf(stderr, "La longitud del ID es distinta a la requerida, pruebe de nuevo.\n");
             aux = 2;                // Para que no entre en el bucle
+            //op = 1;                 // Para que se repita
         }
 
         for(i = 0; i < num && aux == 0; i++){
@@ -558,20 +563,18 @@ static void getIDcateg(char *categ){
 
         if (aux != 1){              // No se ha encontrado ninguna categoria
             fprintf (stderr, "La categoria introducida no existe.\n");
+            do{
+                printf ("Quiere probar otra vez? (1) Si (2) No.\n");
+                printf ("Elige opcion: ");
+                if (scanf("%d", &op) != 1){
+                    fprintf (stderr, "Opcion no contemplada. Pruebe de nuevo.\n");
+                    system("pause");
+                }
+                fflush(stdin);
+            }while(op < 1 || op > 2);
         }
 
-        system("pause");
         system("cls");
-
-        do{
-            printf ("Quiere probar otra vez? (1) Si (2) No.\n");
-            printf ("Elige opcion: ");
-            if (scanf("%d", &op) != 1){
-                fprintf (stderr, "Opcion no contemplada. Pruebe de nuevo.\n");
-                system("pause");
-            }
-            fflush(stdin);
-        }while(op < 1 || op > 2);
 
         rewind(f_categorias);       // Puntero al inicio del fichero
 
@@ -581,11 +584,12 @@ static void getIDcateg(char *categ){
     }while(op == 1);
 
     fclose(f_categorias);
+    free(cat);
 
 }
 
-static void getIDgestor(char *idNProd){
-    
+static void getIDgestor(char *idNProd){                 // PROBLEMA CON ESTA FUNCION
+
     char id[ID_PROD], temp[MAX_LIN_FICH_ADMINPROV], del[] = "-";
     int op, i, aux;
     unsigned num;
@@ -603,6 +607,8 @@ static void getIDgestor(char *idNProd){
 
     num = numAdminProvs();
 
+    system("pause");
+    
     tAdminProv *adminprov;
 
     adminprov = (tAdminProv*)malloc(num*sizeof(tAdminProv));
@@ -614,6 +620,7 @@ static void getIDgestor(char *idNProd){
 
     do{
         aux = 0;
+        op = 0;
         printf ("Introduce el ID del gestor (formato 0000): ");
         fgets(id, MAX_LIN_FICH_ADMINPROV, stdin);
         cambio(id);
@@ -628,37 +635,122 @@ static void getIDgestor(char *idNProd){
             if(fgets(temp, MAX_LIN_FICH_ADMINPROV, f_adminprov) != NULL){
                 
                 cambio(temp);                      // Quito el salto de linea del \n y meto un \0
-                
-                dividirCadenaAdminProv(temp, del, &adminprov[i]);        // Guardo en las estructuras los datos del fichero Categorias.txt      
+                //printf("Linea leida : %s.\n", temp);
+
+                dividirCadenaAdminProv(temp, del, &adminprov[i]);        // Guardo en las estructuras los datos del fichero AdminProv.txt
+
+                /*printf("%s-%s-%s-%s-%s.\n", adminprov->Id_empresa, adminprov->Nombre, adminprov->email, 
+                                            adminprov->Contrasenia, adminprov->Perfil_usuario);*/      
 
                 if(strcmp(id, adminprov[i].Id_empresa) == 0){
                     strcpy(idNProd, id);
-                    aux = 1;                                    // Variable que me permite salir del bucle y me dice si he encontrado o no la categoria
+                    aux = 1;                                    // Variable que me permite salir del bucle y me dice si he encontrado o no al gestor
                 }
             }
         }
 
+        //printf("%s.\n", idNProd);
+
         if (aux != 1){              // No se ha encontrado ninguna categoria
             fprintf (stderr, "El gestor introducido no existe.\n");
+            do{
+                printf ("Quiere probar otra vez? (1) Si (2) No.\n");
+                printf ("Elige opcion: ");
+                if (scanf("%d", &op) != 1){
+                    fprintf (stderr, "Opcion no contemplada. Pruebe de nuevo.\n");
+                    system("pause");
+                }
+                fflush(stdin);
+            }while(op < 1 || op > 2);
         }
 
-        system("pause");
         system("cls");
-
-        do{
-            printf ("Quiere probar otra vez? (1) Si (2) No.\n");
-            printf ("Elige opcion: ");
-            if (scanf("%d", &op) != 1){
-                fprintf (stderr, "Opcion no contemplada. Pruebe de nuevo.\n");
-                system("pause");
-            }
-            fflush(stdin);
-        }while(op < 1 || op > 2);
 
         rewind(f_adminprov);       // Puntero al inicio del fichero
 
         if(op == 2)
             break;          //Para que no continue la ejecucion de las siguientes funciones en darAltaProd
+
+    }while(op == 1);
+
+    fclose(f_adminprov);
+    free(adminprov);
+
+}
+
+static void getStock(int *stock){
+    int num, op;
+
+    do{
+        op = 0;
+        printf("Introduce el stock disponible del producto: ");
+        if(scanf ("%d", &num) != 1){
+            fprintf(stderr, "Valor no valido, pruebe de nuevo.\n");
+            op = 1;
+        }else{
+            if(num < 0){
+                fprintf(stderr, "El stock no puede ser negativo, pruebe de nuevo.\n");
+                op = 1;
+                system("pause");
+            }else
+                *stock = num;
+        }
+
+        system("cls");
+        
+    }while(op == 1);
+
+}
+
+static void getEntrega(int *entrega){
+    int num;
+    int op;
+
+    fflush(stdin);
+
+    do{
+        op = 0;
+        printf("Introduce el numero de dias maximo de la entrega: ");
+        if(scanf ("%d", &num) != 1){
+            fprintf(stderr, "Valor no valido, pruebe de nuevo.\n");
+            op = 1;
+        }
+
+        if(num < 0){
+            fprintf(stderr, "La entrega no puede ser negativa, pruebe de nuevo.\n");
+            op = 1;
+            system("pause");
+        }else
+            *entrega = num;
+
+        system("cls");
+        
+    }while (op == 1);
+
+}
+
+static void getImporte(double *importe){
+    double num;
+    int op;
+
+    fflush(stdin);
+
+    do{
+        printf("Introduce el importe del producto: ");
+        if(scanf("%lf", &num) != 1){
+            fprintf(stderr, "Valor no valido, pruebe de nuevo.\n");
+            op = 1;
+        }
+
+        if(num < 0){
+            fprintf(stderr, "El importe no puede ser negativo, pruebe de nuevo.\n");
+            op = 1;
+            system("pause");
+        }else
+            *importe = num;
+
+        system("cls");
+        
     }while(op == 1);
 
 }
@@ -678,7 +770,7 @@ static void dividirCadenaAdminProv(char temp[], char del[], tAdminProv *adminPro
     sprintf(adminProv->Contrasenia, "%s", p4);
         
     char *p5 = strtok (NULL, del);
-    sprintf(adminProv->Perfil_usuario, "%s", p4);
+    sprintf(adminProv->Perfil_usuario, "%s", p5);
 }
 
 

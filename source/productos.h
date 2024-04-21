@@ -14,8 +14,8 @@ typedef struct{
     char descrip[DES];          // 51 bytes
     char id_categ[ID_PROD];     // 5 bytes
     char id_gestor[ID_PROD];    // 5 bytes
-    unsigned stock;             // 4 bytes
-    unsigned entrega;           // 4 bytes
+    int stock;                  // 4 bytes
+    int entrega;                // 4 bytes
     double importe;             // 8 bytes          TOTAL = 85 BYTES
 }tProductos;
 
@@ -77,5 +77,11 @@ static void getIDcateg(char *categ);
 static void getIDgestor(char *idNProd);
 
 static void dividirCadenaAdminProv(char temp[], char del[], tAdminProv *adminProv);
+
+static void getStock(int *stock);
+
+static void getEntrega(int *entrega);
+
+static void getImporte(double *importe);
 
 #endif
