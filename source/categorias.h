@@ -8,6 +8,7 @@ typedef struct{
 }Categorias; 
 
 void mainCategorias();
+unsigned lenCategorias();
 
 static void realizarBaja();
 static void realizarAlta(char id_actual[]);

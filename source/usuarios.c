@@ -90,6 +90,10 @@ void registrarTransportista(){
     cargarTransportistas(transportistas);
     unsigned nTransp = numTransportistas();
 
+    for(int i = 0; i < nTransp; ++i)
+        printf("DATOS: %s-%s-%s-%s-%s-%s\n", transportistas[i].Id_transp, transportistas[i].Nombre, transportistas[i].email,
+                                       transportistas[i].Contrasenia, transportistas[i].Nomb_empresa, transportistas[i].Ciudad);
+
     if(nTransp != 0){
         transportistas = (tTransportista *) realloc(transportistas, (nTransp+1)*sizeof(tTransportista));
 

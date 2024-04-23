@@ -5,7 +5,8 @@
 #include "clientes.h"
 #include "usuarios.h"    // existeEmail(), generar
 #include "productos.h"  // consulta_productos()
-#include "descuentosCliente.h" // descuentosCliente
+#include "pedidos.h"
+#include "categorias.h"
 
 /* FUNCIONES PUBLICAS */
 
@@ -35,8 +36,8 @@ void menuCliente(tCliente *cliente){
             switch(op){
                 case 1: perfilCliente(cliente); break;
                 case 2: consultaProductosCli(); break;
-                case 3: menuDescuentosCliente(cliente->Id_cliente); break;
-                case 4: break;
+                case 3: break;
+                case 4: consultaPedidosCli(cliente); break;
                 case 5: break;
                 case 6: fin = 1; break;
                 default: fprintf(stderr, "Se ha producido un error\n"); exit(1);

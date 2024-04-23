@@ -8,6 +8,7 @@
 #include "categorias.h" // mainCategorias()
 #include "descuentos.h" // menuDescuentos()
 #include "transportista.h"  // infoTransportista()
+#include "productos.h"
 
 /* FUNCIONES PUBLICAS */
 
@@ -42,7 +43,7 @@ void menuAdmin(tAdminProv *admin){
                 case 1: perfilAdmin(admin); break;
                 case 2: administracionClientes(); break;  // clientes.h
                 case 3: administracionProveedores(); break;
-                case 4: consultaProdAdmin(); break;
+                case 4: break;
                 case 5: mainCategorias(); break;
                 case 6: break;
                 case 7: administracionTransportistas(); break;  // transportistas.h
@@ -79,7 +80,7 @@ void menuProveedor(tAdminProv *proveedor){
             // Menu Proveedor
             switch(op){
                 case 1: perfilProveedor(proveedor); break;
-                case 2: break;
+                case 2: consultaProdAdmin(); break;
                 case 3: break;
                 case 4: fin = 1; break;
                 default: fprintf(stderr, "Se ha producido un error\n"); exit(1);
@@ -571,13 +572,13 @@ static void buscarIDproveedor(){
             fflush(stdin);
             fprintf(stderr, "Entrada no valida.\n\n");
         } else {
-            tAdminProv *proveedores = crearListaAdminProv();
-            cargarAdminProvs(proveedores);
-            
             // Si la ID introducida es mayor al numero de usuarios en el sistema entonces no existe
-            if(idNum > numAdminProvs() || strcmp(proveedores[idNum-1].Perfil_usuario, "administrador") == 0)
-                printf("No existe proveedor con ID: %i.", idNum);
+            if(idNum > numAdminProvs())
+                printf("No existe usuario con ID: %i.", idNum);
             else{
+                tAdminProv *proveedores = crearListaAdminProv();
+                cargarAdminProvs(proveedores);
+
                 --idNum;
 
                 printf("\nDatos del usuario buscado: ");
