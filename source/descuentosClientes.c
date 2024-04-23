@@ -19,7 +19,7 @@ static void consultarDescuentos(const char *id_cliente, descuentosClientes *desc
 void menuDescuentosCliente(const char *idCliente){
 
     FILE *fichero;
-    char linea[100];
+    char linea[MAX_LIN_FICH_DESC_CLI];
     descuentosClientes *descuentos;
     int num_descuentos = 0;
 

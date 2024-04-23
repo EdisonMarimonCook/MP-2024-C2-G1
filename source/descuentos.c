@@ -12,7 +12,7 @@ void menuDescuentos() {
     Descuentos *descuentos;
     int numDescuentos = 0;
     int opcion;
-    char id[11];
+    char id[MAX_ID];
 
     descuentos = (Descuentos*)malloc(1 * sizeof(Descuentos));
 
@@ -68,7 +68,7 @@ void menuDescuentos() {
                     break;
                 case 3:
                     printf("Introduzca el ID del descuento a buscar: ");
-                    fgets(id, 4, stdin);
+                    fgets(id, MAX_ID, stdin);
                     buscarDescuento(descuentos, numDescuentos, id);
                     break;
                 case 4:
@@ -93,30 +93,42 @@ static void agregarDescuento(Descuentos *descuentos, int *numDescuentos) {
     Descuentos nuevoDescuento;
 
     printf("Ingrese el ID del descuento (máximo 10 caracteres): ");
-    //scanf("%s", nuevoDescuento.id_cod);
-    fgets(nuevoDescuento.id_cod, 10, stdin);
+    fgets(nuevoDescuento.id_cod, MAX_ID, stdin);
     while (getchar() != '\n');
     fflush(stdin);
+    nuevoDescuento.id_cod[MAX_ID] == '\0';
 
-    printf("Ingrese la descripción del descuento (máximo 50 caracteres): ");    // aqui hay error, no deja terminar y borra lo siguiente
-    scanf("%s", nuevoDescuento.Descrip);
+    printf("Ingrese la descripción del descuento (máximo 50 caracteres): ");
+    fgets(nuevoDescuento.Descrip, MAX_DESCRIP, stdin);
     while (getchar() != '\n');
+    fflush(stdin);
+    nuevoDescuento.Descrip[MAX_DESCRIP] == '\0';
+
 
     printf("Ingrese el tipo de descuento (codpro o cheqreg): ");
-    scanf("%s", nuevoDescuento.Tipo);
+    fgets(nuevoDescuento.Tipo, MAX_TIPO, stdin);
     while (getchar() != '\n');
+    fflush(stdin);
+    nuevoDescuento.Tipo[MAX_TIPO] == '\0';
 
     printf("Ingrese el estado del descuento (activo o inactivo): ");
-    scanf("%s", nuevoDescuento.Estado);
+    fgets(nuevoDescuento.Estado, MAX_ESTADO, stdin);
     while (getchar() != '\n');
+    fflush(stdin);
+    nuevoDescuento.Estado[MAX_ESTADO] == '\0';
 
     printf("Ingrese el importe del descuento en euros: ");
-    scanf("%f", &nuevoDescuento.Importe);
-    while (getchar() != '\n');
+    while(scanf("%f", &nuevoDescuento.Importe) != 1 || nuevoDescuento.Importe < 0){
+        fflush(stdin);
+        perror("Entrada no valida, intentelo de nuevo.");
+    }
+    fflush(stdin);
 
     printf("Ingrese la aplicabilidad del descuento (todos o esizon): ");
-    scanf("%s", nuevoDescuento.Aplicabilidad);
+    fgets(nuevoDescuento.Aplicabilidad, MAX_APLICA, stdin);
     while (getchar() != '\n');
+    fflush(stdin);
+    nuevoDescuento.Aplicabilidad[MAX_APLICA] == '\0';
 
     descuentos = (Descuentos*)realloc(descuentos, (*numDescuentos)+1 * sizeof(Descuentos));
 

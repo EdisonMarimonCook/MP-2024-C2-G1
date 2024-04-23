@@ -13,7 +13,7 @@ unsigned lenCategorias(){
 
     unsigned numCat = 0;
 
-    char linefich[56];
+    char linefich[MAX_LIN_FICH_CATEG];
 
     FILE *fich = fopen("../datos/Categorias.txt", "r");
     if(fich == NULL){
@@ -22,7 +22,7 @@ unsigned lenCategorias(){
     }
 
     while(!feof(fich)){
-        fgets(linefich, 56, fich);
+        fgets(linefich, MAX_LIN_FICH_CATEG, fich);
         numCat++;
     }
 
@@ -34,22 +34,25 @@ unsigned lenCategorias(){
 
 static void modificarCategoria() {
 
-    char idCategoria[5]; 
-    char nuevaDescrip[50];
+    char idCategoria[MAX_ID_CATEG]; 
+    char nuevaDescrip[MAX_DESC_CATEG];
 
     printf("Escriba el ID de la categoria a modificar: ");
-    scanf("%s", idCategoria);
+    fgets(idCategoria, MAX_ID_CATEG, stdin);
     while (getchar() != '\n');
+    idCategoria[MAX_ID_CATEG] = '\0';
 
     printf("Escriba la nueva descripcion para la categoria: ");
-    scanf("%s", nuevaDescrip);
+    fgets(nuevaDescrip, MAX_DESC_CATEG, stdin);
+    while(getchar() != '\n');
+    nuevaDescrip[MAX_DESC_CATEG] == '\0';
 
     FILE *archivoOriginal, *archivoTemporal;
-    char id[5];
-    char descrip[51];
+    char id[MAX_ID_CATEG];
+    char descrip[MAX_DESC_CATEG];
     int encontrado = 0;
 
-    descrip[51] = '\0';
+    descrip[MAX_DESC_CATEG] = '\0';
 
     archivoOriginal = fopen("../datos/Categorias.txt", "r");
     if (archivoOriginal == NULL) {
@@ -109,15 +112,13 @@ static void realizarAlta(char id_actual[]) {
 }
 
 static void realizarBaja() {
-    char id_baja[5];
+    char id_baja[MAX_ID_CATEG];
     int encontrado = 0;
 
     printf("Ingrese el ID de la categoría que desea dar de baja: ");
-    fgets(id_baja, 4, stdin);
-    if (id_baja[strlen(id_baja) - 1] == '\n') 
-        id_baja[strlen(id_baja) - 1] = '\0';
-    scanf("%s", id_baja);
-    while (getchar() != '\n');
+    fgets(id_baja, MAX_DESC_CATEG, stdin);
+    while(getchar() != '\n');
+    id_baja[MAX_ID_CATEG] == '\0';
 
     FILE *fichero_entrada = fopen("../datos/Categorias.txt", "r");
     if (fichero_entrada == NULL) {

@@ -1,9 +1,13 @@
 #ifndef CATEGORIAS_H_
 #define CATEGORIAS_H_
 
+#define MAX_ID_CATEG 5
+#define MAX_DESC_CATEG 51
+#define MAX_LIN_FICH_CATEG 56
+
 typedef struct{
-    char  Id_categ[5];
-    char Descrip[51];
+    char  Id_categ[MAX_ID_CATEG];
+    char Descrip[MAX_DESC_CATEG];
 
 }Categorias; 
 
