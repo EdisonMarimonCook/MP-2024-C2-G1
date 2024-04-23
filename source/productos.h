@@ -7,7 +7,7 @@
 
 #define DES 51
 #define ID_PROD 5
-#define MAX_LIN_FICH_PROD 85
+#define MAX_LIN_FICH_PROD 75
 
 typedef struct{
     char id_prod[ID];           // 8 bytes

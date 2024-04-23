@@ -799,8 +799,8 @@ void cargarProductos(tProductos *prod){
             // Tras recoger una línea completa, eliminamos el \n y lo transformamos por un \0, y dicha cadena la metemos en los campos de infoper gracias a sscanf.
             if(fgets(temp, MAX_LIN_FICH_PROD, fp) != NULL){
                 cambio(temp);
-                sscanf(temp, "%[^-]-%[^-]-%[^-]-%[^-]-%[^-]-%[^-]", prod[i].id_prod, prod[i].descrip, prod[i].id_categ,
-                                                                      prod[i].id_gestor, prod[i].stock, prod[i].entrega, prod[i].importe);
+                sscanf(temp, "%[^-]-%[^-]-%[^-]-%[^-]-%i-%i-%lf", prod[i].id_prod, prod[i].descrip, prod[i].id_categ,
+                                                                        prod[i].id_gestor, &prod[i].stock, &prod[i].entrega, &prod[i].importe);
             }
         }
 
