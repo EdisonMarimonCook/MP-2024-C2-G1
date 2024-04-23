@@ -14,9 +14,9 @@ typedef struct{
     char descrip[DES];          // 51 bytes
     char id_categ[ID_PROD];     // 5 bytes
     char id_gestor[ID_PROD];    // 5 bytes
-    int stock;                  // 4 bytes
-    int entrega;                // 4 bytes
-    double importe;             // 8 bytes          TOTAL = 85 BYTES
+    int stock;                  
+    int entrega;                
+    double importe;             
 }tProductos;
 
 
