@@ -13,6 +13,8 @@ unsigned lenCategorias(){
 
     unsigned numCat = 0;
 
+    char linefich[56];
+
     FILE *fich = fopen("../datos/Categorias.txt", "r");
     if(fich == NULL){
         perror("No se pudo abrir Categorias.txt");
@@ -20,6 +22,7 @@ unsigned lenCategorias(){
     }
 
     while(!feof(fich)){
+        fgets(linefich, 56, fich);
         numCat++;
     }
 
