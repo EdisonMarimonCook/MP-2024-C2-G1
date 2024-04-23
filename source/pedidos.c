@@ -26,7 +26,8 @@ void consultaPedidosCli(tCliente *cli){
         }else{
             switch(op){
                 case 1: realizarPedido(cli); break;
-                case 2: estadoPedidos(cli); break;                       
+                case 2: //estadoPedidos(cli); 
+                        break;                       
                 case 3: break;
                 default: fprintf(stderr, "Ha ocurrido un error.\n"); exit(1);
             }
@@ -35,7 +36,7 @@ void consultaPedidosCli(tCliente *cli){
 }
 
 static void realizarPedido(tCliente *cliente){
-    char *nombreProd, temp[DES], idProd[ID];
+    char *nombreProd, *temp, idProd[ID];
     int id, encontrado = 0;
 
     tProductos *Productos;
@@ -43,7 +44,12 @@ static void realizarPedido(tCliente *cliente){
     Productos = (tProductos*)malloc(numProd()*sizeof(tProductos));
     cargarProductos(Productos);
 
-    strcpy(temp,buscarNombreProd(idProd, &encontrado));
+    temp = buscarNombreProd(idProd, &encontrado);
+
+    if(temp == NULL){
+        fprintf(stderr, "No se ha podido asignar memoria.\n");
+        exit(1);
+    }
 
     if(encontrado == 1){
         fprintf(stderr, "No se puede pedir un articulo que se encuentra sin stock");
@@ -55,15 +61,16 @@ static void realizarPedido(tCliente *cliente){
         if(cliente->Cartera < 0){
             fprintf(stderr, "No tienes suficiente saldo disponible");
         }else{
-            nombreProd = (char*)malloc(strlen(temp)+1*sizeof(char));
-            strcpy(nombreProd, temp);
+           /*nombreProd = (char*)malloc(strlen(temp)+1*sizeof(char));
+            strcpy(nombreProd, temp);*/
 
             Productos[id].stock -= Productos[id].stock;
-            recrearFicheroProductos(Productos, numprod());
+            recrearFicheroProductos(Productos, numProd());
         }
 
     }
-
+    free(Productos);
+    free(temp);
     
 }
 

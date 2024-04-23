@@ -20,4 +20,6 @@ void consultaPedidosCli(tCliente *cli);
 
 static void realizarPedido(tCliente *cliente);
 
+static void recrearFicheroProductos(tProductos *Productos, unsigned numProd);
+
 #endif
