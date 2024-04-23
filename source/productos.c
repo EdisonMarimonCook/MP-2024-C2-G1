@@ -4,15 +4,17 @@
 
 #include "productos.h"
 #include "clientes.h"
-#include "categorias.h"
 #include "usuarios.h"
 #include "adminprov.h"
+#include "pedidos.h"
+#include "categorias.h"
 
 void consultaProductosCli(){
 
     system ("cls");
 
-    int op;
+    int op, encontrado;
+    char producto[DES], idProd[ID];
 
     do{
         printf ("\tApartado de Productos.\n");
@@ -26,11 +28,10 @@ void consultaProductosCli(){
             fflush(stdin);
             fprintf(stderr, "Opcion no contemplada. Pruebe de nuevo.\n\n");
             system("pause");
-            break;
         }else{
             switch (op){
             case 1: buscarCatProd(); break;
-            case 2: buscarNombreProd(); break;
+            case 2: buscarNombreProd(idProd, &encontrado); break;
             case 3: break;
             default: fprintf(stderr, "Ha ocurrido un error.\n"); exit(1);
             }
@@ -97,12 +98,6 @@ static void buscarCatProd(){
                 
                 dividirCadenaCat(temp, del, &cat[i]);        // Guardo en las estructuras los datos del fichero Categorias.txt 
 
-                // HASTA AQUI FUNCIONA BIEN
-
-                /*printf ("%s-%s.\n", cat[i].Id_categ, cat[i].Descrip);
-                PARA PRUEBAS
-                system("pause");*/     
-
                 if(strcmp(categoria, cat[i].Descrip) == 0){
                     categoriaEncontrada(&cat[i], del);
                     aux = 1;                                    // Variable que me permite salir del bucle y me dice si he encontrado o no la categoria
@@ -138,7 +133,7 @@ static void buscarCatProd(){
 static void categoriaEncontrada(Categorias *cat, char del[]){
 
     int i;
-    unsigned num1;
+    unsigned num;
     char temp[MAX_LIN_FICH_PROD];
 
     FILE *f_productos;
@@ -150,18 +145,18 @@ static void categoriaEncontrada(Categorias *cat, char del[]){
         exit (1);
     }
 
-    num1 = numProd();   //Almaceno el numero de productos
+    num = numProd();   //Almaceno el numero de productos
 
     tProductos *prod;
 
-    prod = (tProductos*)malloc(num1*sizeof(tProductos));       //Creo tantas estructuras como productos existan
+    prod = (tProductos*)malloc(num*sizeof(tProductos));       //Creo tantas estructuras como productos existan
 
     if(prod == NULL){
         fprintf(stderr, "No se ha podido reservar memoria.\n");
         exit(1);
     }
 
-    for(i = 0; i < num1; i++){
+    for(i = 0; i < num; i++){
         if(fgets(temp, MAX_LIN_FICH_PROD, f_productos) != NULL){
             
             cambio(temp);                      // Quito el salto de linea del \n y meto un \0
@@ -170,7 +165,7 @@ static void categoriaEncontrada(Categorias *cat, char del[]){
         }
     }
 
-    for(i = 0; i < num1; i++){
+    for(i = 0; i < num; i++){
         if(strcmp(prod[i].id_categ, cat->Id_categ) == 0){
                 productoEncontrado(prod[i]);
         }
@@ -184,9 +179,9 @@ static void categoriaEncontrada(Categorias *cat, char del[]){
     fclose(f_productos);
 }   
 
-static void buscarNombreProd(){
+char* buscarNombreProd(char *idProd, int *encontrado){
 
-    int i, j, aux, op;
+    int i, aux, op;
     unsigned num;
     char temp[MAX_LIN_FICH_PROD], c[DES], *nombre, del[] = "-";
 
@@ -240,8 +235,9 @@ static void buscarNombreProd(){
                 dividirCadenaProd(temp, del, &prod[i]);
 
                 if(strcmp(nombre, prod[i].descrip) == 0){
-                    productoEncontrado(prod[i]);
+                    *encontrado = productoEncontrado(prod[i]);
                     aux = 1;        // Variable que nos sirve para salir del bucle cuando hemos encontrado el producto
+                    idProd = prod[i].id_prod;
                 }
 
                 /*printf ("%s-%s-%s-%s-%d-%d-%lf.\n", prod[i].id_prod, prod[i].descrip, prod[i].id_categ, prod[i].id_gestor, prod[i].stock,
@@ -279,12 +275,13 @@ static void buscarNombreProd(){
 
     system ("cls");
 
-    free(nombre);
     free(prod);
     fclose(f_productos);
+
+    return nombre;
 }
 
-static unsigned numProd(){
+unsigned numProd(){
 
     char buffer[MAX_LIN_FICH_PROD];
     unsigned cont = 0;
@@ -358,19 +355,25 @@ static void dividirCadenaProd(char temp[], char del[], tProductos *producto){
 
 }
 
-static void productoEncontrado(tProductos prod){
+static int productoEncontrado(tProductos prod){
+    int aux;
+
     if(prod.stock == 0){
         fprintf (stderr, "No hay stock temporalmente del producto %s.\n", prod.descrip);
+        aux = 1;
     }else{
         printf ("Del producto %s se encuentran %d unidades en stock con un importe cada una de %.2lf euros.\n", prod.descrip, prod.stock, prod.importe);
     }
+
+    return aux;
 }
 
 void consultaProdAdmin(){
 
     system("cls");
 
-    int op;
+    int op, encontrado;
+    char idProd[ID];
 
     do{
         printf ("\tApartado de Productos\n");
@@ -390,8 +393,8 @@ void consultaProdAdmin(){
             switch(op){
             case 1: infoProdAdmin(); break;
             case 2: darAltaProd(); break;
-            case 3: break;
-            case 4: buscarNombreProd(); break;
+            case 3: darBajaProd(); break;
+            case 4: buscarNombreProd(idProd, &encontrado); break;
             case 5: buscarCatProd(); break;
             case 6: break;
             default: fprintf(stderr, "Opcion no contemplada"); break;
@@ -402,7 +405,7 @@ void consultaProdAdmin(){
     }while(op < 1 || op > 6);
 }
 
-static void infoProdAdmin(){       // Para Pablo
+static void infoProdAdmin(){      
 
     system("cls");          // Limpiar la terminal
 
@@ -459,21 +462,29 @@ static void darAltaProd(){
     unsigned num = numProd();
     tProductos NuevoProd;
 
-    generarID(NuevoProd.id_prod, num, ID);
+    generarID(NuevoProd.id_prod, num, ID-1);
     getDescripcion(NuevoProd.descrip);
     getIDcateg(NuevoProd.id_categ);
-    getIDgestor(NuevoProd.id_gestor);         //MIRAR!!!!!!!!!!!
+    getIDgestor(NuevoProd.id_gestor);         
     getStock(&NuevoProd.stock);
-    //printf("Stock: %d", NuevoProd.stock);
     getEntrega(&NuevoProd.entrega);
-    //printf("Entrega: %d", NuevoProd.entrega);
     getImporte(&NuevoProd.importe);
-    //printf("Importe: %lf.\n", NuevoProd.importe);
+
+    fflush(stdin);
+
+    //guardarNuevoProducto("../datos/Productos.txt", NuevoProd);
+
+    printf("Producto guardado con exito!.\n");
+    system("pause");
 
 }
 
-void modProdAdmin(){
+static void darBajaProd(){
+    
+}
 
+static void modProdAdmin(){
+    
 }
 
 static void getDescripcion(char *descripcion){
@@ -588,10 +599,10 @@ static void getIDcateg(char *categ){
 
 }
 
-static void getIDgestor(char *idNProd){                 // PROBLEMA CON ESTA FUNCION
+static void getIDgestor(char *idNProd){                 
 
     char id[ID_PROD], temp[MAX_LIN_FICH_ADMINPROV], del[] = "-";
-    int op, i, aux;
+    int op, i, aux, c;
     unsigned num;
 
     fflush(stdin);
@@ -606,8 +617,6 @@ static void getIDgestor(char *idNProd){                 // PROBLEMA CON ESTA FUN
     }
 
     num = numAdminProvs();
-
-    system("pause");
     
     tAdminProv *adminprov;
 
@@ -631,16 +640,16 @@ static void getIDgestor(char *idNProd){                 // PROBLEMA CON ESTA FUN
             aux = 2;                // Para que no entre en el bucle
         }
 
+        // Limpiar el búfer de entrada
+        while ((c = getchar()) != '\n' && c != EOF);            // Si no se hace esto hay fallos en el programa
+
         for(i = 0; i < num && aux == 0; i++){
             if(fgets(temp, MAX_LIN_FICH_ADMINPROV, f_adminprov) != NULL){
                 
                 cambio(temp);                      // Quito el salto de linea del \n y meto un \0
                 //printf("Linea leida : %s.\n", temp);
 
-                dividirCadenaAdminProv(temp, del, &adminprov[i]);        // Guardo en las estructuras los datos del fichero AdminProv.txt
-
-                /*printf("%s-%s-%s-%s-%s.\n", adminprov->Id_empresa, adminprov->Nombre, adminprov->email, 
-                                            adminprov->Contrasenia, adminprov->Perfil_usuario);*/      
+                dividirCadenaAdminProv(temp, del, &adminprov[i]);        // Guardo en las estructuras los datos del fichero AdminProv.txt     
 
                 if(strcmp(id, adminprov[i].Id_empresa) == 0){
                     strcpy(idNProd, id);
@@ -648,8 +657,6 @@ static void getIDgestor(char *idNProd){                 // PROBLEMA CON ESTA FUN
                 }
             }
         }
-
-        //printf("%s.\n", idNProd);
 
         if (aux != 1){              // No se ha encontrado ninguna categoria
             fprintf (stderr, "El gestor introducido no existe.\n");
@@ -771,6 +778,34 @@ static void dividirCadenaAdminProv(char temp[], char del[], tAdminProv *adminPro
         
     char *p5 = strtok (NULL, del);
     sprintf(adminProv->Perfil_usuario, "%s", p5);
+}
+
+void cargarProductos(tProductos *prod){
+    unsigned i;
+    char temp[MAX_LIN_FICH_PROD];
+
+    if(numProd() != 0){    // Comprobamos si existe algún usuario en Productos.txt
+        FILE *fp;
+
+        fp = fopen("../datos/Productos.txt", "r");    // Abrimos el fichero en tipo lectura.
+
+        if(fp == NULL){     // Comprobamos si su apertura es correcta.
+            fprintf(fp, "Error en la apertura de archivos.\n");
+            exit(1);
+        }
+
+        for(i = 0; i < numProd(); ++i){   // Recorremos el vector
+            // Cogemos línea por línea, ya que sabemos que MAX_LIN_FICH_PROD es el máximo que ocupara cada línea de Productos.txt
+            // Tras recoger una línea completa, eliminamos el \n y lo transformamos por un \0, y dicha cadena la metemos en los campos de infoper gracias a sscanf.
+            if(fgets(temp, MAX_LIN_FICH_PROD, fp) != NULL){
+                cambio(temp);
+                sscanf(temp, "%[^-]-%[^-]-%[^-]-%[^-]-%[^-]-%[^-]", prod[i].id_prod, prod[i].descrip, prod[i].id_categ,
+                                                                      prod[i].id_gestor, prod[i].stock, prod[i].entrega, prod[i].importe);
+            }
+        }
+
+        fclose(fp); // Cerramos fichero.
+    }
 }
 
 

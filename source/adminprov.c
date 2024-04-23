@@ -8,6 +8,7 @@
 #include "categorias.h" // mainCategorias()
 #include "descuentos.h" // menuDescuentos()
 #include "transportista.h"  // infoTransportista()
+#include "productos.h"
 
 /* FUNCIONES PUBLICAS */
 
@@ -79,7 +80,7 @@ void menuProveedor(tAdminProv *proveedor){
             // Menu Proveedor
             switch(op){
                 case 1: perfilProveedor(proveedor); break;
-                case 2: break;
+                case 2: consultaProdAdmin(); break;
                 case 3: break;
                 case 4: fin = 1; break;
                 default: fprintf(stderr, "Se ha producido un error\n"); exit(1);

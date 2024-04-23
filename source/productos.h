@@ -1,7 +1,7 @@
 #ifndef _PRODUCTOS_H_
 #define _PRODUCTOS_H_
 
-#include "clientes.h"   // MACRO ID
+#include "clientes.h"
 #include "categorias.h"
 #include "adminprov.h"
 
@@ -24,11 +24,17 @@ typedef struct{
 
 //Precondición: nada
 //Postcondición: devuelve el listado de productos
-void consultaProductoscli();
+void consultaProductosCli();
+
+//Precondicion: nada
+//Postcondicion: devuelve el numero de productos que hay en el fichero Productos.txt
+unsigned numProd();
 
 //Precondicion: nada
 //Postcondicion: 
 void consultaProdAdmin();
+
+void cargarProductos(tProductos *prod);
 
 void cambio(char *temp);
 
@@ -38,11 +44,7 @@ void cambio(char *temp);
 
 //Precondicion: nada
 //Postcondicion: devuelve la informacion sobre un producto referenciado
-static void buscarNombreProd();
-
-//Precondicion: nada
-//Postcondicion: devuelve el numero de productos que hay en el fichero Productos.txt
-static unsigned numProd();
+char* buscarNombreProd(char *idProd, int *encontrado);
 
 //Precondicion: recibe una cadena de caracteres
 //Postcondicion: devuelve esa cadena de caracteres vacia
@@ -50,7 +52,7 @@ static void vaciar(char temp[]);
 
 //Precondicion: recibe una estructura tipo productos
 //Postcondicion: si encuentra el producto te da su informacion
-static void productoEncontrado(tProductos prod);
+static int productoEncontrado(tProductos prod);
 
 //Precondicion: recibe una línea del fichero, el delimitador entre los datos y una estructura tipo productos
 //Postcondicion: devuelve la estructura con los datos de la linea del fichero
@@ -83,5 +85,9 @@ static void getStock(int *stock);
 static void getEntrega(int *entrega);
 
 static void getImporte(double *importe);
+
+static void guardarNuevoProducto(char *destino, tProductos Nprod);
+
+static void darBajaProd();
 
 #endif
