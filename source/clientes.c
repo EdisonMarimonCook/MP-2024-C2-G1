@@ -716,7 +716,7 @@ static void buscarConTextoClientes(BusquedaClientes tipo){
     }
 }
 
-static void modificarFicheroClientes(tCliente clienteMod){
+void modificarFicheroClientes(tCliente clienteMod){
     FILE *pf, *temp;
     char buffer[MAX_LIN_FICH_CLI];
     char *fich = "../datos/Clientes.txt";

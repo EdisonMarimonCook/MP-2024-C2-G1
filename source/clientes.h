@@ -132,7 +132,7 @@ static void buscarConTextoClientes(BusquedaClientes tipo);
 
 // Precondición: recibe una variable de tipo tCliente
 // Postcondición: inserta en Clientes.txt los nuevos datos de clienteMod
-static void modificarFicheroClientes(tCliente clienteMod);
+void modificarFicheroClientes(tCliente clienteMod);
 
 // Precondición: recibe dos parámetros tipo tCliente
 // Postcondición: devuelve 1 si nuevo = original y 0 en caso contrario

@@ -208,6 +208,7 @@ char* buscarNombreProd(char *idProd, int *encontrado){
     fflush(stdin);
 
     do{
+        op = 0;
         aux = 0;        //Para que en cada iteracion vuelva a tomar el valor 0 y no nos de un falso encontrado
         system ("cls");
         printf("Buscar productos: ");
@@ -248,26 +249,25 @@ char* buscarNombreProd(char *idProd, int *encontrado){
 
         if (aux != 1){
             fprintf (stderr, "Lo sentimos, no tenemos disponible el producto buscado.\n");
+            do{
+                printf ("Desea seguir buscando productos?\n");
+                printf ("(1) Si\n(2) No\n");
+                printf ("Elige opcion: ");
+                
+                if (scanf ("%d", &op) != 1){
+                    fprintf(stderr, "Opcion no contemplada. Pruebe de nuevo.\n");
+                    system("pause");
+                }
+                
+                fflush(stdin);
+
+                system ("cls");
+
+            }while (op < 1 || op > 2);
         }
 
         system ("pause");
         system ("cls");
-
-        do{
-            printf ("Desea seguir buscando productos?\n");
-            printf ("(1) Si\n(2) No\n");
-            printf ("Elige opcion: ");
-            
-            if (scanf ("%d", &op) != 1){
-                fprintf(stderr, "Opcion no contemplada. Pruebe de nuevo.\n");
-                system("pause");
-            }
-            
-            fflush(stdin);
-
-            system ("cls");
-
-        }while (op < 1 || op > 2);
 
         rewind(f_productos);    //Devuelve el puntero al inicio del fichero
 
@@ -297,7 +297,7 @@ unsigned numProd(){
 
     // Hasta que no se llegue al fin de fichero, contamos linea a linea
     while(!feof(f_productos)){
-        fgets(buffer, MAX_LIN_FICH_CLI, f_productos);
+        fgets(buffer, MAX_LIN_FICH_PROD, f_productos);
         cont++;
     }
 
@@ -312,7 +312,7 @@ unsigned numProd(){
     return cont;
 }
 
-static void vaciar(char temp[]){
+void vaciar(char temp[]){
     int i = 0;
 
     while (i < MAX_LIN_FICH_PROD){
@@ -396,7 +396,7 @@ void consultaProdAdmin(){
             case 3: darBajaProd(); break;
             case 4: buscarNombreProd(idProd, &encontrado); break;
             case 5: buscarCatProd(); break;
-            case 6: break;
+            case 6: modProdAdmin(); break;
             default: fprintf(stderr, "Opcion no contemplada"); break;
             }
         }
@@ -437,7 +437,6 @@ static void infoProdAdmin(){
 
     for(i = 0; i < num; i++){   // Recorremos el vector
         // Cogemos línea por línea, ya que sabemos que MAX_LIN_FICH_PROD es el máximo que ocupara cada línea de Productos.txt
-        // Tras recoger una línea completa, eliminamos el \n y lo transformamos por un \0, y dicha cadena la metemos en los campos de infoper gracias a sscanf.
         if(fgets(temp, MAX_LIN_FICH_PROD, f_productos) != NULL){
             
             cambio(temp);                      // Quito el salto de linea del \n y meto un \0
@@ -472,7 +471,7 @@ static void darAltaProd(){
 
     fflush(stdin);
 
-    //guardarNuevoProducto("../datos/Productos.txt", NuevoProd);
+    guardarNuevoProducto("../datos/Productos.txt", NuevoProd);
 
     printf("Producto guardado con exito!.\n");
     system("pause");
@@ -480,11 +479,227 @@ static void darAltaProd(){
 }
 
 static void darBajaProd(){
-    
+    system ("cls");
+
+    int idNum;
+    unsigned num = numProd();
+
+    tProductos *Productos;
+
+    Productos = (tProductos*)malloc(num*sizeof(tProductos));
+    cargarProductos(Productos);
+
+    do{
+        imprimirProductos();
+
+        printf("\n\nIndique la ID del transportista a eliminar (formato 1, 2, ...): ");
+        if (scanf("%d", &idNum) != 1 || idNum <= 0){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida.\n");
+        }else{
+            if(idNum > num)
+                printf("No existe usuario con ID: %d.", idNum);
+            else{
+                idNum--;
+                // eliminar producto de idNum y reemplazar posiciones
+                for(; idNum < num-1; idNum++){
+                    Productos[idNum] = Productos[idNum+1];      // reemplazamos
+                    generarID(Productos[idNum].id_prod, idNum, ID-1);
+                }
+
+                recrearFicheroProductos(Productos, num-1);
+            }
+        }
+
+        do{
+            printf("Desea eliminar otro producto?\n");
+            printf("(1) Si\n(2) No");
+
+            if(scanf("%d", &idNum) != 1){
+                system("cls");
+                fflush(stdin);
+                fprintf(stderr, "Entrada no valida.\n\n");
+            }
+        }while(idNum != 1 && idNum != 2);   
+    }while(idNum == 1);
+
+    free(Productos);
+}
+
+static void imprimirProductos(){
+    FILE *fp;
+
+    fp = fopen("../datos/Productos.txt", "r");
+
+    if(fp == NULL){
+        fprintf(stderr, "Error en la apertura de ficheros.\n");
+        exit(1);
+    }
+
+    char temp[MAX_LIN_FICH_PROD];
+
+    printf("\tListado de Productos:\n\n");
+
+    while(fgets(temp, MAX_LIN_FICH_PROD, fp) != NULL)
+    printf("%s", temp);
+
+    fclose(fp);
 }
 
 static void modProdAdmin(){
-    
+    system("cls");
+
+    int idNum;
+    unsigned num = numProd();
+    tProductos original;
+    tProductos *Productos;
+
+    Productos = (tProductos*)malloc(num*sizeof(tProductos));
+
+    if(Productos == NULL){
+        fprintf(stderr, "Error al asignar memoria.\n");
+        exit(1);
+    }
+    cargarProductos(Productos);
+
+    do{
+        imprimirProductos();
+
+        printf("\n\nIndique la ID del producto a modificar (formato 1, 2, 3...): ");
+
+        if(scanf("%d", &idNum) != 1 || idNum <= 0){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida.\n\n");
+        }else{
+            // Si la ID introducida es mayor al numero de productos en el sistema entonces no existe
+            if(idNum > num){
+                printf("No existe un producto con ID: %d.\n", idNum);
+            }else{
+                idNum--;
+
+                original = Productos[idNum];
+
+                printf("\nDatos del producto buscado: ");
+                printf("%s-%s-%s-%s-%d-%d-%lf", Productos[idNum].id_prod, Productos[idNum].descrip, Productos[idNum].id_categ,
+                                                Productos[idNum].id_gestor, Productos[idNum].stock, Productos[idNum].entrega,
+                                                Productos[idNum].importe);
+
+                int op;
+
+                do{
+                    printf("\nOpciones de modificacion (PRODUCTOS): \n\n");
+                    printf("1. Modificar descripcion.\n");
+                    printf("2. Modificar categoria.\n");
+                    printf("3. Modificar gestor.\n");
+                    printf("4. Modificar stock.\n");
+                    printf("5. Modificar entrega.\n");
+                    printf("6. Modificar importe.\n");
+                    printf("7. Volver.\n");
+                    printf("Elige opcion: ");
+
+                    if(scanf("%d", &op) != 1 || op < 1 || op > 6){
+                        system("cls");
+                        fflush(stdin);
+                        fprintf(stderr, "Entrada no valida.\n\n");
+                    }else{
+                        switch(op){
+                            case 1: getDescripcion(Productos[idNum].descrip); break;
+                            case 2: getIDcateg(Productos[idNum].id_categ); break;
+                            case 3: getIDgestor(Productos[idNum].id_gestor); break;
+                            case 4: getStock(&Productos[idNum].stock); break;
+                            case 5: getEntrega(&Productos[idNum].entrega); break;
+                            case 6: getImporte(&Productos[idNum].importe); break;
+                            case 7: break;
+                            default: fprintf(stderr, "Opcion no contemplada.\n"); exit(1);
+                        }
+
+                        system("cls");
+                    }
+
+                }while(op < 1 || op > 7);
+
+            }
+
+            // si se ha producido algun cambio, es necesario modificar Productos.txt
+            if(existeCambiosProductos(Productos[idNum], original) && idNum <= num){
+                modificarFicheroProductos(Productos[idNum]);
+                printf("Producto modificado.\n");
+            }
+        }
+
+        printf("\nDesea buscar otro producto?\n");
+        printf("(1) Si.\n");
+        printf("(2) No.\n");
+        printf("Elige opcion: ");
+
+        if(scanf("%d", &idNum) != 1){
+            system("cls");
+            fflush(stdin);
+            fprintf(stderr, "Entrada no valida");
+        }
+
+    }while(idNum == 1);
+
+    free(Productos);
+}
+
+static int existeCambiosProductos(tProductos nuevo, tProductos original){
+    int boole = 1;
+
+    if(nuevo.descrip == original.descrip && nuevo.id_categ == original.id_categ && nuevo.id_gestor == original.id_gestor
+       && nuevo.stock == original.stock && nuevo.entrega == original.entrega && nuevo.importe == original.importe)
+       boole = 0;
+
+    return boole;
+}
+
+static void modificarFicheroProductos(tProductos productoMod){
+    FILE *fp, *temp;
+    char buffer[MAX_LIN_FICH_PROD];
+    char *fich = "../datos/Productos.txt";
+    char *fichTemp = "../datos/Temp-Productos.txt";
+
+    fp = fopen(fich, "r");
+    temp = fopen(fichTemp, "w");
+
+    if(fp == NULL || temp == NULL){
+        fprintf(stderr, "Error en la apertura del fichero.\n");
+        exit(1);
+    }
+
+    // Buscar la ID en el fichero y cambiar la linea por los datos de productoMod
+    while(fgets(buffer, MAX_LIN_FICH_PROD, fp) != NULL){
+        char idFich[ID];
+
+        strncpy(idFich, buffer, ID);          // En id se almacena los 8 primeros caracteres de cada linea
+
+        // En temp se guardara el fichero modificado
+
+        if(strncmp(idFich, productoMod.id_prod, ID) == 0){
+            // si se añade una linea de mas al final del fichero, tendremos problemas con el numProd
+            if(numProd() == atoi(idFich))
+                fprintf(temp, "%s-%s-%s-%s-%d-%d-%lf", productoMod.id_prod, productoMod.descrip, productoMod.id_categ,
+                                                       productoMod.id_gestor, productoMod.stock, productoMod.entrega,
+                                                       productoMod.importe);
+
+            else
+                fprintf(temp, "%s-%s-%s-%s-%d-%d-%lf\n", productoMod.id_prod, productoMod.descrip, productoMod.id_categ,
+                                                       productoMod.id_gestor, productoMod.stock, productoMod.entrega,
+                                                       productoMod.importe);        
+        }else
+            fprintf(temp, "%s", buffer);
+    }
+
+    // cerramos ficheros
+
+    fclose(fp);
+    fclose(temp);
+
+    // Tenemos que renombrar temp y eliminar fp
+    remove(fich);
+    rename(fichTemp, fich);
 }
 
 static void getDescripcion(char *descripcion){
@@ -640,7 +855,7 @@ static void getIDgestor(char *idNProd){
             aux = 2;                // Para que no entre en el bucle
         }
 
-        // Limpiar el búfer de entrada
+        // Limpiar el búfer de entrada  
         while ((c = getchar()) != '\n' && c != EOF);            // Si no se hace esto hay fallos en el programa
 
         for(i = 0; i < num && aux == 0; i++){
@@ -794,13 +1009,12 @@ void cargarProductos(tProductos *prod){
             exit(1);
         }
 
-        for(i = 0; i < numProd(); ++i){   // Recorremos el vector
+        for(i = 0; i < numProd(); i++){   // Recorremos el vector
             // Cogemos línea por línea, ya que sabemos que MAX_LIN_FICH_PROD es el máximo que ocupara cada línea de Productos.txt
-            // Tras recoger una línea completa, eliminamos el \n y lo transformamos por un \0, y dicha cadena la metemos en los campos de infoper gracias a sscanf.
             if(fgets(temp, MAX_LIN_FICH_PROD, fp) != NULL){
                 cambio(temp);
-                sscanf(temp, "%[^-]-%[^-]-%[^-]-%[^-]-%[^-]-%[^-]", prod[i].id_prod, prod[i].descrip, prod[i].id_categ,
-                                                                      prod[i].id_gestor, prod[i].stock, prod[i].entrega, prod[i].importe);
+                sscanf(temp, "%[^-]-%[^-]-%[^-]-%[^-]-%i-%i-%lf", prod[i].id_prod, prod[i].descrip, prod[i].id_categ,
+                                                                        prod[i].id_gestor, &prod[i].stock, &prod[i].entrega, &prod[i].importe);
             }
         }
 
@@ -812,4 +1026,56 @@ void cargarProductos(tProductos *prod){
 void cambio(char *temp){
     if (temp[strlen(temp) - 1] == '\n') // Ver si hay un salto de linea al final y reemplazarla con '\0'
         temp[strlen(temp) - 1] = '\0';
+}
+
+static void guardarNuevoProducto(char *destino, tProductos datos){
+    FILE *fp;
+
+    fp = fopen(destino, "a");   // append
+
+    if(fp == NULL){
+        fprintf(stderr, "Error en la apertura de archivos.\n");
+        exit(1);
+    }
+    
+    fprintf(fp, "\n%s-%s-%s-%s-%d-%d-%lf", datos.id_prod, datos.descrip, datos.id_categ,
+                                       datos.id_gestor, datos.stock, datos.entrega, datos.importe);
+
+    fclose(fp);
+}
+
+static void recrearFicheroProductos(tProductos *productos, unsigned numProd){
+    FILE *fp, *temp;
+    char *fich = "../datos/Productos.txt";
+    char *fichTemp = "../datos/Temp-Productos.txt";
+
+    fp = fopen(fich, "r");
+    temp = fopen(fichTemp, "w");
+
+    if (fp == NULL || temp == NULL){
+        fprintf(stderr, "Error en la apertura del fichero.\n");
+        exit(1);
+    }
+
+    int i;
+
+    for(i = 0; i < numProd; i++){
+        if (i+1 == numProd)
+            fprintf(temp, "%s-%s-%s-%s-%d-%d-%lf", productos[i].id_prod, productos[i].descrip, productos[i].id_categ,
+                                                   productos[i].id_gestor, productos[i].stock, productos[i].entrega,
+                                                    productos[i].importe);
+        else
+            fprintf(temp, "%s-%s-%s-%s-%d-%d-%lf\n", productos[i].id_prod, productos[i].descrip, productos[i].id_categ,
+                                                   productos[i].id_gestor, productos[i].stock, productos[i].entrega,
+                                                    productos[i].importe);
+    }
+
+    // cerramos ficheros
+    fclose(fp);
+    fclose(temp);
+
+    // Tenemos que renombrar temp y eliminar fp
+
+    remove(fich);
+    rename(fichTemp, fich); // fichTemp pasa a ser fich
 }

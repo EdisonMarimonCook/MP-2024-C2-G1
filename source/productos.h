@@ -7,16 +7,16 @@
 
 #define DES 51
 #define ID_PROD 5
-#define MAX_LIN_FICH_PROD 85
+#define MAX_LIN_FICH_PROD 75
 
 typedef struct{
     char id_prod[ID];           // 8 bytes
     char descrip[DES];          // 51 bytes
     char id_categ[ID_PROD];     // 5 bytes
     char id_gestor[ID_PROD];    // 5 bytes
-    int stock;                  // 4 bytes
-    int entrega;                // 4 bytes
-    double importe;             // 8 bytes          TOTAL = 85 BYTES
+    int stock;                  
+    int entrega;                
+    double importe;             
 }tProductos;
 
 
@@ -38,6 +38,10 @@ void cargarProductos(tProductos *prod);
 
 void cambio(char *temp);
 
+//Precondicion: recibe una cadena de caracteres
+//Postcondicion: devuelve esa cadena de caracteres vacia
+void vaciar(char temp[]);
+
 
 
 /*  FUNCIONES PRIVADAS  */
@@ -45,10 +49,6 @@ void cambio(char *temp);
 //Precondicion: nada
 //Postcondicion: devuelve la informacion sobre un producto referenciado
 char* buscarNombreProd(char *idProd, int *encontrado);
-
-//Precondicion: recibe una cadena de caracteres
-//Postcondicion: devuelve esa cadena de caracteres vacia
-static void vaciar(char temp[]);
 
 //Precondicion: recibe una estructura tipo productos
 //Postcondicion: si encuentra el producto te da su informacion
@@ -89,5 +89,15 @@ static void getImporte(double *importe);
 static void guardarNuevoProducto(char *destino, tProductos Nprod);
 
 static void darBajaProd();
+
+static void guardarNuevoProducto(char *destino, tProductos datos);
+
+static void imprimirProductos();
+
+static void guardarNuevoProducto(char *destino, tProductos datos);
+
+static int existeCambiosProductos(tProductos nuevo, tProductos original);
+
+static void modificarFicheroProductos(tProductos productoMod);
 
 #endif
