@@ -17,6 +17,8 @@ typedef struct{
 }descuentosClientes;
 
 void menuDescuentosCliente();
+float obtenerDescuento(const char *id_cliente, const char *id_cod);
+
 static void consultarDescuentos(const char *id_cliente, descuentosClientes descuentos[], int num_descuentos);
 
 #endif

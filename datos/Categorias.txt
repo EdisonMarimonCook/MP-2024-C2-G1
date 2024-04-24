@@ -1,4 +1,3 @@
 0001-Nueva categoría
-0003-buenas tardes weonasos
-0004-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-0005-lesgoo funciona
+0002-electrodomesticos
+0004-videojuegos
