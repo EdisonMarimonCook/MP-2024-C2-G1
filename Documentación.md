@@ -329,12 +329,54 @@ $\text{Ruta 2}: 1-2-5$
 ###### III. **Módulo Productos**
 
 ***Pruebas de Caja Blanca***
-***
-***
+* Función sometida a las pruebas de ruta básica
+  * *static int lenCategoriasstatic int productoEncontrado(tProductos prod);*
+
+```C
+static int productoEncontrado(tProductos prod){
+    int aux;
+
+    if(prod.stock == 0){
+        fprintf (stderr, "No hay stock temporalmente del producto %s.\n", prod.descrip);
+        aux = 1;
+    }else{
+        printf ("Del producto %s se encuentran %d unidades en stock con un importe cada una de %.2lf euros.\n", prod.descrip, prod.stock, prod.importe);
+    }
+
+    return aux;
+}
+```
+
+* Diagramaa control de flujo:
+
+[Diagrama control de flujo por Carlos Barrera Guriérrez]
+
+![alt text](image-2.png)
+
+* Cálculo de Complejidad ciclomática 
+
+$V(G) = NA – NN + 2 = 5 – 5 + 2 = 0 + 2 = 2$
+
+$V(G) = NNP + 1 = 1 + 1 = 2$
+
+$V(G) =  \text{número de regiones} (R1+R2)= 2$
+
+* Rutas básicas linealmente independientes:
+
+$\text{Ruta 1}: 1-3-4-5$
+
+$\text{Ruta 2}: 1-2-5$
+
+* Casos de Prueba:
+1. Prueba para cuando producto esta en stock: 
+- printf ("Del producto %s se encuentran %d unidades en stock con un importe cada una de %.2lf euros.\n", prod.descrip, prod.stock, prod.importe);
+2. Prueba para cuando el prod no esta en stock:
+   - fprintf (stderr, "No hay stock temporalmente del producto %s.\n", prod.descrip);
+        aux = 1;
+3. Devuelve aux = 1 o aux = 0 si el producto se encuentra en stock o no.
+   - Salida esperada: devuelve aux.
 
 ###### IV. **Módulo Lockers**
-
-***Datos de Prueba***
 
 
 ***Pruebas de Caja Blanca***
