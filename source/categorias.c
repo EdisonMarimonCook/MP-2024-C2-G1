@@ -3,15 +3,11 @@
 #include <string.h>     //stcpy, sscanf
 #include "categorias.h"
 
-void mainCategorias();
-unsigned lenCategorias();
-static void realizarBaja();
-static void realizarAlta(char id_actual[]);
-static void modificarCategoria();
-
 unsigned lenCategorias(){
 
     unsigned numCat = 0;
+
+    char linefich[MAX_LIN_FICH_CATEG];
 
     FILE *fich = fopen("../datos/Categorias.txt", "r");
     if(fich == NULL){
@@ -20,6 +16,7 @@ unsigned lenCategorias(){
     }
 
     while(!feof(fich)){
+        fgets(linefich, MAX_LIN_FICH_CATEG, fich);
         numCat++;
     }
 
@@ -31,22 +28,35 @@ unsigned lenCategorias(){
 
 static void modificarCategoria() {
 
-    char idCategoria[5]; 
-    char nuevaDescrip[50];
+    char idCategoria[MAX_ID_CATEG]; 
+    char nuevaDescrip[MAX_DESC_CATEG];
+    int a;
 
-    printf("Escriba el ID de la categoria a modificar: ");
-    scanf("%s", idCategoria);
-    while (getchar() != '\n');
+    fflush(stdin);
+
+    do{
+        printf("Escriba el ID de la categoria a modificar: ");
+        //fgets(idCategoria, MAX_ID_CATEG, stdin);
+        //idCategoria[strcspn(idCategoria, "\n")] = '\0';
+        scanf(" %4s", idCategoria);
+
+        a = atoi(idCategoria);
+    }while(a == 0);
 
     printf("Escriba la nueva descripcion para la categoria: ");
-    scanf("%s", nuevaDescrip);
+    //fgets(nuevaDescrip, MAX_DESC_CATEG, stdin);
+    //nuevaDescrip[strcspn(nuevaDescrip, "\n")] = '\0';
+    scanf(" %50[^\n]", nuevaDescrip);   //
+
+    printf("ID de la categoria a modificar: %s\n", idCategoria);
+    printf("Nueva descripción: %s\n", nuevaDescrip);
 
     FILE *archivoOriginal, *archivoTemporal;
-    char id[5];
-    char descrip[51];
+    char id[MAX_ID_CATEG];
+    char descrip[MAX_DESC_CATEG];
     int encontrado = 0;
 
-    descrip[51] = '\0';
+    descrip[MAX_DESC_CATEG] = '\0';
 
     archivoOriginal = fopen("../datos/Categorias.txt", "r");
     if (archivoOriginal == NULL) {
@@ -89,14 +99,22 @@ static void realizarAlta(char id_actual[]) {
         exit(1);
     }
 
+    fflush(stdin);
+
     Categorias nueva_categoria;
 
     strcpy(nueva_categoria.Id_categ, id_actual);
 
+    for(int i = 0; i < MAX_DESC_CATEG; i++){
+        nueva_categoria.Descrip[i] = '\0';
+    }
+
     printf("Ingrese la descripción de la nueva categoría (máximo 50 caracteres): ");
 
-    fgets(nueva_categoria.Descrip, sizeof(nueva_categoria.Descrip), stdin);
-    nueva_categoria.Descrip[strcspn(nueva_categoria.Descrip, "\n")] = '\0'; // Eliminar el carácter de nueva línea
+    fgets(nueva_categoria.Descrip, MAX_DESC_CATEG, stdin);
+    while(getchar() != '\n');
+
+    printf("%s", nueva_categoria.Descrip);
 
     fprintf(fichero, "%s-%s\n", nueva_categoria.Id_categ, nueva_categoria.Descrip);
 
@@ -106,15 +124,16 @@ static void realizarAlta(char id_actual[]) {
 }
 
 static void realizarBaja() {
-    char id_baja[5];
+    char id_baja[MAX_ID_CATEG];
     int encontrado = 0;
+    int a;
 
-    printf("Ingrese el ID de la categoría que desea dar de baja: ");
-    fgets(id_baja, 4, stdin);
-    if (id_baja[strlen(id_baja) - 1] == '\n') 
-        id_baja[strlen(id_baja) - 1] = '\0';
-    scanf("%s", id_baja);
-    while (getchar() != '\n');
+    do{
+        printf("Ingrese el ID de la categoría que desea dar de baja: ");
+        scanf(" %4s", id_baja);
+        a = atoi(id_baja);
+
+    }while(a == 0);
 
     FILE *fichero_entrada = fopen("../datos/Categorias.txt", "r");
     if (fichero_entrada == NULL) {
@@ -131,7 +150,8 @@ static void realizarBaja() {
 
     Categorias categoria;
 
-    while (fscanf(fichero_entrada, "%4s-%50[^\n]", categoria.Id_categ, categoria.Descrip) == 2) {
+    while (fscanf(fichero_entrada, "%4s-%[^\n]", categoria.Id_categ, categoria.Descrip) == 2) {
+        printf("%s", categoria.Id_categ);
         if (strcmp(categoria.Id_categ, id_baja) != 0) {
             fprintf(fichero_salida, "%s-%s\n", categoria.Id_categ, categoria.Descrip);
         }else{
@@ -143,6 +163,7 @@ static void realizarBaja() {
         printf("No se ha encontrado la ID ingresada.\n");
         fclose(fichero_salida);
         fclose(fichero_entrada);
+        remove("../datos/Categorias_temp.txt");
         return;
     }
 
@@ -173,12 +194,15 @@ void mainCategorias(){
         strcpy(id_actual, "0001");
         id_numerica = 1;
 
-    }else{  
-        while (fgets(linea, sizeof(linea), fichero)){
+    }else{
+        while (fgets(linea, sizeof(linea), fichero)){   //hacer sscanf
             id_numerica = atoi(id_actual);  
             id_numerica++;
 
             sprintf(id_actual, "%04d", id_numerica);
+
+            printf("id actual: %s\n", id_actual);
+            printf("id numerica: %d\n", id_numerica);
         }
     }
 
@@ -220,23 +244,6 @@ void mainCategorias(){
             }
         }
     }while(op < 1 || op > 3);
-    scanf("%d", &op);
-    while (getchar() != '\n');
-
-    if(op < 1 || op > 3){
-        printf("Escriba un numero entre 1 y 3.\n");
-        system("cls");
-        mainCategorias();
-    }
-
-    switch(op){
-        case 1: realizarAlta(id_actual); break;
-
-        case 2: realizarBaja(); break;
-
-        case 3: modificarCategoria(); break;
-    }
     
     fclose(fichero);
 }
-
