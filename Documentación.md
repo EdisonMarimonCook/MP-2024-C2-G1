@@ -78,6 +78,21 @@ ESIZON cuenta con exigencias mínimas de prestaciones de equipo, de manera que p
 * 512MB de RAM libres.
 * 100MB de espacio libre en memoria.
 
+Para ello hay que entrar en el directorio source, compilar el programa con el compilador de C que prefiera y ejecutarlo.
+
+En el siguiente ejemplo utilizaremos el compilador GCC:
+```
+gcc adminprov.c categorias.c clientes.c descuentos.c descuentosClientes.c main.c pedidos.c productos.c transportista.c usuarios.c -o esizon
+```
+Y ejecutamos con si se esta utilizando linux:
+```
+./esizon
+```
+O así si estamos utilizando windows:
+```
+.\esizon
+```
+
 #### 2.4 **Acceso al Sistema**
 
 El acceso a ESIZON es realizado a través de una ventana de Log-In similar a muchas otras aplicaciones. El usuario, ya sea cliente, administrador, transportista o proveedor podrá entrar al sistema mediante el inicio de sesión, en caso contrario puede registrarse, el registro solo puede ser de para usuarios de tipo cliente.
