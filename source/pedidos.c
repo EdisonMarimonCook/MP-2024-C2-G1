@@ -98,9 +98,6 @@ static void infoPedAdmin(){
 
     fflush(stdin);
 
-    printf("Se ejecuta?.\n");
-    system("pause");
-
     for(i = 0; i < num; i++){   //Recorremos el vector
         //Cogemos línea por línea, ya que sabemos que MAX_LIN_FICH_PED es el máximo que ocupara cada línea de Pedidos.txt
         if(fgets(temp, MAX_LIN_FICH_PED, fPedidos) != NULL){
@@ -125,6 +122,8 @@ static void AltaPedidoAdmin(tAdminProv admin){
     unsigned num = numPedidos();
     int aux = 0, op, reparto;
     char *entrega, temp[DES], *cod, idtemp[ID];
+
+    printf("num pedidos: %u", num);
 
     tPedidos NuevoPedido;
 
@@ -184,7 +183,7 @@ static void AltaPedidoAdmin(tAdminProv admin){
         fflush(stdin);
     }while(strlen(idtemp) != ID-1);
 
-    generarID(NuevoPedido.id_pedido, num, ID-1);
+    generarID(NuevoPedido.id_pedido, num+1, ID-1);
     generarFecha(NuevoPedido.fecha, reparto);
     strcpy(NuevoPedido.id_cliente, idtemp);
 
@@ -508,9 +507,9 @@ static void recrearFicheroPedidos(tPedidos *pedidos, unsigned numPedidos){
 }
 
 static void realizarPedido(tCliente *cliente){
-    char idProd[ID], *cod, temp[DES];
+    char idProd[ID], cod[MAX_ID_COD], temp[DES];
     int id, encontrado = 0, op;
-    float descuento = 0.0;
+    double descuento;
 
     tProductos *Productos;
 
@@ -525,6 +524,9 @@ static void realizarPedido(tCliente *cliente){
         id = atof(idProd);          // Para que la id (0001) p.e se convierta en 1
 
         printf("Pulse 1 si quieres aplicar un codigo promocional o cheque regalo: ");
+        
+        fflush(stdin);
+
         if(scanf("%d", &op) != 1){
             fprintf(stderr, "Formato no valido.\n");
             exit(1);
@@ -532,28 +534,19 @@ static void realizarPedido(tCliente *cliente){
 
         if(op == 1){
             printf("Introduce el codigo: ");
-            fgets(temp, DES, stdin);
-            cambio(temp);
             fflush(stdin);
-
-            cod = (char*)malloc(strlen(temp)+1*sizeof(char));
-
-            if(cod == NULL){
-                fprintf(stderr, "No se ha podido asignar memoria.\n");
-                exit(1);
-            }
-
-            strcpy(cod, temp);
+            fgets(cod, MAX_ID_COD, stdin);
+            cambio(cod);
+            fflush(stdin);
         }
 
-        //descuento = obtenerDescuento(cliente->Id_cliente, cod);       //NO FUNCIONA LA FUNCION
+        descuento = obtenerDescuento(cliente->Id_cliente, cod);       //NO FUNCIONA LA FUNCION
         // Si el descuento que el cliente ha introducido esta activo me devuelve la cantidad del descuento
         // en otro caso, me devuelve 0.
 
         printf("Descuento aplicado de %f euros.\n", descuento);
 
         Productos[id].importe = Productos[id].importe - descuento;
-
         cliente->Cartera = cliente->Cartera - Productos[id].importe;
 
         if(cliente->Cartera < 0){
@@ -562,20 +555,15 @@ static void realizarPedido(tCliente *cliente){
             Productos[id].stock = Productos[id].stock - 1;
             recrearFicheroProductos(Productos, numProd());
             modificarFicheroClientes(*cliente);
-            printf("Llega aqui? SI\n");
-            system("pause");
-
-            darAltaPedido(*cliente, Productos[id].entrega, cod);
-            printf("Pedido realizado con exito.\n");
+            darAltaPedido(*cliente, Productos[id].entrega, cod, numPedidos());
         }
 
     }
+
     free(Productos);
-    free(cod);
 
     system("pause");
     system("cls");
-
 }
 
 unsigned numPedidos(){
@@ -589,33 +577,23 @@ unsigned numPedidos(){
         exit(1);
     }
 
-    vaciar(buffer);
+    //vaciar(buffer);
 
     // Hasta que no se llegue al fin de fichero, contamos linea a linea
     while(!feof(f_pedidos)){
         fgets(buffer, MAX_LIN_FICH_CLI, f_pedidos);
         cont++;
-    }
-
-    if (fseek(f_pedidos, 0, SEEK_END) != 0){          //Puntero al principio del fichero
-        fprintf(stderr, "Ha ocurrido un error en el fichero.\n");
-        exit(1);
-    }
-    fputs("\n", f_pedidos);                           
+    }                      
 
     fclose(f_pedidos);
 
     return cont;
 }
 
-static void darAltaPedido(tCliente Cliente, int reparto, char *cod){
+static void darAltaPedido(tCliente Cliente, int reparto, char *cod, unsigned numPedidos){
     system("cls");
-    unsigned num = numPedidos();
     int aux = 0, op;
-    char *entrega;
-
-    printf("LLega aqui? NO LLEGA.\n");
-    system("pause");
+    char entrega[LOCKER];
 
     tPedidos NuevoPedido;
 
@@ -624,13 +602,15 @@ static void darAltaPedido(tCliente Cliente, int reparto, char *cod){
         printf("(1) Domicilio.\n");
         printf("(2) Locker.\n");
         printf("Elige opcion: ");
+
         if((scanf("%d", &op) != 1) || (op < 1 || op > 2)){
             fprintf(stderr, "Opcion no contemplada, pruebe de nuevo.\n");
             aux = 1;
             system("pause");
             system("cls");
         }
-    }while(aux == 1);
+    } while(aux == 1);
+
     fflush(stdin);
 
     if(op != 1)
@@ -638,29 +618,25 @@ static void darAltaPedido(tCliente Cliente, int reparto, char *cod){
     else
         strcpy(entrega, "Domicilio");
 
-    system("pause");
-
-    generarID(NuevoPedido.id_pedido, num, ID-1);
+    generarID(NuevoPedido.id_pedido, numPedidos, ID-1);
     generarFecha(NuevoPedido.fecha, reparto);
     strcpy(NuevoPedido.id_cliente, Cliente.Id_cliente);
     strcpy(NuevoPedido.lugar, entrega);
+
     if(op == 1)
         strcpy(NuevoPedido.id_cod, cod);
     else
-        strcpy(NuevoPedido.id_cod, "\0");
+        strcpy(NuevoPedido.id_cod, '\0');
     
 
     fflush(stdin);
 
     guardarNuevoPedido("../datos/Pedidos.txt", NuevoPedido);
 
-    printf("Pedido realizado con exito!.\n");
+    printf("\nPedido realizado con exito!.\n");
     printf("Este es el identificador de su pedido: %s.\n", NuevoPedido.id_pedido);
     printf("Guardelo para poder realizar el seguimiento de su pedido.\n");
     printf("Una vez que el pedido es entregado el identificador ya no servira.\n");
-    system("pause");
-
-    free(entrega);
 }
 
 static void generarFecha(int *fecha, int reparto){

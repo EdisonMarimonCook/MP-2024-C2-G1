@@ -40,7 +40,7 @@ static void realizarPedido(tCliente *cliente);
 
 //Precondicion: recibe los datos del cliente, numero de dias de entrega y codigo promocional
 //Postcondicion: crea un pedido y lo introduce en Pedidos.txt
-static void darAltaPedido(tCliente Cliente, int reparto, char *cod);
+static void darAltaPedido(tCliente Cliente, int reparto, char *cod, unsigned numPedidos);
 
 //Precondicion: recibe un vector de enteros y el numero de dias de entrega
 //Postcondicion: devuelve la fecha de reparto del pedido

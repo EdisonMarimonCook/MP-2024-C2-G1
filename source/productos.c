@@ -58,9 +58,7 @@ static void buscarCatProd(){
         exit(1);
     }
 
-    num = 1;
-
-    //num = lenCategorias();
+    num = lenCategorias();
 
     Categorias *cat;
 
@@ -293,8 +291,6 @@ unsigned numProd(){
         exit(1);
     }
 
-    vaciar(buffer);
-
     // Hasta que no se llegue al fin de fichero, contamos linea a linea
     while(!feof(f_productos)){
         fgets(buffer, MAX_LIN_FICH_PROD, f_productos);
@@ -495,7 +491,7 @@ static void darBajaProd(){
     do{
         imprimirProductos();
 
-        printf("\n\nIndique la ID del transportista a eliminar (formato 1, 2, ...): ");
+        printf("\n\nIndique la ID del producto a eliminar (formato 1, 2, ...): ");
         if (scanf("%d", &idNum) != 1 || idNum <= 0){
             system("cls");
             fflush(stdin);
