@@ -383,13 +383,15 @@ void consultaProdAdmin(){
         printf ("(4) Buscar producto por nombre.\n");
         printf ("(5) Buscar producto por categoria.\n");
         printf ("(6) Modificar un producto.\n");
+        printf ("(7) Volver.\n");
 
-        if((scanf("%d", &op) != 1) || (op < 1 || op > 6)){
+        if((scanf("%d", &op) != 1) || (op < 1 || op > 7)){
             system("cls");
             fflush(stdin);
             fprintf(stderr, "Opcion no contemplada. Pruebe de nuevo.\n\n");
             system("pause");
         }else{
+            fflush(stdin);
             switch(op){
             case 1: infoProdAdmin(); break;
             case 2: darAltaProd(); break;
@@ -397,12 +399,13 @@ void consultaProdAdmin(){
             case 4: buscarNombreProd(idProd, &encontrado); break;
             case 5: buscarCatProd(); break;
             case 6: modProdAdmin(); break;
+            case 7: break;
             default: fprintf(stderr, "Opcion no contemplada"); break;
             }
         }
 
 
-    }while(op < 1 || op > 6);
+    }while(op < 1 || op > 7);
 }
 
 static void infoProdAdmin(){      
@@ -499,7 +502,7 @@ static void darBajaProd(){
             fprintf(stderr, "Entrada no valida.\n");
         }else{
             if(idNum > num)
-                printf("No existe usuario con ID: %d.", idNum);
+                printf("No existe producto con ID: %d.", idNum);
             else{
                 idNum--;
                 // eliminar producto de idNum y reemplazar posiciones
@@ -514,7 +517,8 @@ static void darBajaProd(){
 
         do{
             printf("Desea eliminar otro producto?\n");
-            printf("(1) Si\n(2) No");
+            printf("(1) Si.\n(2) No.\n");
+            printf("Elige opcion: ");
 
             if(scanf("%d", &idNum) != 1){
                 system("cls");
@@ -533,7 +537,7 @@ static void imprimirProductos(){
     fp = fopen("../datos/Productos.txt", "r");
 
     if(fp == NULL){
-        fprintf(stderr, "Error en la apertura de ficheros.\n");
+        fprintf(stderr, "Error en la apertura de fichero.\n");
         exit(1);
     }
 
@@ -677,7 +681,7 @@ static void modificarFicheroProductos(tProductos productoMod){
 
         // En temp se guardara el fichero modificado
 
-        if(strncmp(idFich, productoMod.id_prod, ID) == 0){
+        if(strncmp(idFich, productoMod.id_prod, ID-1) == 0){
             // si se añade una linea de mas al final del fichero, tendremos problemas con el numProd
             if(numProd() == atoi(idFich))
                 fprintf(temp, "%s-%s-%s-%s-%d-%d-%lf", productoMod.id_prod, productoMod.descrip, productoMod.id_categ,
@@ -999,7 +1003,7 @@ void cargarProductos(tProductos *prod){
     unsigned i;
     char temp[MAX_LIN_FICH_PROD];
 
-    if(numProd() != 0){    // Comprobamos si existe algún usuario en Productos.txt
+    if(numProd() != 0){    // Comprobamos si existe algún producto en Productos.txt
         FILE *fp;
 
         fp = fopen("../datos/Productos.txt", "r");    // Abrimos el fichero en tipo lectura.
@@ -1044,7 +1048,7 @@ static void guardarNuevoProducto(char *destino, tProductos datos){
     fclose(fp);
 }
 
-static void recrearFicheroProductos(tProductos *productos, unsigned numProd){
+void recrearFicheroProductos(tProductos *productos, unsigned numProd){
     FILE *fp, *temp;
     char *fich = "../datos/Productos.txt";
     char *fichTemp = "../datos/Temp-Productos.txt";

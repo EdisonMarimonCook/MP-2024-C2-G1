@@ -9,6 +9,7 @@
 #include "descuentos.h" // menuDescuentos()
 #include "transportista.h"  // infoTransportista()
 #include "productos.h"
+#include "pedidos.h"
 
 /* FUNCIONES PUBLICAS */
 
@@ -45,7 +46,7 @@ void menuAdmin(tAdminProv *admin){
                 case 3: administracionProveedores(); break;
                 case 4: consultaProdAdmin(); break;
                 case 5: mainCategorias(); break;
-                case 6: break;
+                case 6: consultaPedidosAdmin(admin); break;
                 case 7: administracionTransportistas(); break;  // transportistas.h
                 case 8: menuDescuentos(); break;
                 case 9: break;
