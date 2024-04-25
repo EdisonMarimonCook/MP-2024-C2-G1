@@ -18,11 +18,28 @@ typedef struct{
 
 }Descuentos;
 
+/* FUNCIONES PUBLICAS */
+
+// Precondición: nada.
+// Postcondición: proporciona al usuario el menu para los descuentos.
 void menuDescuentos();
 
+/* FUNCIONES PRIVADAS */
+
+// Precondición: recibe un puntero a descuentos, un puntero a entero con el número de descuentos.
+// Postcondición: Agrega un descuento al sistema.
 static void agregarDescuento(Descuentos *descuentos, int *numDescuentos);
+
+// Precondición: recibe un punteor a desceuntos, una variable con el número de descuentos y el nombre del fichero
+// Postcondición: guarda los descuentos en Descuentos.txt
 static void guardarDescuentos(Descuentos *descuentos, int numDescuentos, char *filename);
+
+// Precondición: recibe un puntero a descuentos, un puntero a entero con el número de descuentos y la id.
+// Postcondición: elimina el descuento indicado con los parametros de la precondicion.
 static void eliminarDescuento(Descuentos *descuentos, int *numDescuentos, char *id);
+
+// Precondición: 
+// Postcondición:
 static void mostrarDescuentos(Descuentos *descuentos, int numDescuentos);
 
 #endif

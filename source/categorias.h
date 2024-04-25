@@ -11,11 +11,28 @@ typedef struct{
 
 }Categorias; 
 
+/* FUNCIONES PUBLICAS */
+
+// Precondición: nada.
+// Postcondición: proporciona un menu.
 void mainCategorias();
+
+// Precondición: nada. 
+// Postcondición: devuelve la cantidad de categorías del sistema.
 unsigned lenCategorias();
 
+/* FUNCIONES PRIVADAS */
+
+// Precondición: nada.
+// Postcondición: elimina una categoría especificada en el sistema.
 static void realizarBaja();
-static void realizarAlta(char id_actual[]);
+
+// Precondición: nada.
+// Postcondición: agrega una categoría.
+static void realizarAlta();
+
+// Precondición: nada.
+// Postcondición: modifica una categoria especificada.
 static void modificarCategoria();
 
 #endif

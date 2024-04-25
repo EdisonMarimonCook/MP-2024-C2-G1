@@ -37,7 +37,7 @@ void menuCliente(tCliente *cliente){
             switch(op){
                 case 1: perfilCliente(cliente); break;
                 case 2: consultaProductosCli(); break;
-                case 3: menuDescuentosCliente(); break;
+                case 3: menuDescuentosCliente(cliente->Id_cliente); break;
                 case 4: consultaPedidosCli(cliente); break;
                 case 5: break;
                 case 6: fin = 1; break;
