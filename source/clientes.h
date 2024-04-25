@@ -96,6 +96,10 @@ void administracionClientes();
 // Postcondicion: imprime todos los clientes dados de alta en la plataforma
 void imprimirClientes();
 
+// Precondición: recibe una variable de tipo tCliente
+// Postcondición: inserta en Clientes.txt los nuevos datos de clienteMod
+void modificarFicheroClientes(tCliente clienteMod);
+
 /* FUNCIONES PRIVADAS */
 
 // Precondición: nada.
@@ -129,10 +133,6 @@ static void buscarEnClientes(BusquedaClientes tipo, const char *str, unsigned ta
 // Precondición: se debe proporcionar el tipo de Busqueda
 // Postcondición: realiza la busqueda que proporcione el administrador
 static void buscarConTextoClientes(BusquedaClientes tipo);
-
-// Precondición: recibe una variable de tipo tCliente
-// Postcondición: inserta en Clientes.txt los nuevos datos de clienteMod
-static void modificarFicheroClientes(tCliente clienteMod);
 
 // Precondición: recibe dos parámetros tipo tCliente
 // Postcondición: devuelve 1 si nuevo = original y 0 en caso contrario

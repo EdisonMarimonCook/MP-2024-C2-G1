@@ -1,1 +1,4 @@
-sdaf4-gatos-s-g-5.00-todos
+black001-Black Friday-codpro-activo-10.00-esizon
+che001-cheque regalo nivel 1-cheqreg-activo-5.00-todos
+uca001-Descuento UCA-codpro-activo-43.20-todos
+aud001-Descuento Audi-codpro-activo-43.50-todos

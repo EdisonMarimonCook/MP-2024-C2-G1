@@ -5,8 +5,56 @@
 #include "clientes.h"
 #include "usuarios.h"    // existeEmail(), generar
 #include "productos.h"  // consulta_productos()
+#include "pedidos.h"
+#include "categorias.h"
+#include "descuentosClientes.h" // menuDescuentosCliente
 
 /* FUNCIONES PUBLICAS */
+
+void modificarFicheroClientes(tCliente clienteMod){
+    FILE *pf, *temp;
+    char buffer[MAX_LIN_FICH_CLI];
+    char *fich = "../datos/Clientes.txt";
+    char *fichTemp = "../datos/Temp-Clientes.txt";
+
+    pf = fopen(fich, "r");
+    temp = fopen(fichTemp, "w");
+
+    if(pf == NULL || temp == NULL){
+        fprintf(stderr, "Error en la apertura de ficheros.\n");
+        exit(1);
+    }
+
+    // Buscar la ID en el fichero y cambiar la linea por los datos de clienteMod
+    while(fgets(buffer, MAX_LIN_FICH_CLI, pf) != NULL){
+        char idFich[ID];
+        
+        strncpy(idFich, buffer, ID-1);    // En id se almacena los 7 primeros caracteres de cada linea
+
+        // En temp se guardara el fichero modificado
+        if(strncmp(idFich, clienteMod.Id_cliente, ID-1) == 0){
+            // si se añade una linea de mas al final del fichero, tendremos problemas con el numClientes
+            if(numClientes() == atoi(idFich))
+                fprintf(temp, "%s-%s-%s-%s-%s-%s-%s-%lf", clienteMod.Id_cliente, clienteMod.Nomb_cliente, clienteMod.Dir_cliente,
+                                                            clienteMod.Poblacion, clienteMod.Provincia, clienteMod.email,
+                                                            clienteMod.Contrasenia, clienteMod.Cartera);
+        
+            else
+                fprintf(temp, "%s-%s-%s-%s-%s-%s-%s-%lf\n", clienteMod.Id_cliente, clienteMod.Nomb_cliente, clienteMod.Dir_cliente,
+                                                            clienteMod.Poblacion, clienteMod.Provincia, clienteMod.email,
+                                                            clienteMod.Contrasenia, clienteMod.Cartera);
+        } else
+            fprintf(temp, "%s", buffer);
+    }
+
+    // cerramos ficheros
+    fclose(pf);
+    fclose(temp);
+
+    // Tenemos que renombrar temp y eliminar pf
+    remove(fich);
+    rename(fichTemp, fich); // fichTemp pasa a ser fich
+}
 
 void menuCliente(tCliente *cliente){
     system("cls");
@@ -33,9 +81,9 @@ void menuCliente(tCliente *cliente){
             // Menu Clientes
             switch(op){
                 case 1: perfilCliente(cliente); break;
-                case 2: consulta_Productos(); break;
-                case 3: break;
-                case 4: break;
+                case 2: consultaProductosCli(); break;
+                case 3: menuDescuentosCliente(cliente->Id_cliente); break;
+                case 4: consultaPedidosCli(cliente); break;
                 case 5: break;
                 case 6: fin = 1; break;
                 default: fprintf(stderr, "Se ha producido un error\n"); exit(1);
@@ -712,51 +760,6 @@ static void buscarConTextoClientes(BusquedaClientes tipo){
             break;
         default: fprintf(stderr, "Se ha producido un error inesperado.\n"); exit(1);
     }
-}
-
-static void modificarFicheroClientes(tCliente clienteMod){
-    FILE *pf, *temp;
-    char buffer[MAX_LIN_FICH_CLI];
-    char *fich = "../datos/Clientes.txt";
-    char *fichTemp = "../datos/Temp-Clientes.txt";
-
-    pf = fopen(fich, "r");
-    temp = fopen(fichTemp, "w");
-
-    if(pf == NULL || temp == NULL){
-        fprintf(stderr, "Error en la apertura de ficheros.\n");
-        exit(1);
-    }
-
-    // Buscar la ID en el fichero y cambiar la linea por los datos de clienteMod
-    while(fgets(buffer, MAX_LIN_FICH_CLI, pf) != NULL){
-        char idFich[ID];
-        
-        strncpy(idFich, buffer, ID-1);    // En id se almacena los 7 primeros caracteres de cada linea
-
-        // En temp se guardara el fichero modificado
-        if(strncmp(idFich, clienteMod.Id_cliente, ID-1) == 0){
-            // si se añade una linea de mas al final del fichero, tendremos problemas con el numClientes
-            if(numClientes() == atoi(idFich))
-                fprintf(temp, "%s-%s-%s-%s-%s-%s-%s-%lf", clienteMod.Id_cliente, clienteMod.Nomb_cliente, clienteMod.Dir_cliente,
-                                                            clienteMod.Poblacion, clienteMod.Provincia, clienteMod.email,
-                                                            clienteMod.Contrasenia, clienteMod.Cartera);
-        
-            else
-                fprintf(temp, "%s-%s-%s-%s-%s-%s-%s-%lf\n", clienteMod.Id_cliente, clienteMod.Nomb_cliente, clienteMod.Dir_cliente,
-                                                            clienteMod.Poblacion, clienteMod.Provincia, clienteMod.email,
-                                                            clienteMod.Contrasenia, clienteMod.Cartera);
-        } else
-            fprintf(temp, "%s", buffer);
-    }
-
-    // cerramos ficheros
-    fclose(pf);
-    fclose(temp);
-
-    // Tenemos que renombrar temp y eliminar pf
-    remove(fich);
-    rename(fichTemp, fich); // fichTemp pasa a ser fich
 }
 
 static int existeCambiosClientes(tCliente nuevo, tCliente original){
