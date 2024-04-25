@@ -20,15 +20,12 @@ float obtenerDescuento(const char *id_cliente, const char *id_cod) {
     }
 
     while (fgets(linea, sizeof(linea), fichero_descuentos)) {
-        char id_cod_leido_descuentos[11];
+        char id_cod_leido_descuentos[MAX_ID_COD];
 
         if(sscanf(linea, "%[^-]-%*[^-]-%*[^-]-%[^-]-%f-%*[^\n]", id_cod_leido_descuentos, estado, &importe) != 3)
             printf("Error leyendo fichero_descuentos.\n");
         
-        printf("Descuentos: ID Cod: %s, Estado: %s, Importe: %.2f\n", id_cod_leido_descuentos, estado, importe);
-
         if (strcmp(id_cod, id_cod_leido_descuentos) == 0 && strcmp(estado, "activo") == 0) {
-
             FILE *fichero_clientes;
             char linea_cliente[100];
             char id_cliente_leido[8];
@@ -43,7 +40,6 @@ float obtenerDescuento(const char *id_cliente, const char *id_cod) {
             while (fgets(linea_cliente, sizeof(linea_cliente), fichero_clientes)) {
                 char id_cod_leido_clientes[11];
                 sscanf(linea_cliente, "%[^-]-%[^-]-%*[^-]-%*[^\n]", id_cliente_leido, id_cod_leido_clientes);
-                printf("Clientes: ID Cliente: %s, ID Cod: %s\n", id_cliente_leido, id_cod_leido_clientes);
 
                 if (strcmp(id_cliente, id_cliente_leido) == 0 && strcmp(id_cod, id_cod_leido_clientes) == 0) {
                     descuento_euros = importe;
@@ -56,6 +52,7 @@ float obtenerDescuento(const char *id_cliente, const char *id_cod) {
     }
 
     fclose(fichero_descuentos);
+    system("pause");
     return descuento_euros;
 }
 

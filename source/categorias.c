@@ -74,9 +74,7 @@ void mainCategorias(){
 }
 
 unsigned lenCategorias(){
-
     unsigned numCat = 0;
-
     char linefich[MAX_LIN_FICH_CATEG];
 
     FILE *fich = fopen("../datos/Categorias.txt", "r");
